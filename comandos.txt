@@ -2,3 +2,10 @@ $ lex lexer.l
 $ yacc parser.y -d
 $ gcc lex.yy.c y.tab.c -o parser
 $ ./parser < input.txt
+
+
+-Testar analisador léxico
+
+$ lex lexer.l
+$ gcc lex.yy.c -o parser
+$ ./parser < programa.txt

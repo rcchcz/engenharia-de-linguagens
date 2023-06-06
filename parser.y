@@ -29,8 +29,6 @@ extern char * yytext;
 
 %start prog
 
-%type <sValue> stm dec_var decs_var type_modifiers type_modifier type ids assign_def
-%type <sValue> atomo dims p_values expr term factor value assigns assign_mat
 
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
 
@@ -38,14 +36,13 @@ prog : decs_var {}
 	 ;
 
 decs_var : 				
-		 | dec_var
 		 | dec_var decs_var
 		 | assigns
 		 ;
 
 dec_var : type_modifiers type ids
         | type_modifiers type ID ASSIGN p_values SEMI
-		| type_modifiers type ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI
+		| type_modifiers ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI
 		;
 
 type_modifiers : 
@@ -69,8 +66,6 @@ type : INT
 
 ids : atomo
     | atomo COMMA p_values
-	| expr
-	| expr COMMA p_values
 	;
 
 atomo : ID
@@ -81,20 +76,18 @@ dims : OPEN_BRACK value CLOSE_BRACK
      | OPEN_BRACK value CLOSE_BRACK dims
 	 ;
 
-p_values : value
-         | value COMMA p_values
-		 | expr
+p_values : expr
 		 | expr COMMA p_values
 		 ;
 
-expr : expr PLUS expr
-	 | expr MINUS expr
+expr : expr PLUS term
+	 | expr MINUS term
 	 | term
 	 ;
 
-term : term MULT term
-     | term DIV term
-	 | term MODULE term
+term : term MULT factor
+     | term DIV factor
+	 | term MODULE factor
 	 | factor
 	 ;
 

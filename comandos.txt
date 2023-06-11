@@ -1,5 +1,5 @@
 $ lex lexer.l
-$ yacc parser.y -d
+$ yacc parser.y -d -v
 $ gcc lex.yy.c y.tab.c -o parser
 $ ./parser < input.txt
 

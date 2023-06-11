@@ -21,10 +21,10 @@ extern char * yytext;
 %token <fValue> FLOAT_NUMBER
 %token <sValue> STRING_VALUE
 %token INT DOUBLE FLOAT CHAR STRING BOOLEAN NULL_VALUE VOID STRUCT ENUM TRUE FALSE
-%token WHILE DO SWITCH CASE IF ELSE ELSE_IF FOR CONTINUE BREAK CONST STATIC RETURN IMPORT
+%token WHILE DO SWITCH CASE DEFAULT IF ELSE ELSE_IF FOR CONTINUE BREAK CONST STATIC RETURN IMPORT MAIN
 %token OPEN_PAREN CLOSE_PAREN OPEN_BRACK CLOSE_BRACK BLOCK_BEGIN BLOCK_END SEMI COLON DOT COMMA
 %token PLUS MINUS DIV MULT INCREMENT DECREMENT MODULE ASSIGN ADD_ASSIGN SUB_ASSIGN
-%token EQ LEQ LT GT LE GE
+%token EQ NEQ LT GT LE GE
 %token AND OR NOT
 
 %start prog
@@ -32,7 +32,7 @@ extern char * yytext;
 
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
 
-prog : decs_var {} 
+prog : decs_var subprograms principal{} 
 	 ;
 
 decs_var : 				
@@ -93,6 +93,7 @@ term : term MULT factor
 
 factor : OPEN_PAREN expr CLOSE_PAREN
        | ID
+	   | funcion_call
 	   | value
 	   ;
 
@@ -111,6 +112,90 @@ assign_def : ID ASSIGN expr SEMI
 
 assign_mat : ID dims ASSIGN expr SEMI
            ;
+
+subprograms : 
+			| subprogram subprograms
+			;
+
+subprogram : proc
+		   | function
+		   ;
+
+proc : VOID ID OPEN_PAREN decs_var CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END  
+	 ;
+	
+function : type ID OPEN_PAREN decs_var CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END
+         ;
+
+stmts :
+      | stmt stmts
+	  ;
+
+stmt : decs_var 
+     | conditional_stmt
+	 | iteration_stmt
+	 ;
+
+conditional_stmt : if_stmt
+				 | switch_stmt
+				 ;
+
+if_stmt : IF logic_expr stmts
+		| IF logic_expr stmts ELSE stmts
+		;
+
+logic_expr : logic_expr logic_op c_term
+		   | c_term
+		   ;
+
+c_term : ID
+	   | TRUE
+	   | FALSE
+	   | comp
+	   ;
+
+comp: expr comp_op expr
+	;
+
+comp_op : EQ
+		| NEQ
+		| GE
+		| LE
+		| GT
+		| LT
+		;
+
+logic_op : AND
+		 | OR
+		 | NOT
+		 ;
+
+switch_stmt : SWITCH switch_cases DEFAULT COLON stmts
+		    ;
+
+switch_cases : 
+			 | CASE value COLON stmts BREAK switch_cases
+			 ;
+
+iteration_stmt : while_stmt
+			   | for_stmt
+			   | dowhile_stmt
+			   ;
+
+while_stmt : WHILE OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+		   ;
+
+for_stmt : FOR OPEN_PAREN dec_var SEMI logic_expr SEMI expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+		 ;
+
+dowhile_stmt : DO BLOCK_BEGIN stmts BLOCK_END WHILE OPEN_PAREN logic_expr CLOSE_PAREN SEMI
+             ;
+
+funcion_call : ID OPEN_PAREN decs_var CLOSE_PAREN
+			 ;
+
+principal : MAIN OPEN_PAREN decs_var CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+          ;
 
 %% /* Fim da segunda seção */
 

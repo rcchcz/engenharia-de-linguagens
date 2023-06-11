@@ -31,6 +31,7 @@
 "do"      				                {return(DO);}
 "switch"                          {return(SWITCH);}
 "case"                            {return(CASE);}
+"default"                         {return(DEFAULT);}
 "if"      				                {return(IF);}
 "else"      			                {return(ELSE);}
 "else if"      			              {return(ELSE_IF);}
@@ -41,6 +42,7 @@
 "static"                          {return(STATIC);}
 "return"                          {return(RETURN);}
 "import"                          {return(IMPORT);}
+"main"                            {return(MAIN);}
 
 "("                               {return(OPEN_PAREN);}
 ")"                               {return(CLOSE_PAREN);}
@@ -65,7 +67,7 @@
 "-="                              {return(SUB_ASSIGN);}
 
 "=="                              {return(EQ);}
-"!="                              {return(LEQ);}
+"!="                              {return(NEQ);}
 "<"                               {return(LT);}
 ">"                               {return(GT);}
 "<="                              {return(LE);}

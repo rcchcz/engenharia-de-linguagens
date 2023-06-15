@@ -32,7 +32,10 @@ extern char * yytext;
 
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
 
-prog : decs_var subprograms principal{} 
+prog : decs_var subprograms principal subprograms
+	 | decs_var principal subprograms
+	 | decs_var subprograms principal
+	 | decs_var principal
 	 ;
 
 decs_var : 				
@@ -40,13 +43,17 @@ decs_var :
 		 | assigns
 		 ;
 
-dec_var : type_modifiers type ids
+dec_var : type ids SEMI
+		| type ID ASSIGN p_values SEMI
+		| type ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI
+		| type ID dims SEMI
+		| type_modifiers type ids SEMI
         | type_modifiers type ID ASSIGN p_values SEMI
-		| type_modifiers ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI
+		| type_modifiers type ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI
+		| type_modifiers type ID dims SEMI
 		;
 
-type_modifiers : 
-               | type_modifier
+type_modifiers : type_modifier
 			   | type_modifier type_modifier
 			   ;
 
@@ -65,6 +72,7 @@ type : INT
 	 ;
 
 ids : atomo
+	| ids COMMA atomo
     | atomo COMMA p_values
 	;
 
@@ -72,8 +80,14 @@ atomo : ID
       | ID dims
 	  ;
 
-dims : OPEN_BRACK value CLOSE_BRACK
+dims : OPEN_BRACK CLOSE_BRACK
+	 | OPEN_BRACK CLOSE_BRACK dims
+	 | OPEN_BRACK value CLOSE_BRACK
      | OPEN_BRACK value CLOSE_BRACK dims
+	 | OPEN_BRACK expr CLOSE_BRACK
+     | OPEN_BRACK expr CLOSE_BRACK dims
+	 | OPEN_BRACK ID CLOSE_BRACK
+     | OPEN_BRACK ID CLOSE_BRACK dims
 	 ;
 
 p_values : expr
@@ -82,6 +96,8 @@ p_values : expr
 
 expr : expr PLUS term
 	 | expr MINUS term
+	 | expr ADD_ASSIGN term
+	 | expr SUB_ASSIGN term
 	 | term
 	 ;
 
@@ -93,6 +109,7 @@ term : term MULT factor
 
 factor : OPEN_PAREN expr CLOSE_PAREN
        | ID
+	   | ID dims
 	   | funcion_call
 	   | value
 	   ;
@@ -108,12 +125,13 @@ assigns : assign_def
 		;
 
 assign_def : ID ASSIGN expr SEMI
-        ;
+           ;	
 
 assign_mat : ID dims ASSIGN expr SEMI
+		   | ID dims ASSIGN ID dims SEMI
            ;
 
-subprograms : 
+subprograms : subprogram
 			| subprogram subprograms
 			;
 
@@ -121,17 +139,29 @@ subprogram : proc
 		   | function
 		   ;
 
-proc : VOID ID OPEN_PAREN decs_var CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END  
+proc : VOID ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END  
+	 | VOID ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END 
 	 ;
 	
-function : type ID OPEN_PAREN decs_var CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END
+function : type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END
+		 | type ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END
          ;
 
-stmts :
+params : param
+	   | param COMMA params
+	   ;
+
+param : type dims ID
+	  | type ID
+	  ;
+
+stmts : stmt
       | stmt stmts
 	  ;
 
-stmt : decs_var 
+stmt : dec_var
+     | assigns
+	 | funcion_call
      | conditional_stmt
 	 | iteration_stmt
 	 ;
@@ -140,15 +170,22 @@ conditional_stmt : if_stmt
 				 | switch_stmt
 				 ;
 
-if_stmt : IF logic_expr stmts
-		| IF logic_expr stmts ELSE stmts
+if_stmt : IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+		| IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END ELSE BLOCK_BEGIN stmts BLOCK_END
+		| IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt ELSE BLOCK_BEGIN stmts BLOCK_END
+		| IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt
 		;
+
+else_if_stmt : ELSE_IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+			 | else_if_stmt else_if_stmt
+			 ;
 
 logic_expr : logic_expr logic_op c_term
 		   | c_term
 		   ;
 
 c_term : ID
+	   | ID dims
 	   | TRUE
 	   | FALSE
 	   | comp
@@ -185,16 +222,25 @@ iteration_stmt : while_stmt
 while_stmt : WHILE OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
 		   ;
 
-for_stmt : FOR OPEN_PAREN dec_var SEMI logic_expr SEMI expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+for_stmt : FOR OPEN_PAREN dec_var logic_expr SEMI expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
 		 ;
 
 dowhile_stmt : DO BLOCK_BEGIN stmts BLOCK_END WHILE OPEN_PAREN logic_expr CLOSE_PAREN SEMI
              ;
 
-funcion_call : ID OPEN_PAREN decs_var CLOSE_PAREN
+funcion_call : ID OPEN_PAREN args CLOSE_PAREN SEMI
+             | ID OPEN_PAREN CLOSE_PAREN SEMI
 			 ;
 
-principal : MAIN OPEN_PAREN decs_var CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+args : args arg
+	 | arg
+	 ;
+
+arg : ids
+	;
+
+principal : MAIN OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+		  | MAIN OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
           ;
 
 %% /* Fim da segunda seção */

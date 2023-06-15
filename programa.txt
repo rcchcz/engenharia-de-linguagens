@@ -1,10 +1,10 @@
 main(){
-    int vetor[] = {3,4,2,5,8,0,9,1,6,7};
+    int vetor[10] = {3,4,2,5,8,0,9,1,6,7};
     int auxiliar [10];
     mergeSort(vetor,auxiliar,0,9);
 }
 
-void mergeSort(int[] v, int[] w, int inicio, int, fim){
+void mergeSort(int[] v, int[] w, int inicio, int fim){
     if(inicio < fim) {
         int meio = (inicio + fim) / 2;
         mergeSort(v, w, inicio, meio);

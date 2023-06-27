@@ -4,6 +4,7 @@
   
   extern int yyerror (char *msg);  
 %}
+%option yylineno
 
 %%
 

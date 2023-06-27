@@ -1,7 +1,13 @@
 $ lex lexer.l
 $ yacc parser.y -d -v
-$ gcc lex.yy.c y.tab.c -o parser
-$ ./parser < input.txt
+$ gcc lex.yy.c y.tab.c ./lib/record.c -o compiler
+$ ./compiler < input.txt
+
+ Execução com flex e bison no windows
+$ flex lexer.l
+$ bison parser.y -d -v
+$ gcc lex.yy.c y.tab.c ./lib/record.c -o compiler
+$ .\compiler < input.txt
 
 
 -Testar analisador léxico

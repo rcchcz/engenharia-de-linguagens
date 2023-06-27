@@ -117,10 +117,10 @@ dec_var : type ids SEMI { char *s = cat($1->code, " ", $2->code, ";","");
 											free(s1);
 									   }
         | type_modifiers type ID ASSIGN p_values SEMI {	char *s1 = cat($1->code, " ", $2->code, " ", $3);
-														char *s2 = cat(s1, "=", $4, ";", "");
+														char *s2 = cat(s1, "=", $5->code, ";", "");
 														freeRecord($1);
 														freeRecord($2);
-														freeRecord($4);
+														freeRecord($5);
 														$$ = createRecord(s2, "");
 														free(s2);
 														free(s1);
@@ -160,37 +160,27 @@ type_modifiers : type_modifier {	char *s = cat($1->code, "", "", "", "");
 			   								 }
 			   ;
 
-type_modifier : CONST {	$$ = createRecord($1, "");
-					  	free($1);
+type_modifier : CONST {	$$ = createRecord("const", "");
 					  }
-              | STATIC {$$ = createRecord($1, "");
-					  	free($1);
+              | STATIC {$$ = createRecord("static", "");
 			  		  }
-			  | ENUM {	$$ = createRecord($1, "");
-					  	free($1);
+			  | ENUM {	$$ = createRecord("enum", "");
 			  		 }
-			  | STRUCT {$$ = createRecord($1, "");
-					  	free($1);
+			  | STRUCT {$$ = createRecord("struct", "");
 			  		   }
 			  ;
 
-type : INT {$$ = createRecord($1, "");
-			free($1);
+type : INT {$$ = createRecord("int", "");
 		   }
-     | DOUBLE {	$$ = createRecord($1, "");
-				free($1);
+     | DOUBLE {	$$ = createRecord("double", "");
 	 		  }
-	 | FLOAT {	$$ = createRecord($1, "");
-				free($1);
+	 | FLOAT {	$$ = createRecord("float", "");
 	 		 }
-	 | CHAR {	$$ = createRecord($1, "");
-				free($1);
+	 | CHAR {	$$ = createRecord("char", "");
 	 		}
-	 | STRING {	$$ = createRecord($1, "");
-				free($1);
+	 | STRING {	$$ = createRecord("string", "");
 	 		  }
-	 | VOID {	$$ = createRecord($1, "");
-				free($1);
+	 | VOID {	$$ = createRecord("void", "");
 	 		}
 	 ;
 
@@ -199,9 +189,9 @@ ids : atomo {	char *s = cat($1, "", "", "", "");
 				$$ = createRecord($1, "");
 				free(s);
 			}
-	| ids COMMA atomo {	char *s = cat($1->code, ",", $2->code, "", "");
+	| ids COMMA atomo {	char *s = cat($1->code, ",", $3->code, "", "");
 						freeRecord($1);
-						freeRecord($2);
+						freeRecord($3);
 						$$ = createRecord(s, "");
 						free(s);
 					  }
@@ -227,7 +217,7 @@ dims : OPEN_BRACK CLOSE_BRACK {	char *s = cat("[", "]", "", "", "");
 								$$ = createRecord(s, "");
 								free(s);
 							  }
-	 | OPEN_BRACK CLOSE_BRACK dims {char *s = cat("[", "]", $s3->code, "", "");
+	 | OPEN_BRACK CLOSE_BRACK dims {char *s = cat("[", "]", $3->code, "", "");
 									freeRecord($3);
 									$$ = createRecord(s, "");
 									free(s);
@@ -359,14 +349,21 @@ factor : OPEN_PAREN expr CLOSE_PAREN {	char *s = cat("(", $2->code, ")", "", "")
 	   			}
 	   ;
 
-value : INT_NUMBER {$$ = createRecord($1, "");
-					free($1);	
+value : INT_NUMBER {char *s1;
+					sprintf(s1, "%d", $1);
+					char *s = cat(s1,"","","","");
+					$$ = createRecord(s, "");
+					free(s);	
 				   }
-      | FLOAT_NUMBER {	$$ = createRecord($1, "");
-						free($1);
+      | FLOAT_NUMBER {	char *s1;
+	  					sprintf(s1, "%g", $1);
+						char *s = cat(s1,"","","","");
+						$$ = createRecord(s, "");
+						free(s);
 	  				 }
-	  | STRING_VALUE {	$$ = createRecord($1, "");
-						free($1);
+	  | STRING_VALUE {	char *s = cat($1,"","","","");
+						$$ = createRecord(s, "");
+						free(s);
 	  				 }
 	  ;
 
@@ -405,8 +402,9 @@ assign_mat : ID dims ASSIGN expr SEMI {	char *s = cat($1, $2->code, "=", $4->cod
 											char *s2 = cat(s1, ";", "", "", "");
 											freeRecord($2);
 											freeRecord($5);
-											$$ = createRecord(s, "");
-											free(s);
+											$$ = createRecord(s2, "");
+											free(s2);
+											free(s1);
 		   								 }
            ;
 
@@ -463,11 +461,11 @@ function : type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN value 
 																							free(s1);
 																						  }
 		 | type ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END {char *s1 = cat($1->code, " ", $2, "(){\n", $6->code);
-		 																			char *s2 = cat(s2, "\nreturn ", $8->code, "\n}", "");
+		 																			char *s2 = cat(s1, "\nreturn ", $8->code, "\n}", "");
 																					freeRecord($1);
 																					freeRecord($6);
 																					freeRecord($8);
-																					$$ = createRecord(s2);
+																					$$ = createRecord(s2, "");
 																					free(s2);
 																					free(s1);
 		 																		   }
@@ -475,13 +473,13 @@ function : type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN value 
 
 params : param {char *s = cat($1->code, "", "", "", "");
 				freeRecord($1);
-				$$ = createRecord(s);
+				$$ = createRecord(s, "");
 				free(s);
 			   }
 	   | param COMMA params {	char *s = cat($1->code, ",", $3->code, "", "");
 								freeRecord($1);
 								freeRecord($3);
-								$$ = createRecord(s);
+								$$ = createRecord(s, "");
 								free(s);
 			   				}
 	   ;
@@ -489,64 +487,64 @@ params : param {char *s = cat($1->code, "", "", "", "");
 param : type dims ID {	char *s = cat($1->code, " ", $2->code, $3, "");
 						freeRecord($1);
 						freeRecord($2);
-						$$ = createRecord(s);
+						$$ = createRecord(s, "");
 						free(s);
 					 }
 	  | type ID {	char *s = cat($1->code, " ", $2, "", "");
 					freeRecord($1);
-					$$ = createRecord(s);
+					$$ = createRecord(s, "");
 					free(s);
 			    }
 	  ;
 
 stmts : stmt {	char *s = cat($1->code, "", "", "", "");
 				freeRecord($1);
-				$$ = createRecord(s);
+				$$ = createRecord(s, "");
 				free(s);
 			 }
       | stmt stmts {char *s = cat($1->code, "\n", $2->code, "", "");
 					freeRecord($1);
 					freeRecord($2);
-					$$ = createRecord(s);
+					$$ = createRecord(s, "");
 					free(s);
 				   }
 	  ;
 
 stmt : dec_var {char *s = cat($1->code, "", "", "", "");
 				freeRecord($1);
-				$$ = createRecord(s);
+				$$ = createRecord(s, "");
 				free(s);
 			   }
      | assigns {char *s = cat($1->code, "", "", "", "");
 				freeRecord($1);
-				$$ = createRecord(s);
+				$$ = createRecord(s, "");
 				free(s);
 	 		   }
 	 | function_call {	char *s = cat($1->code, "", "", "", "");
 						freeRecord($1);
-						$$ = createRecord(s);
+						$$ = createRecord(s, "");
 						free(s);
 	 				 }
      | conditional_stmt {	char *s = cat($1->code, "", "", "", "");
 							freeRecord($1);
-							$$ = createRecord(s);
+							$$ = createRecord(s, "");
 							free(s);
 	 					}
 	 | iteration_stmt {	char *s = cat($1->code, "", "", "", "");
 						freeRecord($1);
-						$$ = createRecord(s);
+						$$ = createRecord(s, "");
 						free(s);
 	 				  }
 	 ;
 
 conditional_stmt : if_stmt {char *s = cat($1->code, "", "", "", "");
 							freeRecord($1);
-							$$ = createRecord(s);
+							$$ = createRecord(s, "");
 							free(s);	
 						   }
 				 | switch_stmt {char *s = cat($1->code, "", "", "", "");
 								freeRecord($1);
-								$$ = createRecord(s);
+								$$ = createRecord(s, "");
 								free(s);
 				 			   }
 				 ;
@@ -554,7 +552,7 @@ conditional_stmt : if_stmt {char *s = cat($1->code, "", "", "", "");
 if_stmt : IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {char *s = cat("if(", $3->code, "){\n", $6->code, "\n}");
 																			freeRecord($3);
 																			freeRecord($6);
-																			$$ = createRecord(s);
+																			$$ = createRecord(s, "");
 																			free(s);
 																		   }
 		| IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END ELSE BLOCK_BEGIN stmts BLOCK_END { 	char *s1 = cat("if(", $3->code, "){\n", $6->code, "\n}");
@@ -562,7 +560,7 @@ if_stmt : IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {char
 																												freeRecord($3);
 																												freeRecord($6);
 																												freeRecord($10);
-																												$$ = createRecord(s2);
+																												$$ = createRecord(s2, "");
 																												free(s2);
 																												free(s1);
 																											}
@@ -572,7 +570,7 @@ if_stmt : IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {char
 																															freeRecord($6);
 																															freeRecord($8);
 																															freeRecord($11);
-																															$$ = createRecord(s2);
+																															$$ = createRecord(s2, "");
 																															free(s2);
 																															free(s1);
 																														 }
@@ -581,7 +579,7 @@ if_stmt : IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {char
 																							freeRecord($3);
 																							freeRecord($6);
 																							freeRecord($8);
-																							$$ = createRecord(s2);
+																							$$ = createRecord(s2, "");
 																							free(s2);
 																							free(s1);
 																						}
@@ -590,38 +588,54 @@ if_stmt : IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {char
 else_if_stmt : ELSE_IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {	char *s = cat("else if(", $3->code, "){\n", $6->code, "\n} ");
 																						freeRecord($3);
 																						freeRecord($6);
-																						$$ = createRecord(s);
+																						$$ = createRecord(s, "");
 																						free(s);
 																					 }
 			 | else_if_stmt else_if_stmt {	char *s = cat($1->code, $2->code, "", "", "");
 			 								freeRecord($1);
 											freeRecord($2);
-											$$ = createRecord(s);
+											$$ = createRecord(s, "");
 											free(s);
 			 							 }
 			 ;
 
-logic_expr : logic_expr logic_op c_term {	char *s = cat($1->code, $2->code, $3->code);
+logic_expr : logic_expr logic_op c_term {	char *s = cat($1->code, $2->code, $3->code, "", "");
 											freeRecord($1);
 											freeRecord($2);
 											freeRecord($3);
-											$$ = createRecord(s);
+											$$ = createRecord(s, "");
 											free(s);
 										}
 		   | c_term {	char *s = cat($1->code, "", "", "", "");
 		   				freeRecord($1);
-						$$ = createRecord(s);
+						$$ = createRecord(s, "");
 						free(s);
 		   			}
 		   ;
 
-c_term : ID {	$$ = createRecord($1);
+c_term : ID {	$$ = createRecord($1, "");
 				free($1);
 			}
-	   | ID dims
-	   | TRUE
-	   | FALSE
-	   | comp
+	   | ID dims {char *s= cat($1,$2->code,"","","");
+					freeRecord($2);
+					$$ = createRecord(s,"");
+					free(s);
+	   			}
+	   | TRUE {		char *s= cat("true","","","","");
+					$$ = createRecord(s,"");
+					free(s);
+			}
+	   | FALSE {	char *s= cat("false","","","","");
+					$$ = createRecord(s,"");
+					free(s);
+
+	   }
+	   | comp {	char *s= cat($1->code,"","","","");
+					freeRecord($1);
+					$$ = createRecord(s,"");
+					free(s);
+
+	   }
 	   ;
 
 comp: expr comp_op expr
@@ -686,14 +700,14 @@ switch_cases :
 															freeRecord($6);
 															$$ = createRecord(s2, "");
 															free(s2);
-															free(S1);
+															free(s1);
 			 											 }
 			 ;
 
 iteration_stmt : while_stmt {	char *s = cat($1->code, "", "", "", "");
 		   						freeRecord($1);
-								$$ = createRecord(s);
-								free(s, "");
+								$$ = createRecord(s, "");
+								free(s);
 							}
 			   | for_stmt {	char *s = cat($1->code, "", "", "", "");
 		   					freeRecord($1);
@@ -752,14 +766,14 @@ args : args arg {	char *s = cat($1->code, $2->code, "", "", "");
 					$$ = createRecord(s, "");
 					free(s);
 				}
-	 | arg {char *s = cat($1->code);
+	 | arg {char *s = cat($1->code,"","","","");
 			freeRecord($1);
 			$$ = createRecord(s, "");
 			free(s);
 	 	   }
 	 ;
 
-arg : ids {	char *s = cat($1->code);
+arg : ids {	char *s = cat($1->code,"","","","");
 			freeRecord($1);
 			$$ = createRecord(s, "");
 			free(s);

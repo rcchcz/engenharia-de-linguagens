@@ -1,10 +1,17 @@
 %{
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "./lib/record.h"
 
 int yylex(void);
 int yyerror(char *s);
 extern int yylineno;
 extern char * yytext;
+
+extern FILE * yyin, * yyout;
+
+char * cat(char *, char *, char *, char *, char *);
 
 %}
 
@@ -14,6 +21,7 @@ extern char * yytext;
 	char * sValue;  /* string value */
 	float  fValue;  /* float value */
 	double dvalue;  /* double value */ 
+	struct record * rec;
 };
 
 %token <sValue> ID
@@ -27,15 +35,19 @@ extern char * yytext;
 %token EQ NEQ LT GT LE GE
 %token AND OR NOT
 
+%type <rec> decs_var subprograms principal dec_var assigns type ids p_values dims type_modifiers type_modifier atomo value expr term factor funcion_call assign_def assign_mat
+%type <rec> subprogram proc function params param stmts stmt conditional_stmt iteration_stmt if_stmt switch_stmt logic_expr else_if_stmt logic_op c_term comp comp_op
+%type <rec> switch_cases while_stmt for_stmt dowhile_stmt args arg
+
 %start prog
 
 
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
 
-prog : decs_var subprograms principal subprograms
-	 | decs_var principal subprograms
-	 | decs_var subprograms principal
-	 | decs_var principal
+prog : decs_var SEMI subprograms SEMI principal SEMI subprograms
+	 | decs_var SEMI principal SEMI subprograms
+	 | decs_var SEMI subprograms SEMI principal
+	 | decs_var SEMI principal
 	 ;
 
 decs_var : 				
@@ -94,8 +106,8 @@ p_values : expr
 		 | expr COMMA p_values
 		 ;
 
-expr : expr PLUS term
-	 | expr MINUS term
+expr : expr PLUS term {$$ = $1 + $3;}
+	 | expr MINUS term {$$ = $1 - $3;}
 	 | expr ADD_ASSIGN term
 	 | expr SUB_ASSIGN term
 	 | term
@@ -156,7 +168,7 @@ param : type dims ID
 	  ;
 
 stmts : stmt
-      | stmt stmts
+      | stmt SEMI stmts
 	  ;
 
 stmt : dec_var

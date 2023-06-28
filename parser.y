@@ -86,7 +86,6 @@ dec_var : type ids SEMI { char *s = cat($1->code, " ", $2->code, ";","");
 		| type ID ASSIGN p_values SEMI  { 	char *s1 = cat($1->code, " ", $2, "=", $4->code);
 											char *s2 = cat(s1, ";", "", "", "");
 											freeRecord($1);
-											freeRecord($2);
 											freeRecord($4);
 											$$ = createRecord(s2, "");
 											free(s2);
@@ -126,10 +125,11 @@ dec_var : type ids SEMI { char *s = cat($1->code, " ", $2->code, ";","");
 														free(s1);
 													  }
 		| type_modifiers type ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI {	char *s1 = cat($1->code, " ", $2->code, "", $3);
-																					char *s2 = cat(s1, $4, "=", "{", $7->code);
+																					char *s2 = cat(s1, $4->code, "=", "{", $7->code);
 																					char *s3 = cat(s2, "}", ";", "", "");
 																					freeRecord($1);
 																					freeRecord($2);
+																					freeRecord($4);
 																					freeRecord($7);
 																					$$ = createRecord(s3, "");
 																					free(s3);
@@ -184,9 +184,9 @@ type : INT {$$ = createRecord("int", "");
 	 		}
 	 ;
 
-ids : atomo {	char *s = cat($1, "", "", "", "");
+ids : atomo {	char *s = cat($1->code, "", "", "", "");
 				freeRecord($1);
-				$$ = createRecord($1, "");
+				$$ = createRecord(s, "");
 				free(s);
 			}
 	| ids COMMA atomo {	char *s = cat($1->code, ",", $3->code, "", "");
@@ -683,7 +683,6 @@ logic_op : AND {char *s = cat("&&", "", "", "", "");
 
 switch_stmt : SWITCH COLON OPEN_PAREN ID CLOSE_PAREN BLOCK_BEGIN switch_cases DEFAULT COLON stmts BLOCK_END {	char *s1 = cat("switch: (", $4, "){\n", $7->code, "	default:\n");
 																												char *s2 = cat(s1, $10->code, "\n}", "", "");
-																												freeRecord($4);
 																												freeRecord($7);
 																												freeRecord($10);
 																												$$ = createRecord(s2, "");
@@ -692,7 +691,7 @@ switch_stmt : SWITCH COLON OPEN_PAREN ID CLOSE_PAREN BLOCK_BEGIN switch_cases DE
 													  														}
 		    ;
 
-switch_cases : 
+switch_cases : {$$ = createRecord("","");}
 			 | CASE value COLON stmts BREAK switch_cases {	char *s1 = cat("case ", $2->code, ":\n", $4->code, "\n");
 			 												char *s2 = cat(s1, $6->code, "", "", "");
 															freeRecord($2);

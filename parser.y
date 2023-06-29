@@ -332,6 +332,16 @@ factor : OPEN_PAREN expr CLOSE_PAREN {	char *s = cat("(", $2->code, ")", "", "")
        | ID {	$$ = createRecord($1, "");
 				free($1);
 	   		}
+	   | ID INCREMENT{ char *s = cat($1,"++","","","");
+						free($1);
+						$$ = createRecord(s, "");
+						free(s);
+	   				 }
+	   | ID DECREMENT{ char *s = cat($1,"--","","","");
+						free($1);
+						$$ = createRecord(s, "");
+						free(s);
+	   				 }
 	   | ID dims {	char *s = cat($1, $2->code, "", "", "");
 					freeRecord($2);
 					$$ = createRecord(s, "");

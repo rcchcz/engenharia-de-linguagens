@@ -13,6 +13,7 @@ scan(%f, &valor);
 -> null_value
 -> boolean
 -> tirar o for/while/dowhile e colocar label e goto
+-> tirar o else/else-if
 -> verificação de tipos
 
 -> HASHTABLE/ARVORE => (ARVORE)

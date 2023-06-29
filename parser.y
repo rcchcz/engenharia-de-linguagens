@@ -24,8 +24,8 @@ char * cat(char *, char *, char *, char *, char *);
 };
 
 %token <sValue> ID
-%token <iValue> INT_NUMBER
-%token <fValue> FLOAT_NUMBER
+%token <sValue> INT_NUMBER
+%token <sValue> FLOAT_NUMBER
 %token <sValue> STRING_VALUE
 %token INT DOUBLE FLOAT CHAR STRING BOOLEAN NULL_VALUE VOID STRUCT ENUM TRUE FALSE
 %token WHILE DO SWITCH CASE DEFAULT IF ELSE ELSE_IF FOR CONTINUE BREAK CONST STATIC RETURN IMPORT MAIN
@@ -358,16 +358,11 @@ factor : OPEN_PAREN expr CLOSE_PAREN {	char *s = cat("(", $2->code, ")", "", "")
 				free(s);
 	   			}
 	   ;
-
-value : INT_NUMBER {char *s1;
-					sprintf(s1, "%d", $1);
-					char *s = cat(s1,"","","","");
+value : INT_NUMBER {char *s = cat($1,"","","","");
 					$$ = createRecord(s, "");
 					free(s);	
 				   }
-      | FLOAT_NUMBER {	char *s1;
-	  					sprintf(s1, "%g", $1);
-						char *s = cat(s1,"","","","");
+      | FLOAT_NUMBER {	char *s = cat($1,"","","","");
 						$$ = createRecord(s, "");
 						free(s);
 	  				 }
@@ -575,7 +570,7 @@ if_stmt : IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {char
 																												free(s1);
 																											}
 		| IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt ELSE BLOCK_BEGIN stmts BLOCK_END {	char *s1 = cat("if(", $3->code, "){\n", $6->code, "\n} ");
-																															char *s2 = cat(s2, $8->code, " else {\n", $11->code, "\n}");
+																															char *s2 = cat(s1, $8->code, " else {\n", $11->code, "\n}");
 																															freeRecord($3);
 																															freeRecord($6);
 																															freeRecord($8);

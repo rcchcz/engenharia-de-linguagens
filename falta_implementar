@@ -1,0 +1,18 @@
+FALTA IMPLEMENTAR
+
+printf("Texto %d", d);
+-> print();
+scan(%f, &valor);
+-> scan(valor);
+-> ++
+-> --
+-> *
+-> struct
+-> enum
+-> continue
+-> null_value
+-> boolean
+-> tirar o for/while/dowhile e colocar label e goto
+-> verificação de tipos
+
+-> HASHTABLE/ARVORE => (ARVORE)

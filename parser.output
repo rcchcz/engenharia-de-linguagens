@@ -1,37 +1,38 @@
 Terminals unused in grammar
 
-   BOOLEAN
-   NULL_VALUE
-   CONTINUE
-   IMPORT
-   DOT
-   INCREMENT
-   DECREMENT
+    BOOLEAN
+    NULL_VALUE
+    CONTINUE
+    IMPORT
+    DOT
+    INCREMENT
+    DECREMENT
 
 
+State 0 conflicts: 6 shift/reduce
+State 14 conflicts: 6 shift/reduce
 State 19 conflicts: 1 shift/reduce
-State 31 conflicts: 1 shift/reduce
-State 33 conflicts: 1 shift/reduce
-State 42 conflicts: 1 shift/reduce
-State 48 conflicts: 1 shift/reduce
-State 59 conflicts: 1 shift/reduce
-State 88 conflicts: 1 shift/reduce
-State 91 conflicts: 1 shift/reduce
-State 112 conflicts: 1 shift/reduce
-State 159 conflicts: 1 shift/reduce
-State 261 conflicts: 1 shift/reduce
+State 25 conflicts: 1 shift/reduce
+State 38 conflicts: 1 shift/reduce
+State 40 conflicts: 1 shift/reduce
+State 49 conflicts: 1 shift/reduce
+State 64 conflicts: 1 shift/reduce
+State 93 conflicts: 1 shift/reduce
+State 96 conflicts: 1 shift/reduce
+State 117 conflicts: 1 shift/reduce
+State 256 conflicts: 1 shift/reduce
 
 
 Grammar
 
     0 $accept: prog $end
 
-    1 prog: decs_var SEMI subprograms SEMI principal SEMI subprograms
-    2     | decs_var SEMI principal SEMI subprograms
-    3     | decs_var SEMI subprograms SEMI principal
-    4     | decs_var SEMI principal
+    1 prog: decs_var subprograms principal subprograms
+    2     | decs_var principal subprograms
+    3     | decs_var subprograms principal
+    4     | decs_var principal
 
-    5 decs_var: /* empty */
+    5 decs_var: ε
     6         | dec_var decs_var
     7         | assigns
 
@@ -92,7 +93,7 @@ Grammar
    52 factor: OPEN_PAREN expr CLOSE_PAREN
    53       | ID
    54       | ID dims
-   55       | funcion_call
+   55       | function_call
    56       | value
 
    57 value: INT_NUMBER
@@ -101,7 +102,7 @@ Grammar
 
    60 assigns: assign_def
    61        | assign_mat
-   62        | assign_def SEMI assigns
+   62        | assign_def assigns
 
    63 assign_def: ID ASSIGN expr SEMI
 
@@ -127,11 +128,11 @@ Grammar
    77      | type ID
 
    78 stmts: stmt
-   79      | stmt SEMI stmts
+   79      | stmt stmts
 
    80 stmt: dec_var
    81     | assigns
-   82     | funcion_call
+   82     | function_call
    83     | conditional_stmt
    84     | iteration_stmt
 
@@ -168,9 +169,9 @@ Grammar
   108         | OR
   109         | NOT
 
-  110 switch_stmt: SWITCH switch_cases DEFAULT COLON stmts
+  110 switch_stmt: SWITCH COLON OPEN_PAREN ID CLOSE_PAREN BLOCK_BEGIN switch_cases DEFAULT COLON stmts BLOCK_END
 
-  111 switch_cases: /* empty */
+  111 switch_cases: ε
   112             | CASE value COLON stmts BREAK switch_cases
 
   113 iteration_stmt: while_stmt
@@ -183,8 +184,8 @@ Grammar
 
   118 dowhile_stmt: DO BLOCK_BEGIN stmts BLOCK_END WHILE OPEN_PAREN logic_expr CLOSE_PAREN SEMI
 
-  119 funcion_call: ID OPEN_PAREN args CLOSE_PAREN SEMI
-  120             | ID OPEN_PAREN CLOSE_PAREN SEMI
+  119 function_call: ID OPEN_PAREN args CLOSE_PAREN SEMI
+  120              | ID OPEN_PAREN CLOSE_PAREN SEMI
 
   121 args: args arg
   122     | arg
@@ -197,175 +198,209 @@ Grammar
 
 Terminals, with rules where they appear
 
-$end (0) 0
-error (256)
-ID (258) 9 10 11 13 14 15 31 32 39 40 53 54 63 64 65 70 71 72 73 76
-    77 95 96 119 120
-INT_NUMBER (259) 57
-FLOAT_NUMBER (260) 58
-STRING_VALUE (261) 59
-INT (262) 22
-DOUBLE (263) 23
-FLOAT (264) 24
-CHAR (265) 25
-STRING (266) 26
-BOOLEAN (267)
-NULL_VALUE (268)
-VOID (269) 27 70 71
-STRUCT (270) 21
-ENUM (271) 20
-TRUE (272) 97
-FALSE (273) 98
-WHILE (274) 116 118
-DO (275) 118
-SWITCH (276) 110
-CASE (277) 112
-DEFAULT (278) 110
-IF (279) 87 88 89 90
-ELSE (280) 88 89
-ELSE_IF (281) 91
-FOR (282) 117
-CONTINUE (283)
-BREAK (284) 112
-CONST (285) 18
-STATIC (286) 19
-RETURN (287) 72 73
-IMPORT (288)
-MAIN (289) 124 125
-OPEN_PAREN (290) 52 70 71 72 73 87 88 89 90 91 116 117 118 119 120
-    124 125
-CLOSE_PAREN (291) 52 70 71 72 73 87 88 89 90 91 116 117 118 119 120
-    124 125
-OPEN_BRACK (292) 33 34 35 36 37 38 39 40
-CLOSE_BRACK (293) 33 34 35 36 37 38 39 40
-BLOCK_BEGIN (294) 10 14 70 71 72 73 87 88 89 90 91 116 117 118 124
-    125
-BLOCK_END (295) 10 14 70 71 72 73 87 88 89 90 91 116 117 118 124 125
-SEMI (296) 1 2 3 4 8 9 10 11 12 13 14 15 62 63 64 65 79 117 118 119
-    120
-COLON (297) 110 112
-DOT (298)
-COMMA (299) 29 30 42 75
-PLUS (300) 43
-MINUS (301) 44
-DIV (302) 49
-MULT (303) 48
-INCREMENT (304)
-DECREMENT (305)
-MODULE (306) 50
-ASSIGN (307) 9 10 13 14 63 64 65
-ADD_ASSIGN (308) 45
-SUB_ASSIGN (309) 46
-EQ (310) 101
-NEQ (311) 102
-LT (312) 106
-GT (313) 105
-LE (314) 104
-GE (315) 103
-AND (316) 107
-OR (317) 108
-NOT (318) 109
+    $end (0) 0
+    error (256)
+    ID <sValue> (258) 9 10 11 13 14 15 31 32 39 40 53 54 63 64 65 70 71 72 73 76 77 95 96 110 119 120
+    INT_NUMBER <iValue> (259) 57
+    FLOAT_NUMBER <fValue> (260) 58
+    STRING_VALUE <sValue> (261) 59
+    INT (262) 22
+    DOUBLE (263) 23
+    FLOAT (264) 24
+    CHAR (265) 25
+    STRING (266) 26
+    BOOLEAN (267)
+    NULL_VALUE (268)
+    VOID (269) 27 70 71
+    STRUCT (270) 21
+    ENUM (271) 20
+    TRUE (272) 97
+    FALSE (273) 98
+    WHILE (274) 116 118
+    DO (275) 118
+    SWITCH (276) 110
+    CASE (277) 112
+    DEFAULT (278) 110
+    IF (279) 87 88 89 90
+    ELSE (280) 88 89
+    ELSE_IF (281) 91
+    FOR (282) 117
+    CONTINUE (283)
+    BREAK (284) 112
+    CONST (285) 18
+    STATIC (286) 19
+    RETURN (287) 72 73
+    IMPORT (288)
+    MAIN (289) 124 125
+    OPEN_PAREN (290) 52 70 71 72 73 87 88 89 90 91 110 116 117 118 119 120 124 125
+    CLOSE_PAREN (291) 52 70 71 72 73 87 88 89 90 91 110 116 117 118 119 120 124 125
+    OPEN_BRACK (292) 33 34 35 36 37 38 39 40
+    CLOSE_BRACK (293) 33 34 35 36 37 38 39 40
+    BLOCK_BEGIN (294) 10 14 70 71 72 73 87 88 89 90 91 110 116 117 118 124 125
+    BLOCK_END (295) 10 14 70 71 72 73 87 88 89 90 91 110 116 117 118 124 125
+    SEMI (296) 8 9 10 11 12 13 14 15 63 64 65 117 118 119 120
+    COLON (297) 110 112
+    DOT (298)
+    COMMA (299) 29 30 42 75
+    PLUS (300) 43
+    MINUS (301) 44
+    DIV (302) 49
+    MULT (303) 48
+    INCREMENT (304)
+    DECREMENT (305)
+    MODULE (306) 50
+    ASSIGN (307) 9 10 13 14 63 64 65
+    ADD_ASSIGN (308) 45
+    SUB_ASSIGN (309) 46
+    EQ (310) 101
+    NEQ (311) 102
+    LT (312) 106
+    GT (313) 105
+    LE (314) 104
+    GE (315) 103
+    AND (316) 107
+    OR (317) 108
+    NOT (318) 109
 
 
 Nonterminals, with rules where they appear
 
-$accept (64)
-    on left: 0
-prog (65)
-    on left: 1 2 3 4, on right: 0
-decs_var (66)
-    on left: 5 6 7, on right: 1 2 3 4 6
-dec_var (67)
-    on left: 8 9 10 11 12 13 14 15, on right: 6 80 117
-type_modifiers (68)
-    on left: 16 17, on right: 12 13 14 15
-type_modifier (69)
-    on left: 18 19 20 21, on right: 16 17
-type (70)
-    on left: 22 23 24 25 26 27, on right: 8 9 10 11 12 13 14 15 72
-    73 76 77
-ids (71)
-    on left: 28 29 30, on right: 8 12 29 123
-atomo (72)
-    on left: 31 32, on right: 28 29 30
-dims (73)
-    on left: 33 34 35 36 37 38 39 40, on right: 10 11 14 15 32 34 36
-    38 40 54 64 65 76 96
-p_values (74)
-    on left: 41 42, on right: 9 10 13 14 30 42
-expr (75)
-    on left: 43 44 45 46 47, on right: 37 38 41 42 43 44 45 46 52 63
-    64 100 117
-term (76)
-    on left: 48 49 50 51, on right: 43 44 45 46 47 48 49 50
-factor (77)
-    on left: 52 53 54 55 56, on right: 48 49 50 51
-value (78)
-    on left: 57 58 59, on right: 35 36 56 72 73 112
-assigns (79)
-    on left: 60 61 62, on right: 7 62 81
-assign_def (80)
-    on left: 63, on right: 60 62
-assign_mat (81)
-    on left: 64 65, on right: 61
-subprograms (82)
-    on left: 66 67, on right: 1 2 3 67
-subprogram (83)
-    on left: 68 69, on right: 66 67
-proc (84)
-    on left: 70 71, on right: 68
-function (85)
-    on left: 72 73, on right: 69
-params (86)
-    on left: 74 75, on right: 70 72 75 124
-param (87)
-    on left: 76 77, on right: 74 75
-stmts (88)
-    on left: 78 79, on right: 70 71 72 73 79 87 88 89 90 91 110 112
-    116 117 118 124 125
-stmt (89)
-    on left: 80 81 82 83 84, on right: 78 79
-conditional_stmt (90)
-    on left: 85 86, on right: 83
-if_stmt (91)
-    on left: 87 88 89 90, on right: 85
-else_if_stmt (92)
-    on left: 91 92, on right: 89 90 92
-logic_expr (93)
-    on left: 93 94, on right: 87 88 89 90 91 93 116 117 118
-c_term (94)
-    on left: 95 96 97 98 99, on right: 93 94
-comp (95)
-    on left: 100, on right: 99
-comp_op (96)
-    on left: 101 102 103 104 105 106, on right: 100
-logic_op (97)
-    on left: 107 108 109, on right: 93
-switch_stmt (98)
-    on left: 110, on right: 86
-switch_cases (99)
-    on left: 111 112, on right: 110 112
-iteration_stmt (100)
-    on left: 113 114 115, on right: 84
-while_stmt (101)
-    on left: 116, on right: 113
-for_stmt (102)
-    on left: 117, on right: 114
-dowhile_stmt (103)
-    on left: 118, on right: 115
-funcion_call (104)
-    on left: 119 120, on right: 55 82
-args (105)
-    on left: 121 122, on right: 119 121
-arg (106)
-    on left: 123, on right: 121 122
-principal (107)
-    on left: 124 125, on right: 1 2 3 4
+    $accept (64)
+        on left: 0
+    prog (65)
+        on left: 1 2 3 4
+        on right: 0
+    decs_var <rec> (66)
+        on left: 5 6 7
+        on right: 1 2 3 4 6
+    dec_var <rec> (67)
+        on left: 8 9 10 11 12 13 14 15
+        on right: 6 80 117
+    type_modifiers <rec> (68)
+        on left: 16 17
+        on right: 12 13 14 15
+    type_modifier <rec> (69)
+        on left: 18 19 20 21
+        on right: 16 17
+    type <rec> (70)
+        on left: 22 23 24 25 26 27
+        on right: 8 9 10 11 12 13 14 15 72 73 76 77
+    ids <rec> (71)
+        on left: 28 29 30
+        on right: 8 12 29 123
+    atomo <rec> (72)
+        on left: 31 32
+        on right: 28 29 30
+    dims <rec> (73)
+        on left: 33 34 35 36 37 38 39 40
+        on right: 10 11 14 15 32 34 36 38 40 54 64 65 76 96
+    p_values <rec> (74)
+        on left: 41 42
+        on right: 9 10 13 14 30 42
+    expr <rec> (75)
+        on left: 43 44 45 46 47
+        on right: 37 38 41 42 43 44 45 46 52 63 64 100 117
+    term <rec> (76)
+        on left: 48 49 50 51
+        on right: 43 44 45 46 47 48 49 50
+    factor <rec> (77)
+        on left: 52 53 54 55 56
+        on right: 48 49 50 51
+    value <rec> (78)
+        on left: 57 58 59
+        on right: 35 36 56 72 73 112
+    assigns <rec> (79)
+        on left: 60 61 62
+        on right: 7 62 81
+    assign_def <rec> (80)
+        on left: 63
+        on right: 60 62
+    assign_mat <rec> (81)
+        on left: 64 65
+        on right: 61
+    subprograms <rec> (82)
+        on left: 66 67
+        on right: 1 2 3 67
+    subprogram <rec> (83)
+        on left: 68 69
+        on right: 66 67
+    proc <rec> (84)
+        on left: 70 71
+        on right: 68
+    function <rec> (85)
+        on left: 72 73
+        on right: 69
+    params <rec> (86)
+        on left: 74 75
+        on right: 70 72 75 124
+    param <rec> (87)
+        on left: 76 77
+        on right: 74 75
+    stmts <rec> (88)
+        on left: 78 79
+        on right: 70 71 72 73 79 87 88 89 90 91 110 112 116 117 118 124 125
+    stmt <rec> (89)
+        on left: 80 81 82 83 84
+        on right: 78 79
+    conditional_stmt <rec> (90)
+        on left: 85 86
+        on right: 83
+    if_stmt <rec> (91)
+        on left: 87 88 89 90
+        on right: 85
+    else_if_stmt <rec> (92)
+        on left: 91 92
+        on right: 89 90 92
+    logic_expr <rec> (93)
+        on left: 93 94
+        on right: 87 88 89 90 91 93 116 117 118
+    c_term <rec> (94)
+        on left: 95 96 97 98 99
+        on right: 93 94
+    comp <rec> (95)
+        on left: 100
+        on right: 99
+    comp_op <rec> (96)
+        on left: 101 102 103 104 105 106
+        on right: 100
+    logic_op <rec> (97)
+        on left: 107 108 109
+        on right: 93
+    switch_stmt <rec> (98)
+        on left: 110
+        on right: 86
+    switch_cases <rec> (99)
+        on left: 111 112
+        on right: 110 112
+    iteration_stmt <rec> (100)
+        on left: 113 114 115
+        on right: 84
+    while_stmt <rec> (101)
+        on left: 116
+        on right: 113
+    for_stmt <rec> (102)
+        on left: 117
+        on right: 114
+    dowhile_stmt <rec> (103)
+        on left: 118
+        on right: 115
+    function_call <rec> (104)
+        on left: 119 120
+        on right: 55 82
+    args <rec> (105)
+        on left: 121 122
+        on right: 119 121
+    arg <rec> (106)
+        on left: 123
+        on right: 121 122
+    principal <rec> (107)
+        on left: 124 125
+        on right: 1 2 3 4
 
 
-state 0
+State 0
 
-    0 $accept: . prog $end
+    0 $accept: • prog $end
 
     ID      shift, and go to state 1
     INT     shift, and go to state 2
@@ -379,6 +414,12 @@ state 0
     CONST   shift, and go to state 10
     STATIC  shift, and go to state 11
 
+    INT       [reduce using rule 5 (decs_var)]
+    DOUBLE    [reduce using rule 5 (decs_var)]
+    FLOAT     [reduce using rule 5 (decs_var)]
+    CHAR      [reduce using rule 5 (decs_var)]
+    STRING    [reduce using rule 5 (decs_var)]
+    VOID      [reduce using rule 5 (decs_var)]
     $default  reduce using rule 5 (decs_var)
 
     prog            go to state 12
@@ -392,11 +433,11 @@ state 0
     assign_mat      go to state 20
 
 
-state 1
+State 1
 
-   63 assign_def: ID . ASSIGN expr SEMI
-   64 assign_mat: ID . dims ASSIGN expr SEMI
-   65           | ID . dims ASSIGN ID dims SEMI
+   63 assign_def: ID • ASSIGN expr SEMI
+   64 assign_mat: ID • dims ASSIGN expr SEMI
+   65           | ID • dims ASSIGN ID dims SEMI
 
     OPEN_BRACK  shift, and go to state 21
     ASSIGN      shift, and go to state 22
@@ -404,96 +445,109 @@ state 1
     dims  go to state 23
 
 
-state 2
+State 2
 
-   22 type: INT .
+   22 type: INT •
 
     $default  reduce using rule 22 (type)
 
 
-state 3
+State 3
 
-   23 type: DOUBLE .
+   23 type: DOUBLE •
 
     $default  reduce using rule 23 (type)
 
 
-state 4
+State 4
 
-   24 type: FLOAT .
+   24 type: FLOAT •
 
     $default  reduce using rule 24 (type)
 
 
-state 5
+State 5
 
-   25 type: CHAR .
+   25 type: CHAR •
 
     $default  reduce using rule 25 (type)
 
 
-state 6
+State 6
 
-   26 type: STRING .
+   26 type: STRING •
 
     $default  reduce using rule 26 (type)
 
 
-state 7
+State 7
 
-   27 type: VOID .
+   27 type: VOID •
 
     $default  reduce using rule 27 (type)
 
 
-state 8
+State 8
 
-   21 type_modifier: STRUCT .
+   21 type_modifier: STRUCT •
 
     $default  reduce using rule 21 (type_modifier)
 
 
-state 9
+State 9
 
-   20 type_modifier: ENUM .
+   20 type_modifier: ENUM •
 
     $default  reduce using rule 20 (type_modifier)
 
 
-state 10
+State 10
 
-   18 type_modifier: CONST .
+   18 type_modifier: CONST •
 
     $default  reduce using rule 18 (type_modifier)
 
 
-state 11
+State 11
 
-   19 type_modifier: STATIC .
+   19 type_modifier: STATIC •
 
     $default  reduce using rule 19 (type_modifier)
 
 
-state 12
+State 12
 
-    0 $accept: prog . $end
+    0 $accept: prog • $end
 
     $end  shift, and go to state 24
 
 
-state 13
+State 13
 
-    1 prog: decs_var . SEMI subprograms SEMI principal SEMI subprograms
-    2     | decs_var . SEMI principal SEMI subprograms
-    3     | decs_var . SEMI subprograms SEMI principal
-    4     | decs_var . SEMI principal
+    1 prog: decs_var • subprograms principal subprograms
+    2     | decs_var • principal subprograms
+    3     | decs_var • subprograms principal
+    4     | decs_var • principal
 
-    SEMI  shift, and go to state 25
+    INT     shift, and go to state 2
+    DOUBLE  shift, and go to state 3
+    FLOAT   shift, and go to state 4
+    CHAR    shift, and go to state 5
+    STRING  shift, and go to state 6
+    VOID    shift, and go to state 25
+    MAIN    shift, and go to state 26
+
+    type         go to state 27
+    subprograms  go to state 28
+    subprogram   go to state 29
+    proc         go to state 30
+    function     go to state 31
+    principal    go to state 32
 
 
-state 14
+State 14
 
-    6 decs_var: dec_var . decs_var
+    6 decs_var: dec_var • decs_var
 
     ID      shift, and go to state 1
     INT     shift, and go to state 2
@@ -507,9 +561,15 @@ state 14
     CONST   shift, and go to state 10
     STATIC  shift, and go to state 11
 
+    INT       [reduce using rule 5 (decs_var)]
+    DOUBLE    [reduce using rule 5 (decs_var)]
+    FLOAT     [reduce using rule 5 (decs_var)]
+    CHAR      [reduce using rule 5 (decs_var)]
+    STRING    [reduce using rule 5 (decs_var)]
+    VOID      [reduce using rule 5 (decs_var)]
     $default  reduce using rule 5 (decs_var)
 
-    decs_var        go to state 26
+    decs_var        go to state 33
     dec_var         go to state 14
     type_modifiers  go to state 15
     type_modifier   go to state 16
@@ -519,12 +579,12 @@ state 14
     assign_mat      go to state 20
 
 
-state 15
+State 15
 
-   12 dec_var: type_modifiers . type ids SEMI
-   13        | type_modifiers . type ID ASSIGN p_values SEMI
-   14        | type_modifiers . type ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI
-   15        | type_modifiers . type ID dims SEMI
+   12 dec_var: type_modifiers • type ids SEMI
+   13        | type_modifiers • type ID ASSIGN p_values SEMI
+   14        | type_modifiers • type ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI
+   15        | type_modifiers • type ID dims SEMI
 
     INT     shift, and go to state 2
     DOUBLE  shift, and go to state 3
@@ -533,13 +593,13 @@ state 15
     STRING  shift, and go to state 6
     VOID    shift, and go to state 7
 
-    type  go to state 27
+    type  go to state 34
 
 
-state 16
+State 16
 
-   16 type_modifiers: type_modifier .
-   17               | type_modifier . type_modifier
+   16 type_modifiers: type_modifier •
+   17               | type_modifier • type_modifier
 
     STRUCT  shift, and go to state 8
     ENUM    shift, and go to state 9
@@ -548,796 +608,840 @@ state 16
 
     $default  reduce using rule 16 (type_modifiers)
 
-    type_modifier  go to state 28
+    type_modifier  go to state 35
 
 
-state 17
+State 17
 
-    8 dec_var: type . ids SEMI
-    9        | type . ID ASSIGN p_values SEMI
-   10        | type . ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI
-   11        | type . ID dims SEMI
+    8 dec_var: type • ids SEMI
+    9        | type • ID ASSIGN p_values SEMI
+   10        | type • ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI
+   11        | type • ID dims SEMI
 
-    ID  shift, and go to state 29
+    ID  shift, and go to state 36
 
-    ids    go to state 30
-    atomo  go to state 31
+    ids    go to state 37
+    atomo  go to state 38
 
 
-state 18
+State 18
 
-    7 decs_var: assigns .
+    7 decs_var: assigns •
 
     $default  reduce using rule 7 (decs_var)
 
 
-state 19
+State 19
 
-   60 assigns: assign_def .
-   62        | assign_def . SEMI assigns
+   60 assigns: assign_def •
+   62        | assign_def • assigns
 
-    SEMI  shift, and go to state 32
+    ID  shift, and go to state 1
 
-    SEMI      [reduce using rule 60 (assigns)]
+    ID        [reduce using rule 60 (assigns)]
     $default  reduce using rule 60 (assigns)
 
+    assigns     go to state 39
+    assign_def  go to state 19
+    assign_mat  go to state 20
 
-state 20
 
-   61 assigns: assign_mat .
+State 20
+
+   61 assigns: assign_mat •
 
     $default  reduce using rule 61 (assigns)
 
 
-state 21
+State 21
 
-   33 dims: OPEN_BRACK . CLOSE_BRACK
-   34     | OPEN_BRACK . CLOSE_BRACK dims
-   35     | OPEN_BRACK . value CLOSE_BRACK
-   36     | OPEN_BRACK . value CLOSE_BRACK dims
-   37     | OPEN_BRACK . expr CLOSE_BRACK
-   38     | OPEN_BRACK . expr CLOSE_BRACK dims
-   39     | OPEN_BRACK . ID CLOSE_BRACK
-   40     | OPEN_BRACK . ID CLOSE_BRACK dims
+   33 dims: OPEN_BRACK • CLOSE_BRACK
+   34     | OPEN_BRACK • CLOSE_BRACK dims
+   35     | OPEN_BRACK • value CLOSE_BRACK
+   36     | OPEN_BRACK • value CLOSE_BRACK dims
+   37     | OPEN_BRACK • expr CLOSE_BRACK
+   38     | OPEN_BRACK • expr CLOSE_BRACK dims
+   39     | OPEN_BRACK • ID CLOSE_BRACK
+   40     | OPEN_BRACK • ID CLOSE_BRACK dims
 
-    ID            shift, and go to state 33
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    OPEN_PAREN    shift, and go to state 37
-    CLOSE_BRACK   shift, and go to state 38
+    ID            shift, and go to state 40
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    OPEN_PAREN    shift, and go to state 44
+    CLOSE_BRACK   shift, and go to state 45
 
-    expr          go to state 39
-    term          go to state 40
-    factor        go to state 41
-    value         go to state 42
-    funcion_call  go to state 43
-
-
-state 22
-
-   63 assign_def: ID ASSIGN . expr SEMI
-
-    ID            shift, and go to state 44
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    OPEN_PAREN    shift, and go to state 37
-
-    expr          go to state 45
-    term          go to state 40
-    factor        go to state 41
-    value         go to state 46
-    funcion_call  go to state 43
+    expr           go to state 46
+    term           go to state 47
+    factor         go to state 48
+    value          go to state 49
+    function_call  go to state 50
 
 
-state 23
+State 22
 
-   64 assign_mat: ID dims . ASSIGN expr SEMI
-   65           | ID dims . ASSIGN ID dims SEMI
+   63 assign_def: ID ASSIGN • expr SEMI
 
-    ASSIGN  shift, and go to state 47
+    ID            shift, and go to state 51
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    OPEN_PAREN    shift, and go to state 44
+
+    expr           go to state 52
+    term           go to state 47
+    factor         go to state 48
+    value          go to state 53
+    function_call  go to state 50
 
 
-state 24
+State 23
 
-    0 $accept: prog $end .
+   64 assign_mat: ID dims • ASSIGN expr SEMI
+   65           | ID dims • ASSIGN ID dims SEMI
+
+    ASSIGN  shift, and go to state 54
+
+
+State 24
+
+    0 $accept: prog $end •
 
     $default  accept
 
 
-state 25
+State 25
 
-    1 prog: decs_var SEMI . subprograms SEMI principal SEMI subprograms
-    2     | decs_var SEMI . principal SEMI subprograms
-    3     | decs_var SEMI . subprograms SEMI principal
-    4     | decs_var SEMI . principal
+   27 type: VOID •
+   70 proc: VOID • ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+   71     | VOID • ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+
+    ID  shift, and go to state 55
+
+    ID  [reduce using rule 27 (type)]
+
+
+State 26
+
+  124 principal: MAIN • OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+  125          | MAIN • OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+
+    OPEN_PAREN  shift, and go to state 56
+
+
+State 27
+
+   72 function: type • ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END
+   73         | type • ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END
+
+    ID  shift, and go to state 57
+
+
+State 28
+
+    1 prog: decs_var subprograms • principal subprograms
+    3     | decs_var subprograms • principal
+
+    MAIN  shift, and go to state 26
+
+    principal  go to state 58
+
+
+State 29
+
+   66 subprograms: subprogram •
+   67            | subprogram • subprograms
 
     INT     shift, and go to state 2
     DOUBLE  shift, and go to state 3
     FLOAT   shift, and go to state 4
     CHAR    shift, and go to state 5
     STRING  shift, and go to state 6
-    VOID    shift, and go to state 48
-    MAIN    shift, and go to state 49
+    VOID    shift, and go to state 25
 
-    type         go to state 50
-    subprograms  go to state 51
-    subprogram   go to state 52
-    proc         go to state 53
-    function     go to state 54
-    principal    go to state 55
+    $default  reduce using rule 66 (subprograms)
+
+    type         go to state 27
+    subprograms  go to state 59
+    subprogram   go to state 29
+    proc         go to state 30
+    function     go to state 31
 
 
-state 26
+State 30
 
-    6 decs_var: dec_var decs_var .
+   68 subprogram: proc •
+
+    $default  reduce using rule 68 (subprogram)
+
+
+State 31
+
+   69 subprogram: function •
+
+    $default  reduce using rule 69 (subprogram)
+
+
+State 32
+
+    2 prog: decs_var principal • subprograms
+    4     | decs_var principal •
+
+    INT     shift, and go to state 2
+    DOUBLE  shift, and go to state 3
+    FLOAT   shift, and go to state 4
+    CHAR    shift, and go to state 5
+    STRING  shift, and go to state 6
+    VOID    shift, and go to state 25
+
+    $default  reduce using rule 4 (prog)
+
+    type         go to state 27
+    subprograms  go to state 60
+    subprogram   go to state 29
+    proc         go to state 30
+    function     go to state 31
+
+
+State 33
+
+    6 decs_var: dec_var decs_var •
 
     $default  reduce using rule 6 (decs_var)
 
 
-state 27
+State 34
 
-   12 dec_var: type_modifiers type . ids SEMI
-   13        | type_modifiers type . ID ASSIGN p_values SEMI
-   14        | type_modifiers type . ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI
-   15        | type_modifiers type . ID dims SEMI
+   12 dec_var: type_modifiers type • ids SEMI
+   13        | type_modifiers type • ID ASSIGN p_values SEMI
+   14        | type_modifiers type • ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI
+   15        | type_modifiers type • ID dims SEMI
 
-    ID  shift, and go to state 56
+    ID  shift, and go to state 61
 
-    ids    go to state 57
-    atomo  go to state 31
+    ids    go to state 62
+    atomo  go to state 38
 
 
-state 28
+State 35
 
-   17 type_modifiers: type_modifier type_modifier .
+   17 type_modifiers: type_modifier type_modifier •
 
     $default  reduce using rule 17 (type_modifiers)
 
 
-state 29
+State 36
 
-    9 dec_var: type ID . ASSIGN p_values SEMI
-   10        | type ID . dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI
-   11        | type ID . dims SEMI
-   31 atomo: ID .
-   32      | ID . dims
+    9 dec_var: type ID • ASSIGN p_values SEMI
+   10        | type ID • dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI
+   11        | type ID • dims SEMI
+   31 atomo: ID •
+   32      | ID • dims
 
     OPEN_BRACK  shift, and go to state 21
-    ASSIGN      shift, and go to state 58
+    ASSIGN      shift, and go to state 63
 
     $default  reduce using rule 31 (atomo)
 
-    dims  go to state 59
+    dims  go to state 64
 
 
-state 30
+State 37
 
-    8 dec_var: type ids . SEMI
-   29 ids: ids . COMMA atomo
+    8 dec_var: type ids • SEMI
+   29 ids: ids • COMMA atomo
 
-    SEMI   shift, and go to state 60
-    COMMA  shift, and go to state 61
+    SEMI   shift, and go to state 65
+    COMMA  shift, and go to state 66
 
 
-state 31
+State 38
 
-   28 ids: atomo .
-   30    | atomo . COMMA p_values
+   28 ids: atomo •
+   30    | atomo • COMMA p_values
 
-    COMMA  shift, and go to state 62
+    COMMA  shift, and go to state 67
 
     COMMA     [reduce using rule 28 (ids)]
     $default  reduce using rule 28 (ids)
 
 
-state 32
+State 39
 
-   62 assigns: assign_def SEMI . assigns
+   62 assigns: assign_def assigns •
 
-    ID  shift, and go to state 1
-
-    assigns     go to state 63
-    assign_def  go to state 19
-    assign_mat  go to state 20
+    $default  reduce using rule 62 (assigns)
 
 
-state 33
+State 40
 
-   39 dims: OPEN_BRACK ID . CLOSE_BRACK
-   40     | OPEN_BRACK ID . CLOSE_BRACK dims
-   53 factor: ID .
-   54       | ID . dims
-  119 funcion_call: ID . OPEN_PAREN args CLOSE_PAREN SEMI
-  120             | ID . OPEN_PAREN CLOSE_PAREN SEMI
+   39 dims: OPEN_BRACK ID • CLOSE_BRACK
+   40     | OPEN_BRACK ID • CLOSE_BRACK dims
+   53 factor: ID •
+   54       | ID • dims
+  119 function_call: ID • OPEN_PAREN args CLOSE_PAREN SEMI
+  120              | ID • OPEN_PAREN CLOSE_PAREN SEMI
 
-    OPEN_PAREN   shift, and go to state 64
+    OPEN_PAREN   shift, and go to state 68
     OPEN_BRACK   shift, and go to state 21
-    CLOSE_BRACK  shift, and go to state 65
+    CLOSE_BRACK  shift, and go to state 69
 
     CLOSE_BRACK  [reduce using rule 53 (factor)]
     $default     reduce using rule 53 (factor)
 
-    dims  go to state 66
+    dims  go to state 70
 
 
-state 34
+State 41
 
-   57 value: INT_NUMBER .
+   57 value: INT_NUMBER •
 
     $default  reduce using rule 57 (value)
 
 
-state 35
+State 42
 
-   58 value: FLOAT_NUMBER .
+   58 value: FLOAT_NUMBER •
 
     $default  reduce using rule 58 (value)
 
 
-state 36
+State 43
 
-   59 value: STRING_VALUE .
+   59 value: STRING_VALUE •
 
     $default  reduce using rule 59 (value)
 
 
-state 37
+State 44
 
-   52 factor: OPEN_PAREN . expr CLOSE_PAREN
+   52 factor: OPEN_PAREN • expr CLOSE_PAREN
 
-    ID            shift, and go to state 44
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    OPEN_PAREN    shift, and go to state 37
+    ID            shift, and go to state 51
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    OPEN_PAREN    shift, and go to state 44
 
-    expr          go to state 67
-    term          go to state 40
-    factor        go to state 41
-    value         go to state 46
-    funcion_call  go to state 43
+    expr           go to state 71
+    term           go to state 47
+    factor         go to state 48
+    value          go to state 53
+    function_call  go to state 50
 
 
-state 38
+State 45
 
-   33 dims: OPEN_BRACK CLOSE_BRACK .
-   34     | OPEN_BRACK CLOSE_BRACK . dims
+   33 dims: OPEN_BRACK CLOSE_BRACK •
+   34     | OPEN_BRACK CLOSE_BRACK • dims
 
     OPEN_BRACK  shift, and go to state 21
 
     $default  reduce using rule 33 (dims)
 
-    dims  go to state 68
+    dims  go to state 72
 
 
-state 39
+State 46
 
-   37 dims: OPEN_BRACK expr . CLOSE_BRACK
-   38     | OPEN_BRACK expr . CLOSE_BRACK dims
-   43 expr: expr . PLUS term
-   44     | expr . MINUS term
-   45     | expr . ADD_ASSIGN term
-   46     | expr . SUB_ASSIGN term
+   37 dims: OPEN_BRACK expr • CLOSE_BRACK
+   38     | OPEN_BRACK expr • CLOSE_BRACK dims
+   43 expr: expr • PLUS term
+   44     | expr • MINUS term
+   45     | expr • ADD_ASSIGN term
+   46     | expr • SUB_ASSIGN term
 
-    CLOSE_BRACK  shift, and go to state 69
-    PLUS         shift, and go to state 70
-    MINUS        shift, and go to state 71
-    ADD_ASSIGN   shift, and go to state 72
-    SUB_ASSIGN   shift, and go to state 73
+    CLOSE_BRACK  shift, and go to state 73
+    PLUS         shift, and go to state 74
+    MINUS        shift, and go to state 75
+    ADD_ASSIGN   shift, and go to state 76
+    SUB_ASSIGN   shift, and go to state 77
 
 
-state 40
+State 47
 
-   47 expr: term .
-   48 term: term . MULT factor
-   49     | term . DIV factor
-   50     | term . MODULE factor
+   47 expr: term •
+   48 term: term • MULT factor
+   49     | term • DIV factor
+   50     | term • MODULE factor
 
-    DIV     shift, and go to state 74
-    MULT    shift, and go to state 75
-    MODULE  shift, and go to state 76
+    DIV     shift, and go to state 78
+    MULT    shift, and go to state 79
+    MODULE  shift, and go to state 80
 
     $default  reduce using rule 47 (expr)
 
 
-state 41
+State 48
 
-   51 term: factor .
+   51 term: factor •
 
     $default  reduce using rule 51 (term)
 
 
-state 42
+State 49
 
-   35 dims: OPEN_BRACK value . CLOSE_BRACK
-   36     | OPEN_BRACK value . CLOSE_BRACK dims
-   56 factor: value .
+   35 dims: OPEN_BRACK value • CLOSE_BRACK
+   36     | OPEN_BRACK value • CLOSE_BRACK dims
+   56 factor: value •
 
-    CLOSE_BRACK  shift, and go to state 77
+    CLOSE_BRACK  shift, and go to state 81
 
     CLOSE_BRACK  [reduce using rule 56 (factor)]
     $default     reduce using rule 56 (factor)
 
 
-state 43
+State 50
 
-   55 factor: funcion_call .
+   55 factor: function_call •
 
     $default  reduce using rule 55 (factor)
 
 
-state 44
+State 51
 
-   53 factor: ID .
-   54       | ID . dims
-  119 funcion_call: ID . OPEN_PAREN args CLOSE_PAREN SEMI
-  120             | ID . OPEN_PAREN CLOSE_PAREN SEMI
+   53 factor: ID •
+   54       | ID • dims
+  119 function_call: ID • OPEN_PAREN args CLOSE_PAREN SEMI
+  120              | ID • OPEN_PAREN CLOSE_PAREN SEMI
 
-    OPEN_PAREN  shift, and go to state 64
+    OPEN_PAREN  shift, and go to state 68
     OPEN_BRACK  shift, and go to state 21
 
     $default  reduce using rule 53 (factor)
 
-    dims  go to state 66
+    dims  go to state 70
 
 
-state 45
+State 52
 
-   43 expr: expr . PLUS term
-   44     | expr . MINUS term
-   45     | expr . ADD_ASSIGN term
-   46     | expr . SUB_ASSIGN term
-   63 assign_def: ID ASSIGN expr . SEMI
+   43 expr: expr • PLUS term
+   44     | expr • MINUS term
+   45     | expr • ADD_ASSIGN term
+   46     | expr • SUB_ASSIGN term
+   63 assign_def: ID ASSIGN expr • SEMI
 
-    SEMI        shift, and go to state 78
-    PLUS        shift, and go to state 70
-    MINUS       shift, and go to state 71
-    ADD_ASSIGN  shift, and go to state 72
-    SUB_ASSIGN  shift, and go to state 73
+    SEMI        shift, and go to state 82
+    PLUS        shift, and go to state 74
+    MINUS       shift, and go to state 75
+    ADD_ASSIGN  shift, and go to state 76
+    SUB_ASSIGN  shift, and go to state 77
 
 
-state 46
+State 53
 
-   56 factor: value .
+   56 factor: value •
 
     $default  reduce using rule 56 (factor)
 
 
-state 47
+State 54
 
-   64 assign_mat: ID dims ASSIGN . expr SEMI
-   65           | ID dims ASSIGN . ID dims SEMI
+   64 assign_mat: ID dims ASSIGN • expr SEMI
+   65           | ID dims ASSIGN • ID dims SEMI
 
-    ID            shift, and go to state 79
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    OPEN_PAREN    shift, and go to state 37
+    ID            shift, and go to state 83
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    OPEN_PAREN    shift, and go to state 44
 
-    expr          go to state 80
-    term          go to state 40
-    factor        go to state 41
-    value         go to state 46
-    funcion_call  go to state 43
-
-
-state 48
-
-   27 type: VOID .
-   70 proc: VOID . ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
-   71     | VOID . ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
-
-    ID  shift, and go to state 81
-
-    ID  [reduce using rule 27 (type)]
+    expr           go to state 84
+    term           go to state 47
+    factor         go to state 48
+    value          go to state 53
+    function_call  go to state 50
 
 
-state 49
+State 55
 
-  124 principal: MAIN . OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
-  125          | MAIN . OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+   70 proc: VOID ID • OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+   71     | VOID ID • OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
 
-    OPEN_PAREN  shift, and go to state 82
-
-
-state 50
-
-   72 function: type . ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END
-   73         | type . ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END
-
-    ID  shift, and go to state 83
+    OPEN_PAREN  shift, and go to state 85
 
 
-state 51
+State 56
 
-    1 prog: decs_var SEMI subprograms . SEMI principal SEMI subprograms
-    3     | decs_var SEMI subprograms . SEMI principal
+  124 principal: MAIN OPEN_PAREN • params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+  125          | MAIN OPEN_PAREN • CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
 
-    SEMI  shift, and go to state 84
+    INT          shift, and go to state 2
+    DOUBLE       shift, and go to state 3
+    FLOAT        shift, and go to state 4
+    CHAR         shift, and go to state 5
+    STRING       shift, and go to state 6
+    VOID         shift, and go to state 7
+    CLOSE_PAREN  shift, and go to state 86
+
+    type    go to state 87
+    params  go to state 88
+    param   go to state 89
 
 
-state 52
+State 57
 
-   66 subprograms: subprogram .
-   67            | subprogram . subprograms
+   72 function: type ID • OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END
+   73         | type ID • OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END
+
+    OPEN_PAREN  shift, and go to state 90
+
+
+State 58
+
+    1 prog: decs_var subprograms principal • subprograms
+    3     | decs_var subprograms principal •
 
     INT     shift, and go to state 2
     DOUBLE  shift, and go to state 3
     FLOAT   shift, and go to state 4
     CHAR    shift, and go to state 5
     STRING  shift, and go to state 6
-    VOID    shift, and go to state 48
+    VOID    shift, and go to state 25
 
-    $default  reduce using rule 66 (subprograms)
+    $default  reduce using rule 3 (prog)
 
-    type         go to state 50
-    subprograms  go to state 85
-    subprogram   go to state 52
-    proc         go to state 53
-    function     go to state 54
-
-
-state 53
-
-   68 subprogram: proc .
-
-    $default  reduce using rule 68 (subprogram)
+    type         go to state 27
+    subprograms  go to state 91
+    subprogram   go to state 29
+    proc         go to state 30
+    function     go to state 31
 
 
-state 54
+State 59
 
-   69 subprogram: function .
+   67 subprograms: subprogram subprograms •
 
-    $default  reduce using rule 69 (subprogram)
-
-
-state 55
-
-    2 prog: decs_var SEMI principal . SEMI subprograms
-    4     | decs_var SEMI principal .
-
-    SEMI  shift, and go to state 86
-
-    $default  reduce using rule 4 (prog)
+    $default  reduce using rule 67 (subprograms)
 
 
-state 56
+State 60
 
-   13 dec_var: type_modifiers type ID . ASSIGN p_values SEMI
-   14        | type_modifiers type ID . dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI
-   15        | type_modifiers type ID . dims SEMI
-   31 atomo: ID .
-   32      | ID . dims
+    2 prog: decs_var principal subprograms •
+
+    $default  reduce using rule 2 (prog)
+
+
+State 61
+
+   13 dec_var: type_modifiers type ID • ASSIGN p_values SEMI
+   14        | type_modifiers type ID • dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI
+   15        | type_modifiers type ID • dims SEMI
+   31 atomo: ID •
+   32      | ID • dims
 
     OPEN_BRACK  shift, and go to state 21
-    ASSIGN      shift, and go to state 87
+    ASSIGN      shift, and go to state 92
 
     $default  reduce using rule 31 (atomo)
 
-    dims  go to state 88
+    dims  go to state 93
 
 
-state 57
+State 62
 
-   12 dec_var: type_modifiers type ids . SEMI
-   29 ids: ids . COMMA atomo
+   12 dec_var: type_modifiers type ids • SEMI
+   29 ids: ids • COMMA atomo
 
-    SEMI   shift, and go to state 89
-    COMMA  shift, and go to state 61
-
-
-state 58
-
-    9 dec_var: type ID ASSIGN . p_values SEMI
-
-    ID            shift, and go to state 44
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    OPEN_PAREN    shift, and go to state 37
-
-    p_values      go to state 90
-    expr          go to state 91
-    term          go to state 40
-    factor        go to state 41
-    value         go to state 46
-    funcion_call  go to state 43
+    SEMI   shift, and go to state 94
+    COMMA  shift, and go to state 66
 
 
-state 59
+State 63
 
-   10 dec_var: type ID dims . ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI
-   11        | type ID dims . SEMI
-   32 atomo: ID dims .
+    9 dec_var: type ID ASSIGN • p_values SEMI
 
-    SEMI    shift, and go to state 92
-    ASSIGN  shift, and go to state 93
+    ID            shift, and go to state 51
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    OPEN_PAREN    shift, and go to state 44
+
+    p_values       go to state 95
+    expr           go to state 96
+    term           go to state 47
+    factor         go to state 48
+    value          go to state 53
+    function_call  go to state 50
+
+
+State 64
+
+   10 dec_var: type ID dims • ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI
+   11        | type ID dims • SEMI
+   32 atomo: ID dims •
+
+    SEMI    shift, and go to state 97
+    ASSIGN  shift, and go to state 98
 
     SEMI      [reduce using rule 32 (atomo)]
     $default  reduce using rule 32 (atomo)
 
 
-state 60
+State 65
 
-    8 dec_var: type ids SEMI .
+    8 dec_var: type ids SEMI •
 
     $default  reduce using rule 8 (dec_var)
 
 
-state 61
+State 66
 
-   29 ids: ids COMMA . atomo
+   29 ids: ids COMMA • atomo
 
-    ID  shift, and go to state 94
+    ID  shift, and go to state 99
 
-    atomo  go to state 95
-
-
-state 62
-
-   30 ids: atomo COMMA . p_values
-
-    ID            shift, and go to state 44
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    OPEN_PAREN    shift, and go to state 37
-
-    p_values      go to state 96
-    expr          go to state 91
-    term          go to state 40
-    factor        go to state 41
-    value         go to state 46
-    funcion_call  go to state 43
+    atomo  go to state 100
 
 
-state 63
+State 67
 
-   62 assigns: assign_def SEMI assigns .
+   30 ids: atomo COMMA • p_values
 
-    $default  reduce using rule 62 (assigns)
+    ID            shift, and go to state 51
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    OPEN_PAREN    shift, and go to state 44
 
-
-state 64
-
-  119 funcion_call: ID OPEN_PAREN . args CLOSE_PAREN SEMI
-  120             | ID OPEN_PAREN . CLOSE_PAREN SEMI
-
-    ID           shift, and go to state 94
-    CLOSE_PAREN  shift, and go to state 97
-
-    ids    go to state 98
-    atomo  go to state 31
-    args   go to state 99
-    arg    go to state 100
+    p_values       go to state 101
+    expr           go to state 96
+    term           go to state 47
+    factor         go to state 48
+    value          go to state 53
+    function_call  go to state 50
 
 
-state 65
+State 68
 
-   39 dims: OPEN_BRACK ID CLOSE_BRACK .
-   40     | OPEN_BRACK ID CLOSE_BRACK . dims
+  119 function_call: ID OPEN_PAREN • args CLOSE_PAREN SEMI
+  120              | ID OPEN_PAREN • CLOSE_PAREN SEMI
+
+    ID           shift, and go to state 99
+    CLOSE_PAREN  shift, and go to state 102
+
+    ids    go to state 103
+    atomo  go to state 38
+    args   go to state 104
+    arg    go to state 105
+
+
+State 69
+
+   39 dims: OPEN_BRACK ID CLOSE_BRACK •
+   40     | OPEN_BRACK ID CLOSE_BRACK • dims
 
     OPEN_BRACK  shift, and go to state 21
 
     $default  reduce using rule 39 (dims)
 
-    dims  go to state 101
+    dims  go to state 106
 
 
-state 66
+State 70
 
-   54 factor: ID dims .
+   54 factor: ID dims •
 
     $default  reduce using rule 54 (factor)
 
 
-state 67
+State 71
 
-   43 expr: expr . PLUS term
-   44     | expr . MINUS term
-   45     | expr . ADD_ASSIGN term
-   46     | expr . SUB_ASSIGN term
-   52 factor: OPEN_PAREN expr . CLOSE_PAREN
+   43 expr: expr • PLUS term
+   44     | expr • MINUS term
+   45     | expr • ADD_ASSIGN term
+   46     | expr • SUB_ASSIGN term
+   52 factor: OPEN_PAREN expr • CLOSE_PAREN
 
-    CLOSE_PAREN  shift, and go to state 102
-    PLUS         shift, and go to state 70
-    MINUS        shift, and go to state 71
-    ADD_ASSIGN   shift, and go to state 72
-    SUB_ASSIGN   shift, and go to state 73
+    CLOSE_PAREN  shift, and go to state 107
+    PLUS         shift, and go to state 74
+    MINUS        shift, and go to state 75
+    ADD_ASSIGN   shift, and go to state 76
+    SUB_ASSIGN   shift, and go to state 77
 
 
-state 68
+State 72
 
-   34 dims: OPEN_BRACK CLOSE_BRACK dims .
+   34 dims: OPEN_BRACK CLOSE_BRACK dims •
 
     $default  reduce using rule 34 (dims)
 
 
-state 69
+State 73
 
-   37 dims: OPEN_BRACK expr CLOSE_BRACK .
-   38     | OPEN_BRACK expr CLOSE_BRACK . dims
+   37 dims: OPEN_BRACK expr CLOSE_BRACK •
+   38     | OPEN_BRACK expr CLOSE_BRACK • dims
 
     OPEN_BRACK  shift, and go to state 21
 
     $default  reduce using rule 37 (dims)
 
-    dims  go to state 103
+    dims  go to state 108
 
 
-state 70
+State 74
 
-   43 expr: expr PLUS . term
+   43 expr: expr PLUS • term
 
-    ID            shift, and go to state 44
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    OPEN_PAREN    shift, and go to state 37
+    ID            shift, and go to state 51
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    OPEN_PAREN    shift, and go to state 44
 
-    term          go to state 104
-    factor        go to state 41
-    value         go to state 46
-    funcion_call  go to state 43
-
-
-state 71
-
-   44 expr: expr MINUS . term
-
-    ID            shift, and go to state 44
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    OPEN_PAREN    shift, and go to state 37
-
-    term          go to state 105
-    factor        go to state 41
-    value         go to state 46
-    funcion_call  go to state 43
+    term           go to state 109
+    factor         go to state 48
+    value          go to state 53
+    function_call  go to state 50
 
 
-state 72
+State 75
 
-   45 expr: expr ADD_ASSIGN . term
+   44 expr: expr MINUS • term
 
-    ID            shift, and go to state 44
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    OPEN_PAREN    shift, and go to state 37
+    ID            shift, and go to state 51
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    OPEN_PAREN    shift, and go to state 44
 
-    term          go to state 106
-    factor        go to state 41
-    value         go to state 46
-    funcion_call  go to state 43
-
-
-state 73
-
-   46 expr: expr SUB_ASSIGN . term
-
-    ID            shift, and go to state 44
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    OPEN_PAREN    shift, and go to state 37
-
-    term          go to state 107
-    factor        go to state 41
-    value         go to state 46
-    funcion_call  go to state 43
+    term           go to state 110
+    factor         go to state 48
+    value          go to state 53
+    function_call  go to state 50
 
 
-state 74
+State 76
 
-   49 term: term DIV . factor
+   45 expr: expr ADD_ASSIGN • term
 
-    ID            shift, and go to state 44
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    OPEN_PAREN    shift, and go to state 37
+    ID            shift, and go to state 51
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    OPEN_PAREN    shift, and go to state 44
 
-    factor        go to state 108
-    value         go to state 46
-    funcion_call  go to state 43
-
-
-state 75
-
-   48 term: term MULT . factor
-
-    ID            shift, and go to state 44
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    OPEN_PAREN    shift, and go to state 37
-
-    factor        go to state 109
-    value         go to state 46
-    funcion_call  go to state 43
+    term           go to state 111
+    factor         go to state 48
+    value          go to state 53
+    function_call  go to state 50
 
 
-state 76
+State 77
 
-   50 term: term MODULE . factor
+   46 expr: expr SUB_ASSIGN • term
 
-    ID            shift, and go to state 44
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    OPEN_PAREN    shift, and go to state 37
+    ID            shift, and go to state 51
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    OPEN_PAREN    shift, and go to state 44
 
-    factor        go to state 110
-    value         go to state 46
-    funcion_call  go to state 43
+    term           go to state 112
+    factor         go to state 48
+    value          go to state 53
+    function_call  go to state 50
 
 
-state 77
+State 78
 
-   35 dims: OPEN_BRACK value CLOSE_BRACK .
-   36     | OPEN_BRACK value CLOSE_BRACK . dims
+   49 term: term DIV • factor
+
+    ID            shift, and go to state 51
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    OPEN_PAREN    shift, and go to state 44
+
+    factor         go to state 113
+    value          go to state 53
+    function_call  go to state 50
+
+
+State 79
+
+   48 term: term MULT • factor
+
+    ID            shift, and go to state 51
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    OPEN_PAREN    shift, and go to state 44
+
+    factor         go to state 114
+    value          go to state 53
+    function_call  go to state 50
+
+
+State 80
+
+   50 term: term MODULE • factor
+
+    ID            shift, and go to state 51
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    OPEN_PAREN    shift, and go to state 44
+
+    factor         go to state 115
+    value          go to state 53
+    function_call  go to state 50
+
+
+State 81
+
+   35 dims: OPEN_BRACK value CLOSE_BRACK •
+   36     | OPEN_BRACK value CLOSE_BRACK • dims
 
     OPEN_BRACK  shift, and go to state 21
 
     $default  reduce using rule 35 (dims)
 
-    dims  go to state 111
+    dims  go to state 116
 
 
-state 78
+State 82
 
-   63 assign_def: ID ASSIGN expr SEMI .
+   63 assign_def: ID ASSIGN expr SEMI •
 
     $default  reduce using rule 63 (assign_def)
 
 
-state 79
+State 83
 
-   53 factor: ID .
-   54       | ID . dims
-   65 assign_mat: ID dims ASSIGN ID . dims SEMI
-  119 funcion_call: ID . OPEN_PAREN args CLOSE_PAREN SEMI
-  120             | ID . OPEN_PAREN CLOSE_PAREN SEMI
+   53 factor: ID •
+   54       | ID • dims
+   65 assign_mat: ID dims ASSIGN ID • dims SEMI
+  119 function_call: ID • OPEN_PAREN args CLOSE_PAREN SEMI
+  120              | ID • OPEN_PAREN CLOSE_PAREN SEMI
 
-    OPEN_PAREN  shift, and go to state 64
+    OPEN_PAREN  shift, and go to state 68
     OPEN_BRACK  shift, and go to state 21
 
     $default  reduce using rule 53 (factor)
 
-    dims  go to state 112
+    dims  go to state 117
 
 
-state 80
+State 84
 
-   43 expr: expr . PLUS term
-   44     | expr . MINUS term
-   45     | expr . ADD_ASSIGN term
-   46     | expr . SUB_ASSIGN term
-   64 assign_mat: ID dims ASSIGN expr . SEMI
+   43 expr: expr • PLUS term
+   44     | expr • MINUS term
+   45     | expr • ADD_ASSIGN term
+   46     | expr • SUB_ASSIGN term
+   64 assign_mat: ID dims ASSIGN expr • SEMI
 
-    SEMI        shift, and go to state 113
-    PLUS        shift, and go to state 70
-    MINUS       shift, and go to state 71
-    ADD_ASSIGN  shift, and go to state 72
-    SUB_ASSIGN  shift, and go to state 73
-
-
-state 81
-
-   70 proc: VOID ID . OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
-   71     | VOID ID . OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
-
-    OPEN_PAREN  shift, and go to state 114
+    SEMI        shift, and go to state 118
+    PLUS        shift, and go to state 74
+    MINUS       shift, and go to state 75
+    ADD_ASSIGN  shift, and go to state 76
+    SUB_ASSIGN  shift, and go to state 77
 
 
-state 82
+State 85
 
-  124 principal: MAIN OPEN_PAREN . params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
-  125          | MAIN OPEN_PAREN . CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+   70 proc: VOID ID OPEN_PAREN • params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+   71     | VOID ID OPEN_PAREN • CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
 
     INT          shift, and go to state 2
     DOUBLE       shift, and go to state 3
@@ -1345,526 +1449,356 @@ state 82
     CHAR         shift, and go to state 5
     STRING       shift, and go to state 6
     VOID         shift, and go to state 7
-    CLOSE_PAREN  shift, and go to state 115
+    CLOSE_PAREN  shift, and go to state 119
 
-    type    go to state 116
-    params  go to state 117
-    param   go to state 118
-
-
-state 83
-
-   72 function: type ID . OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END
-   73         | type ID . OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END
-
-    OPEN_PAREN  shift, and go to state 119
+    type    go to state 87
+    params  go to state 120
+    param   go to state 89
 
 
-state 84
+State 86
 
-    1 prog: decs_var SEMI subprograms SEMI . principal SEMI subprograms
-    3     | decs_var SEMI subprograms SEMI . principal
+  125 principal: MAIN OPEN_PAREN CLOSE_PAREN • BLOCK_BEGIN stmts BLOCK_END
 
-    MAIN  shift, and go to state 49
-
-    principal  go to state 120
+    BLOCK_BEGIN  shift, and go to state 121
 
 
-state 85
+State 87
 
-   67 subprograms: subprogram subprograms .
+   76 param: type • dims ID
+   77      | type • ID
 
-    $default  reduce using rule 67 (subprograms)
+    ID          shift, and go to state 122
+    OPEN_BRACK  shift, and go to state 21
 
-
-state 86
-
-    2 prog: decs_var SEMI principal SEMI . subprograms
-
-    INT     shift, and go to state 2
-    DOUBLE  shift, and go to state 3
-    FLOAT   shift, and go to state 4
-    CHAR    shift, and go to state 5
-    STRING  shift, and go to state 6
-    VOID    shift, and go to state 48
-
-    type         go to state 50
-    subprograms  go to state 121
-    subprogram   go to state 52
-    proc         go to state 53
-    function     go to state 54
+    dims  go to state 123
 
 
-state 87
+State 88
 
-   13 dec_var: type_modifiers type ID ASSIGN . p_values SEMI
+  124 principal: MAIN OPEN_PAREN params • CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
 
-    ID            shift, and go to state 44
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    OPEN_PAREN    shift, and go to state 37
-
-    p_values      go to state 122
-    expr          go to state 91
-    term          go to state 40
-    factor        go to state 41
-    value         go to state 46
-    funcion_call  go to state 43
+    CLOSE_PAREN  shift, and go to state 124
 
 
-state 88
+State 89
 
-   14 dec_var: type_modifiers type ID dims . ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI
-   15        | type_modifiers type ID dims . SEMI
-   32 atomo: ID dims .
+   74 params: param •
+   75       | param • COMMA params
 
-    SEMI    shift, and go to state 123
-    ASSIGN  shift, and go to state 124
+    COMMA  shift, and go to state 125
+
+    $default  reduce using rule 74 (params)
+
+
+State 90
+
+   72 function: type ID OPEN_PAREN • params CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END
+   73         | type ID OPEN_PAREN • CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END
+
+    INT          shift, and go to state 2
+    DOUBLE       shift, and go to state 3
+    FLOAT        shift, and go to state 4
+    CHAR         shift, and go to state 5
+    STRING       shift, and go to state 6
+    VOID         shift, and go to state 7
+    CLOSE_PAREN  shift, and go to state 126
+
+    type    go to state 87
+    params  go to state 127
+    param   go to state 89
+
+
+State 91
+
+    1 prog: decs_var subprograms principal subprograms •
+
+    $default  reduce using rule 1 (prog)
+
+
+State 92
+
+   13 dec_var: type_modifiers type ID ASSIGN • p_values SEMI
+
+    ID            shift, and go to state 51
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    OPEN_PAREN    shift, and go to state 44
+
+    p_values       go to state 128
+    expr           go to state 96
+    term           go to state 47
+    factor         go to state 48
+    value          go to state 53
+    function_call  go to state 50
+
+
+State 93
+
+   14 dec_var: type_modifiers type ID dims • ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI
+   15        | type_modifiers type ID dims • SEMI
+   32 atomo: ID dims •
+
+    SEMI    shift, and go to state 129
+    ASSIGN  shift, and go to state 130
 
     SEMI      [reduce using rule 32 (atomo)]
     $default  reduce using rule 32 (atomo)
 
 
-state 89
+State 94
 
-   12 dec_var: type_modifiers type ids SEMI .
+   12 dec_var: type_modifiers type ids SEMI •
 
     $default  reduce using rule 12 (dec_var)
 
 
-state 90
+State 95
 
-    9 dec_var: type ID ASSIGN p_values . SEMI
+    9 dec_var: type ID ASSIGN p_values • SEMI
 
-    SEMI  shift, and go to state 125
+    SEMI  shift, and go to state 131
 
 
-state 91
+State 96
 
-   41 p_values: expr .
-   42         | expr . COMMA p_values
-   43 expr: expr . PLUS term
-   44     | expr . MINUS term
-   45     | expr . ADD_ASSIGN term
-   46     | expr . SUB_ASSIGN term
+   41 p_values: expr •
+   42         | expr • COMMA p_values
+   43 expr: expr • PLUS term
+   44     | expr • MINUS term
+   45     | expr • ADD_ASSIGN term
+   46     | expr • SUB_ASSIGN term
 
-    COMMA       shift, and go to state 126
-    PLUS        shift, and go to state 70
-    MINUS       shift, and go to state 71
-    ADD_ASSIGN  shift, and go to state 72
-    SUB_ASSIGN  shift, and go to state 73
+    COMMA       shift, and go to state 132
+    PLUS        shift, and go to state 74
+    MINUS       shift, and go to state 75
+    ADD_ASSIGN  shift, and go to state 76
+    SUB_ASSIGN  shift, and go to state 77
 
     COMMA     [reduce using rule 41 (p_values)]
     $default  reduce using rule 41 (p_values)
 
 
-state 92
+State 97
 
-   11 dec_var: type ID dims SEMI .
+   11 dec_var: type ID dims SEMI •
 
     $default  reduce using rule 11 (dec_var)
 
 
-state 93
+State 98
 
-   10 dec_var: type ID dims ASSIGN . BLOCK_BEGIN p_values BLOCK_END SEMI
+   10 dec_var: type ID dims ASSIGN • BLOCK_BEGIN p_values BLOCK_END SEMI
 
-    BLOCK_BEGIN  shift, and go to state 127
+    BLOCK_BEGIN  shift, and go to state 133
 
 
-state 94
+State 99
 
-   31 atomo: ID .
-   32      | ID . dims
+   31 atomo: ID •
+   32      | ID • dims
 
     OPEN_BRACK  shift, and go to state 21
 
     $default  reduce using rule 31 (atomo)
 
-    dims  go to state 128
+    dims  go to state 134
 
 
-state 95
+State 100
 
-   29 ids: ids COMMA atomo .
+   29 ids: ids COMMA atomo •
 
     $default  reduce using rule 29 (ids)
 
 
-state 96
+State 101
 
-   30 ids: atomo COMMA p_values .
+   30 ids: atomo COMMA p_values •
 
     $default  reduce using rule 30 (ids)
 
 
-state 97
+State 102
 
-  120 funcion_call: ID OPEN_PAREN CLOSE_PAREN . SEMI
+  120 function_call: ID OPEN_PAREN CLOSE_PAREN • SEMI
 
-    SEMI  shift, and go to state 129
+    SEMI  shift, and go to state 135
 
 
-state 98
+State 103
 
-   29 ids: ids . COMMA atomo
-  123 arg: ids .
+   29 ids: ids • COMMA atomo
+  123 arg: ids •
 
-    COMMA  shift, and go to state 61
+    COMMA  shift, and go to state 66
 
     $default  reduce using rule 123 (arg)
 
 
-state 99
+State 104
 
-  119 funcion_call: ID OPEN_PAREN args . CLOSE_PAREN SEMI
-  121 args: args . arg
+  119 function_call: ID OPEN_PAREN args • CLOSE_PAREN SEMI
+  121 args: args • arg
 
-    ID           shift, and go to state 94
-    CLOSE_PAREN  shift, and go to state 130
+    ID           shift, and go to state 99
+    CLOSE_PAREN  shift, and go to state 136
 
-    ids    go to state 98
-    atomo  go to state 31
-    arg    go to state 131
+    ids    go to state 103
+    atomo  go to state 38
+    arg    go to state 137
 
 
-state 100
+State 105
 
-  122 args: arg .
+  122 args: arg •
 
     $default  reduce using rule 122 (args)
 
 
-state 101
+State 106
 
-   40 dims: OPEN_BRACK ID CLOSE_BRACK dims .
+   40 dims: OPEN_BRACK ID CLOSE_BRACK dims •
 
     $default  reduce using rule 40 (dims)
 
 
-state 102
+State 107
 
-   52 factor: OPEN_PAREN expr CLOSE_PAREN .
+   52 factor: OPEN_PAREN expr CLOSE_PAREN •
 
     $default  reduce using rule 52 (factor)
 
 
-state 103
+State 108
 
-   38 dims: OPEN_BRACK expr CLOSE_BRACK dims .
+   38 dims: OPEN_BRACK expr CLOSE_BRACK dims •
 
     $default  reduce using rule 38 (dims)
 
 
-state 104
+State 109
 
-   43 expr: expr PLUS term .
-   48 term: term . MULT factor
-   49     | term . DIV factor
-   50     | term . MODULE factor
+   43 expr: expr PLUS term •
+   48 term: term • MULT factor
+   49     | term • DIV factor
+   50     | term • MODULE factor
 
-    DIV     shift, and go to state 74
-    MULT    shift, and go to state 75
-    MODULE  shift, and go to state 76
+    DIV     shift, and go to state 78
+    MULT    shift, and go to state 79
+    MODULE  shift, and go to state 80
 
     $default  reduce using rule 43 (expr)
 
 
-state 105
+State 110
 
-   44 expr: expr MINUS term .
-   48 term: term . MULT factor
-   49     | term . DIV factor
-   50     | term . MODULE factor
+   44 expr: expr MINUS term •
+   48 term: term • MULT factor
+   49     | term • DIV factor
+   50     | term • MODULE factor
 
-    DIV     shift, and go to state 74
-    MULT    shift, and go to state 75
-    MODULE  shift, and go to state 76
+    DIV     shift, and go to state 78
+    MULT    shift, and go to state 79
+    MODULE  shift, and go to state 80
 
     $default  reduce using rule 44 (expr)
 
 
-state 106
+State 111
 
-   45 expr: expr ADD_ASSIGN term .
-   48 term: term . MULT factor
-   49     | term . DIV factor
-   50     | term . MODULE factor
+   45 expr: expr ADD_ASSIGN term •
+   48 term: term • MULT factor
+   49     | term • DIV factor
+   50     | term • MODULE factor
 
-    DIV     shift, and go to state 74
-    MULT    shift, and go to state 75
-    MODULE  shift, and go to state 76
+    DIV     shift, and go to state 78
+    MULT    shift, and go to state 79
+    MODULE  shift, and go to state 80
 
     $default  reduce using rule 45 (expr)
 
 
-state 107
+State 112
 
-   46 expr: expr SUB_ASSIGN term .
-   48 term: term . MULT factor
-   49     | term . DIV factor
-   50     | term . MODULE factor
+   46 expr: expr SUB_ASSIGN term •
+   48 term: term • MULT factor
+   49     | term • DIV factor
+   50     | term • MODULE factor
 
-    DIV     shift, and go to state 74
-    MULT    shift, and go to state 75
-    MODULE  shift, and go to state 76
+    DIV     shift, and go to state 78
+    MULT    shift, and go to state 79
+    MODULE  shift, and go to state 80
 
     $default  reduce using rule 46 (expr)
 
 
-state 108
+State 113
 
-   49 term: term DIV factor .
+   49 term: term DIV factor •
 
     $default  reduce using rule 49 (term)
 
 
-state 109
+State 114
 
-   48 term: term MULT factor .
+   48 term: term MULT factor •
 
     $default  reduce using rule 48 (term)
 
 
-state 110
+State 115
 
-   50 term: term MODULE factor .
+   50 term: term MODULE factor •
 
     $default  reduce using rule 50 (term)
 
 
-state 111
+State 116
 
-   36 dims: OPEN_BRACK value CLOSE_BRACK dims .
+   36 dims: OPEN_BRACK value CLOSE_BRACK dims •
 
     $default  reduce using rule 36 (dims)
 
 
-state 112
+State 117
 
-   54 factor: ID dims .
-   65 assign_mat: ID dims ASSIGN ID dims . SEMI
+   54 factor: ID dims •
+   65 assign_mat: ID dims ASSIGN ID dims • SEMI
 
-    SEMI  shift, and go to state 132
+    SEMI  shift, and go to state 138
 
     SEMI      [reduce using rule 54 (factor)]
     $default  reduce using rule 54 (factor)
 
 
-state 113
+State 118
 
-   64 assign_mat: ID dims ASSIGN expr SEMI .
+   64 assign_mat: ID dims ASSIGN expr SEMI •
 
     $default  reduce using rule 64 (assign_mat)
 
 
-state 114
+State 119
 
-   70 proc: VOID ID OPEN_PAREN . params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
-   71     | VOID ID OPEN_PAREN . CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+   71 proc: VOID ID OPEN_PAREN CLOSE_PAREN • BLOCK_BEGIN stmts BLOCK_END
 
-    INT          shift, and go to state 2
-    DOUBLE       shift, and go to state 3
-    FLOAT        shift, and go to state 4
-    CHAR         shift, and go to state 5
-    STRING       shift, and go to state 6
-    VOID         shift, and go to state 7
-    CLOSE_PAREN  shift, and go to state 133
-
-    type    go to state 116
-    params  go to state 134
-    param   go to state 118
+    BLOCK_BEGIN  shift, and go to state 139
 
 
-state 115
+State 120
 
-  125 principal: MAIN OPEN_PAREN CLOSE_PAREN . BLOCK_BEGIN stmts BLOCK_END
+   70 proc: VOID ID OPEN_PAREN params • CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
 
-    BLOCK_BEGIN  shift, and go to state 135
-
-
-state 116
-
-   76 param: type . dims ID
-   77      | type . ID
-
-    ID          shift, and go to state 136
-    OPEN_BRACK  shift, and go to state 21
-
-    dims  go to state 137
-
-
-state 117
-
-  124 principal: MAIN OPEN_PAREN params . CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
-
-    CLOSE_PAREN  shift, and go to state 138
-
-
-state 118
-
-   74 params: param .
-   75       | param . COMMA params
-
-    COMMA  shift, and go to state 139
-
-    $default  reduce using rule 74 (params)
-
-
-state 119
-
-   72 function: type ID OPEN_PAREN . params CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END
-   73         | type ID OPEN_PAREN . CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END
-
-    INT          shift, and go to state 2
-    DOUBLE       shift, and go to state 3
-    FLOAT        shift, and go to state 4
-    CHAR         shift, and go to state 5
-    STRING       shift, and go to state 6
-    VOID         shift, and go to state 7
     CLOSE_PAREN  shift, and go to state 140
 
-    type    go to state 116
-    params  go to state 141
-    param   go to state 118
 
+State 121
 
-state 120
+  125 principal: MAIN OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN • stmts BLOCK_END
 
-    1 prog: decs_var SEMI subprograms SEMI principal . SEMI subprograms
-    3     | decs_var SEMI subprograms SEMI principal .
-
-    SEMI  shift, and go to state 142
-
-    $default  reduce using rule 3 (prog)
-
-
-state 121
-
-    2 prog: decs_var SEMI principal SEMI subprograms .
-
-    $default  reduce using rule 2 (prog)
-
-
-state 122
-
-   13 dec_var: type_modifiers type ID ASSIGN p_values . SEMI
-
-    SEMI  shift, and go to state 143
-
-
-state 123
-
-   15 dec_var: type_modifiers type ID dims SEMI .
-
-    $default  reduce using rule 15 (dec_var)
-
-
-state 124
-
-   14 dec_var: type_modifiers type ID dims ASSIGN . BLOCK_BEGIN p_values BLOCK_END SEMI
-
-    BLOCK_BEGIN  shift, and go to state 144
-
-
-state 125
-
-    9 dec_var: type ID ASSIGN p_values SEMI .
-
-    $default  reduce using rule 9 (dec_var)
-
-
-state 126
-
-   42 p_values: expr COMMA . p_values
-
-    ID            shift, and go to state 44
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    OPEN_PAREN    shift, and go to state 37
-
-    p_values      go to state 145
-    expr          go to state 91
-    term          go to state 40
-    factor        go to state 41
-    value         go to state 46
-    funcion_call  go to state 43
-
-
-state 127
-
-   10 dec_var: type ID dims ASSIGN BLOCK_BEGIN . p_values BLOCK_END SEMI
-
-    ID            shift, and go to state 44
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    OPEN_PAREN    shift, and go to state 37
-
-    p_values      go to state 146
-    expr          go to state 91
-    term          go to state 40
-    factor        go to state 41
-    value         go to state 46
-    funcion_call  go to state 43
-
-
-state 128
-
-   32 atomo: ID dims .
-
-    $default  reduce using rule 32 (atomo)
-
-
-state 129
-
-  120 funcion_call: ID OPEN_PAREN CLOSE_PAREN SEMI .
-
-    $default  reduce using rule 120 (funcion_call)
-
-
-state 130
-
-  119 funcion_call: ID OPEN_PAREN args CLOSE_PAREN . SEMI
-
-    SEMI  shift, and go to state 147
-
-
-state 131
-
-  121 args: args arg .
-
-    $default  reduce using rule 121 (args)
-
-
-state 132
-
-   65 assign_mat: ID dims ASSIGN ID dims SEMI .
-
-    $default  reduce using rule 65 (assign_mat)
-
-
-state 133
-
-   71 proc: VOID ID OPEN_PAREN CLOSE_PAREN . BLOCK_BEGIN stmts BLOCK_END
-
-    BLOCK_BEGIN  shift, and go to state 148
-
-
-state 134
-
-   70 proc: VOID ID OPEN_PAREN params . CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
-
-    CLOSE_PAREN  shift, and go to state 149
-
-
-state 135
-
-  125 principal: MAIN OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN . stmts BLOCK_END
-
-    ID      shift, and go to state 150
+    ID      shift, and go to state 141
     INT     shift, and go to state 2
     DOUBLE  shift, and go to state 3
     FLOAT   shift, and go to state 4
@@ -1873,57 +1807,57 @@ state 135
     VOID    shift, and go to state 7
     STRUCT  shift, and go to state 8
     ENUM    shift, and go to state 9
-    WHILE   shift, and go to state 151
-    DO      shift, and go to state 152
-    SWITCH  shift, and go to state 153
-    IF      shift, and go to state 154
-    FOR     shift, and go to state 155
+    WHILE   shift, and go to state 142
+    DO      shift, and go to state 143
+    SWITCH  shift, and go to state 144
+    IF      shift, and go to state 145
+    FOR     shift, and go to state 146
     CONST   shift, and go to state 10
     STATIC  shift, and go to state 11
 
-    dec_var           go to state 156
+    dec_var           go to state 147
     type_modifiers    go to state 15
     type_modifier     go to state 16
     type              go to state 17
-    assigns           go to state 157
+    assigns           go to state 148
     assign_def        go to state 19
     assign_mat        go to state 20
-    stmts             go to state 158
-    stmt              go to state 159
-    conditional_stmt  go to state 160
-    if_stmt           go to state 161
-    switch_stmt       go to state 162
-    iteration_stmt    go to state 163
-    while_stmt        go to state 164
-    for_stmt          go to state 165
-    dowhile_stmt      go to state 166
-    funcion_call      go to state 167
+    stmts             go to state 149
+    stmt              go to state 150
+    conditional_stmt  go to state 151
+    if_stmt           go to state 152
+    switch_stmt       go to state 153
+    iteration_stmt    go to state 154
+    while_stmt        go to state 155
+    for_stmt          go to state 156
+    dowhile_stmt      go to state 157
+    function_call     go to state 158
 
 
-state 136
+State 122
 
-   77 param: type ID .
+   77 param: type ID •
 
     $default  reduce using rule 77 (param)
 
 
-state 137
+State 123
 
-   76 param: type dims . ID
+   76 param: type dims • ID
 
-    ID  shift, and go to state 168
-
-
-state 138
-
-  124 principal: MAIN OPEN_PAREN params CLOSE_PAREN . BLOCK_BEGIN stmts BLOCK_END
-
-    BLOCK_BEGIN  shift, and go to state 169
+    ID  shift, and go to state 159
 
 
-state 139
+State 124
 
-   75 params: param COMMA . params
+  124 principal: MAIN OPEN_PAREN params CLOSE_PAREN • BLOCK_BEGIN stmts BLOCK_END
+
+    BLOCK_BEGIN  shift, and go to state 160
+
+
+State 125
+
+   75 params: param COMMA • params
 
     INT     shift, and go to state 2
     DOUBLE  shift, and go to state 3
@@ -1932,94 +1866,129 @@ state 139
     STRING  shift, and go to state 6
     VOID    shift, and go to state 7
 
-    type    go to state 116
-    params  go to state 170
-    param   go to state 118
+    type    go to state 87
+    params  go to state 161
+    param   go to state 89
 
 
-state 140
+State 126
 
-   73 function: type ID OPEN_PAREN CLOSE_PAREN . BLOCK_BEGIN stmts RETURN value BLOCK_END
+   73 function: type ID OPEN_PAREN CLOSE_PAREN • BLOCK_BEGIN stmts RETURN value BLOCK_END
 
-    BLOCK_BEGIN  shift, and go to state 171
-
-
-state 141
-
-   72 function: type ID OPEN_PAREN params . CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END
-
-    CLOSE_PAREN  shift, and go to state 172
+    BLOCK_BEGIN  shift, and go to state 162
 
 
-state 142
+State 127
 
-    1 prog: decs_var SEMI subprograms SEMI principal SEMI . subprograms
+   72 function: type ID OPEN_PAREN params • CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END
 
-    INT     shift, and go to state 2
-    DOUBLE  shift, and go to state 3
-    FLOAT   shift, and go to state 4
-    CHAR    shift, and go to state 5
-    STRING  shift, and go to state 6
-    VOID    shift, and go to state 48
-
-    type         go to state 50
-    subprograms  go to state 173
-    subprogram   go to state 52
-    proc         go to state 53
-    function     go to state 54
+    CLOSE_PAREN  shift, and go to state 163
 
 
-state 143
+State 128
 
-   13 dec_var: type_modifiers type ID ASSIGN p_values SEMI .
+   13 dec_var: type_modifiers type ID ASSIGN p_values • SEMI
 
-    $default  reduce using rule 13 (dec_var)
-
-
-state 144
-
-   14 dec_var: type_modifiers type ID dims ASSIGN BLOCK_BEGIN . p_values BLOCK_END SEMI
-
-    ID            shift, and go to state 44
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    OPEN_PAREN    shift, and go to state 37
-
-    p_values      go to state 174
-    expr          go to state 91
-    term          go to state 40
-    factor        go to state 41
-    value         go to state 46
-    funcion_call  go to state 43
+    SEMI  shift, and go to state 164
 
 
-state 145
+State 129
 
-   42 p_values: expr COMMA p_values .
+   15 dec_var: type_modifiers type ID dims SEMI •
 
-    $default  reduce using rule 42 (p_values)
-
-
-state 146
-
-   10 dec_var: type ID dims ASSIGN BLOCK_BEGIN p_values . BLOCK_END SEMI
-
-    BLOCK_END  shift, and go to state 175
+    $default  reduce using rule 15 (dec_var)
 
 
-state 147
+State 130
 
-  119 funcion_call: ID OPEN_PAREN args CLOSE_PAREN SEMI .
+   14 dec_var: type_modifiers type ID dims ASSIGN • BLOCK_BEGIN p_values BLOCK_END SEMI
 
-    $default  reduce using rule 119 (funcion_call)
+    BLOCK_BEGIN  shift, and go to state 165
 
 
-state 148
+State 131
 
-   71 proc: VOID ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN . stmts BLOCK_END
+    9 dec_var: type ID ASSIGN p_values SEMI •
 
-    ID      shift, and go to state 150
+    $default  reduce using rule 9 (dec_var)
+
+
+State 132
+
+   42 p_values: expr COMMA • p_values
+
+    ID            shift, and go to state 51
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    OPEN_PAREN    shift, and go to state 44
+
+    p_values       go to state 166
+    expr           go to state 96
+    term           go to state 47
+    factor         go to state 48
+    value          go to state 53
+    function_call  go to state 50
+
+
+State 133
+
+   10 dec_var: type ID dims ASSIGN BLOCK_BEGIN • p_values BLOCK_END SEMI
+
+    ID            shift, and go to state 51
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    OPEN_PAREN    shift, and go to state 44
+
+    p_values       go to state 167
+    expr           go to state 96
+    term           go to state 47
+    factor         go to state 48
+    value          go to state 53
+    function_call  go to state 50
+
+
+State 134
+
+   32 atomo: ID dims •
+
+    $default  reduce using rule 32 (atomo)
+
+
+State 135
+
+  120 function_call: ID OPEN_PAREN CLOSE_PAREN SEMI •
+
+    $default  reduce using rule 120 (function_call)
+
+
+State 136
+
+  119 function_call: ID OPEN_PAREN args CLOSE_PAREN • SEMI
+
+    SEMI  shift, and go to state 168
+
+
+State 137
+
+  121 args: args arg •
+
+    $default  reduce using rule 121 (args)
+
+
+State 138
+
+   65 assign_mat: ID dims ASSIGN ID dims SEMI •
+
+    $default  reduce using rule 65 (assign_mat)
+
+
+State 139
+
+   71 proc: VOID ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN • stmts BLOCK_END
+
+    ID      shift, and go to state 141
     INT     shift, and go to state 2
     DOUBLE  shift, and go to state 3
     FLOAT   shift, and go to state 4
@@ -2028,197 +1997,225 @@ state 148
     VOID    shift, and go to state 7
     STRUCT  shift, and go to state 8
     ENUM    shift, and go to state 9
-    WHILE   shift, and go to state 151
-    DO      shift, and go to state 152
-    SWITCH  shift, and go to state 153
-    IF      shift, and go to state 154
-    FOR     shift, and go to state 155
+    WHILE   shift, and go to state 142
+    DO      shift, and go to state 143
+    SWITCH  shift, and go to state 144
+    IF      shift, and go to state 145
+    FOR     shift, and go to state 146
     CONST   shift, and go to state 10
     STATIC  shift, and go to state 11
 
-    dec_var           go to state 156
+    dec_var           go to state 147
     type_modifiers    go to state 15
     type_modifier     go to state 16
     type              go to state 17
-    assigns           go to state 157
+    assigns           go to state 148
     assign_def        go to state 19
     assign_mat        go to state 20
-    stmts             go to state 176
-    stmt              go to state 159
-    conditional_stmt  go to state 160
-    if_stmt           go to state 161
-    switch_stmt       go to state 162
-    iteration_stmt    go to state 163
-    while_stmt        go to state 164
-    for_stmt          go to state 165
-    dowhile_stmt      go to state 166
-    funcion_call      go to state 167
+    stmts             go to state 169
+    stmt              go to state 150
+    conditional_stmt  go to state 151
+    if_stmt           go to state 152
+    switch_stmt       go to state 153
+    iteration_stmt    go to state 154
+    while_stmt        go to state 155
+    for_stmt          go to state 156
+    dowhile_stmt      go to state 157
+    function_call     go to state 158
 
 
-state 149
+State 140
 
-   70 proc: VOID ID OPEN_PAREN params CLOSE_PAREN . BLOCK_BEGIN stmts BLOCK_END
+   70 proc: VOID ID OPEN_PAREN params CLOSE_PAREN • BLOCK_BEGIN stmts BLOCK_END
 
-    BLOCK_BEGIN  shift, and go to state 177
+    BLOCK_BEGIN  shift, and go to state 170
 
 
-state 150
+State 141
 
-   63 assign_def: ID . ASSIGN expr SEMI
-   64 assign_mat: ID . dims ASSIGN expr SEMI
-   65           | ID . dims ASSIGN ID dims SEMI
-  119 funcion_call: ID . OPEN_PAREN args CLOSE_PAREN SEMI
-  120             | ID . OPEN_PAREN CLOSE_PAREN SEMI
+   63 assign_def: ID • ASSIGN expr SEMI
+   64 assign_mat: ID • dims ASSIGN expr SEMI
+   65           | ID • dims ASSIGN ID dims SEMI
+  119 function_call: ID • OPEN_PAREN args CLOSE_PAREN SEMI
+  120              | ID • OPEN_PAREN CLOSE_PAREN SEMI
 
-    OPEN_PAREN  shift, and go to state 64
+    OPEN_PAREN  shift, and go to state 68
     OPEN_BRACK  shift, and go to state 21
     ASSIGN      shift, and go to state 22
 
     dims  go to state 23
 
 
-state 151
+State 142
 
-  116 while_stmt: WHILE . OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+  116 while_stmt: WHILE • OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
 
-    OPEN_PAREN  shift, and go to state 178
-
-
-state 152
-
-  118 dowhile_stmt: DO . BLOCK_BEGIN stmts BLOCK_END WHILE OPEN_PAREN logic_expr CLOSE_PAREN SEMI
-
-    BLOCK_BEGIN  shift, and go to state 179
+    OPEN_PAREN  shift, and go to state 171
 
 
-state 153
+State 143
 
-  110 switch_stmt: SWITCH . switch_cases DEFAULT COLON stmts
+  118 dowhile_stmt: DO • BLOCK_BEGIN stmts BLOCK_END WHILE OPEN_PAREN logic_expr CLOSE_PAREN SEMI
 
-    CASE  shift, and go to state 180
-
-    $default  reduce using rule 111 (switch_cases)
-
-    switch_cases  go to state 181
+    BLOCK_BEGIN  shift, and go to state 172
 
 
-state 154
+State 144
 
-   87 if_stmt: IF . OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
-   88        | IF . OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END ELSE BLOCK_BEGIN stmts BLOCK_END
-   89        | IF . OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt ELSE BLOCK_BEGIN stmts BLOCK_END
-   90        | IF . OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt
+  110 switch_stmt: SWITCH • COLON OPEN_PAREN ID CLOSE_PAREN BLOCK_BEGIN switch_cases DEFAULT COLON stmts BLOCK_END
 
-    OPEN_PAREN  shift, and go to state 182
+    COLON  shift, and go to state 173
 
 
-state 155
+State 145
 
-  117 for_stmt: FOR . OPEN_PAREN dec_var logic_expr SEMI expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+   87 if_stmt: IF • OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+   88        | IF • OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END ELSE BLOCK_BEGIN stmts BLOCK_END
+   89        | IF • OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt ELSE BLOCK_BEGIN stmts BLOCK_END
+   90        | IF • OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt
 
-    OPEN_PAREN  shift, and go to state 183
+    OPEN_PAREN  shift, and go to state 174
 
 
-state 156
+State 146
 
-   80 stmt: dec_var .
+  117 for_stmt: FOR • OPEN_PAREN dec_var logic_expr SEMI expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+
+    OPEN_PAREN  shift, and go to state 175
+
+
+State 147
+
+   80 stmt: dec_var •
 
     $default  reduce using rule 80 (stmt)
 
 
-state 157
+State 148
 
-   81 stmt: assigns .
+   81 stmt: assigns •
 
     $default  reduce using rule 81 (stmt)
 
 
-state 158
+State 149
 
-  125 principal: MAIN OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts . BLOCK_END
+  125 principal: MAIN OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts • BLOCK_END
 
-    BLOCK_END  shift, and go to state 184
+    BLOCK_END  shift, and go to state 176
 
 
-state 159
+State 150
 
-   78 stmts: stmt .
-   79      | stmt . SEMI stmts
+   78 stmts: stmt •
+   79      | stmt • stmts
 
-    SEMI  shift, and go to state 185
+    ID      shift, and go to state 141
+    INT     shift, and go to state 2
+    DOUBLE  shift, and go to state 3
+    FLOAT   shift, and go to state 4
+    CHAR    shift, and go to state 5
+    STRING  shift, and go to state 6
+    VOID    shift, and go to state 7
+    STRUCT  shift, and go to state 8
+    ENUM    shift, and go to state 9
+    WHILE   shift, and go to state 142
+    DO      shift, and go to state 143
+    SWITCH  shift, and go to state 144
+    IF      shift, and go to state 145
+    FOR     shift, and go to state 146
+    CONST   shift, and go to state 10
+    STATIC  shift, and go to state 11
 
-    SEMI      [reduce using rule 78 (stmts)]
     $default  reduce using rule 78 (stmts)
 
+    dec_var           go to state 147
+    type_modifiers    go to state 15
+    type_modifier     go to state 16
+    type              go to state 17
+    assigns           go to state 148
+    assign_def        go to state 19
+    assign_mat        go to state 20
+    stmts             go to state 177
+    stmt              go to state 150
+    conditional_stmt  go to state 151
+    if_stmt           go to state 152
+    switch_stmt       go to state 153
+    iteration_stmt    go to state 154
+    while_stmt        go to state 155
+    for_stmt          go to state 156
+    dowhile_stmt      go to state 157
+    function_call     go to state 158
 
-state 160
 
-   83 stmt: conditional_stmt .
+State 151
+
+   83 stmt: conditional_stmt •
 
     $default  reduce using rule 83 (stmt)
 
 
-state 161
+State 152
 
-   85 conditional_stmt: if_stmt .
+   85 conditional_stmt: if_stmt •
 
     $default  reduce using rule 85 (conditional_stmt)
 
 
-state 162
+State 153
 
-   86 conditional_stmt: switch_stmt .
+   86 conditional_stmt: switch_stmt •
 
     $default  reduce using rule 86 (conditional_stmt)
 
 
-state 163
+State 154
 
-   84 stmt: iteration_stmt .
+   84 stmt: iteration_stmt •
 
     $default  reduce using rule 84 (stmt)
 
 
-state 164
+State 155
 
-  113 iteration_stmt: while_stmt .
+  113 iteration_stmt: while_stmt •
 
     $default  reduce using rule 113 (iteration_stmt)
 
 
-state 165
+State 156
 
-  114 iteration_stmt: for_stmt .
+  114 iteration_stmt: for_stmt •
 
     $default  reduce using rule 114 (iteration_stmt)
 
 
-state 166
+State 157
 
-  115 iteration_stmt: dowhile_stmt .
+  115 iteration_stmt: dowhile_stmt •
 
     $default  reduce using rule 115 (iteration_stmt)
 
 
-state 167
+State 158
 
-   82 stmt: funcion_call .
+   82 stmt: function_call •
 
     $default  reduce using rule 82 (stmt)
 
 
-state 168
+State 159
 
-   76 param: type dims ID .
+   76 param: type dims ID •
 
     $default  reduce using rule 76 (param)
 
 
-state 169
+State 160
 
-  124 principal: MAIN OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN . stmts BLOCK_END
+  124 principal: MAIN OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN • stmts BLOCK_END
 
-    ID      shift, and go to state 150
+    ID      shift, and go to state 141
     INT     shift, and go to state 2
     DOUBLE  shift, and go to state 3
     FLOAT   shift, and go to state 4
@@ -2227,45 +2224,45 @@ state 169
     VOID    shift, and go to state 7
     STRUCT  shift, and go to state 8
     ENUM    shift, and go to state 9
-    WHILE   shift, and go to state 151
-    DO      shift, and go to state 152
-    SWITCH  shift, and go to state 153
-    IF      shift, and go to state 154
-    FOR     shift, and go to state 155
+    WHILE   shift, and go to state 142
+    DO      shift, and go to state 143
+    SWITCH  shift, and go to state 144
+    IF      shift, and go to state 145
+    FOR     shift, and go to state 146
     CONST   shift, and go to state 10
     STATIC  shift, and go to state 11
 
-    dec_var           go to state 156
+    dec_var           go to state 147
     type_modifiers    go to state 15
     type_modifier     go to state 16
     type              go to state 17
-    assigns           go to state 157
+    assigns           go to state 148
     assign_def        go to state 19
     assign_mat        go to state 20
-    stmts             go to state 186
-    stmt              go to state 159
-    conditional_stmt  go to state 160
-    if_stmt           go to state 161
-    switch_stmt       go to state 162
-    iteration_stmt    go to state 163
-    while_stmt        go to state 164
-    for_stmt          go to state 165
-    dowhile_stmt      go to state 166
-    funcion_call      go to state 167
+    stmts             go to state 178
+    stmt              go to state 150
+    conditional_stmt  go to state 151
+    if_stmt           go to state 152
+    switch_stmt       go to state 153
+    iteration_stmt    go to state 154
+    while_stmt        go to state 155
+    for_stmt          go to state 156
+    dowhile_stmt      go to state 157
+    function_call     go to state 158
 
 
-state 170
+State 161
 
-   75 params: param COMMA params .
+   75 params: param COMMA params •
 
     $default  reduce using rule 75 (params)
 
 
-state 171
+State 162
 
-   73 function: type ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN . stmts RETURN value BLOCK_END
+   73 function: type ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN • stmts RETURN value BLOCK_END
 
-    ID      shift, and go to state 150
+    ID      shift, and go to state 141
     INT     shift, and go to state 2
     DOUBLE  shift, and go to state 3
     FLOAT   shift, and go to state 4
@@ -2274,73 +2271,98 @@ state 171
     VOID    shift, and go to state 7
     STRUCT  shift, and go to state 8
     ENUM    shift, and go to state 9
-    WHILE   shift, and go to state 151
-    DO      shift, and go to state 152
-    SWITCH  shift, and go to state 153
-    IF      shift, and go to state 154
-    FOR     shift, and go to state 155
+    WHILE   shift, and go to state 142
+    DO      shift, and go to state 143
+    SWITCH  shift, and go to state 144
+    IF      shift, and go to state 145
+    FOR     shift, and go to state 146
     CONST   shift, and go to state 10
     STATIC  shift, and go to state 11
 
-    dec_var           go to state 156
+    dec_var           go to state 147
     type_modifiers    go to state 15
     type_modifier     go to state 16
     type              go to state 17
-    assigns           go to state 157
+    assigns           go to state 148
     assign_def        go to state 19
     assign_mat        go to state 20
-    stmts             go to state 187
-    stmt              go to state 159
-    conditional_stmt  go to state 160
-    if_stmt           go to state 161
-    switch_stmt       go to state 162
-    iteration_stmt    go to state 163
-    while_stmt        go to state 164
-    for_stmt          go to state 165
-    dowhile_stmt      go to state 166
-    funcion_call      go to state 167
+    stmts             go to state 179
+    stmt              go to state 150
+    conditional_stmt  go to state 151
+    if_stmt           go to state 152
+    switch_stmt       go to state 153
+    iteration_stmt    go to state 154
+    while_stmt        go to state 155
+    for_stmt          go to state 156
+    dowhile_stmt      go to state 157
+    function_call     go to state 158
 
 
-state 172
+State 163
 
-   72 function: type ID OPEN_PAREN params CLOSE_PAREN . BLOCK_BEGIN stmts RETURN value BLOCK_END
+   72 function: type ID OPEN_PAREN params CLOSE_PAREN • BLOCK_BEGIN stmts RETURN value BLOCK_END
 
-    BLOCK_BEGIN  shift, and go to state 188
-
-
-state 173
-
-    1 prog: decs_var SEMI subprograms SEMI principal SEMI subprograms .
-
-    $default  reduce using rule 1 (prog)
+    BLOCK_BEGIN  shift, and go to state 180
 
 
-state 174
+State 164
 
-   14 dec_var: type_modifiers type ID dims ASSIGN BLOCK_BEGIN p_values . BLOCK_END SEMI
+   13 dec_var: type_modifiers type ID ASSIGN p_values SEMI •
 
-    BLOCK_END  shift, and go to state 189
-
-
-state 175
-
-   10 dec_var: type ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END . SEMI
-
-    SEMI  shift, and go to state 190
+    $default  reduce using rule 13 (dec_var)
 
 
-state 176
+State 165
 
-   71 proc: VOID ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts . BLOCK_END
+   14 dec_var: type_modifiers type ID dims ASSIGN BLOCK_BEGIN • p_values BLOCK_END SEMI
 
-    BLOCK_END  shift, and go to state 191
+    ID            shift, and go to state 51
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    OPEN_PAREN    shift, and go to state 44
+
+    p_values       go to state 181
+    expr           go to state 96
+    term           go to state 47
+    factor         go to state 48
+    value          go to state 53
+    function_call  go to state 50
 
 
-state 177
+State 166
 
-   70 proc: VOID ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN . stmts BLOCK_END
+   42 p_values: expr COMMA p_values •
 
-    ID      shift, and go to state 150
+    $default  reduce using rule 42 (p_values)
+
+
+State 167
+
+   10 dec_var: type ID dims ASSIGN BLOCK_BEGIN p_values • BLOCK_END SEMI
+
+    BLOCK_END  shift, and go to state 182
+
+
+State 168
+
+  119 function_call: ID OPEN_PAREN args CLOSE_PAREN SEMI •
+
+    $default  reduce using rule 119 (function_call)
+
+
+State 169
+
+   71 proc: VOID ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts • BLOCK_END
+
+    BLOCK_END  shift, and go to state 183
+
+
+State 170
+
+   70 proc: VOID ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN • stmts BLOCK_END
+
+    ID      shift, and go to state 141
     INT     shift, and go to state 2
     DOUBLE  shift, and go to state 3
     FLOAT   shift, and go to state 4
@@ -2349,141 +2371,130 @@ state 177
     VOID    shift, and go to state 7
     STRUCT  shift, and go to state 8
     ENUM    shift, and go to state 9
-    WHILE   shift, and go to state 151
-    DO      shift, and go to state 152
-    SWITCH  shift, and go to state 153
-    IF      shift, and go to state 154
-    FOR     shift, and go to state 155
+    WHILE   shift, and go to state 142
+    DO      shift, and go to state 143
+    SWITCH  shift, and go to state 144
+    IF      shift, and go to state 145
+    FOR     shift, and go to state 146
     CONST   shift, and go to state 10
     STATIC  shift, and go to state 11
 
-    dec_var           go to state 156
+    dec_var           go to state 147
     type_modifiers    go to state 15
     type_modifier     go to state 16
     type              go to state 17
-    assigns           go to state 157
+    assigns           go to state 148
+    assign_def        go to state 19
+    assign_mat        go to state 20
+    stmts             go to state 184
+    stmt              go to state 150
+    conditional_stmt  go to state 151
+    if_stmt           go to state 152
+    switch_stmt       go to state 153
+    iteration_stmt    go to state 154
+    while_stmt        go to state 155
+    for_stmt          go to state 156
+    dowhile_stmt      go to state 157
+    function_call     go to state 158
+
+
+State 171
+
+  116 while_stmt: WHILE OPEN_PAREN • logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+
+    ID            shift, and go to state 185
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    TRUE          shift, and go to state 186
+    FALSE         shift, and go to state 187
+    OPEN_PAREN    shift, and go to state 44
+
+    expr           go to state 188
+    term           go to state 47
+    factor         go to state 48
+    value          go to state 53
+    logic_expr     go to state 189
+    c_term         go to state 190
+    comp           go to state 191
+    function_call  go to state 50
+
+
+State 172
+
+  118 dowhile_stmt: DO BLOCK_BEGIN • stmts BLOCK_END WHILE OPEN_PAREN logic_expr CLOSE_PAREN SEMI
+
+    ID      shift, and go to state 141
+    INT     shift, and go to state 2
+    DOUBLE  shift, and go to state 3
+    FLOAT   shift, and go to state 4
+    CHAR    shift, and go to state 5
+    STRING  shift, and go to state 6
+    VOID    shift, and go to state 7
+    STRUCT  shift, and go to state 8
+    ENUM    shift, and go to state 9
+    WHILE   shift, and go to state 142
+    DO      shift, and go to state 143
+    SWITCH  shift, and go to state 144
+    IF      shift, and go to state 145
+    FOR     shift, and go to state 146
+    CONST   shift, and go to state 10
+    STATIC  shift, and go to state 11
+
+    dec_var           go to state 147
+    type_modifiers    go to state 15
+    type_modifier     go to state 16
+    type              go to state 17
+    assigns           go to state 148
     assign_def        go to state 19
     assign_mat        go to state 20
     stmts             go to state 192
-    stmt              go to state 159
-    conditional_stmt  go to state 160
-    if_stmt           go to state 161
-    switch_stmt       go to state 162
-    iteration_stmt    go to state 163
-    while_stmt        go to state 164
-    for_stmt          go to state 165
-    dowhile_stmt      go to state 166
-    funcion_call      go to state 167
+    stmt              go to state 150
+    conditional_stmt  go to state 151
+    if_stmt           go to state 152
+    switch_stmt       go to state 153
+    iteration_stmt    go to state 154
+    while_stmt        go to state 155
+    for_stmt          go to state 156
+    dowhile_stmt      go to state 157
+    function_call     go to state 158
 
 
-state 178
+State 173
 
-  116 while_stmt: WHILE OPEN_PAREN . logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+  110 switch_stmt: SWITCH COLON • OPEN_PAREN ID CLOSE_PAREN BLOCK_BEGIN switch_cases DEFAULT COLON stmts BLOCK_END
 
-    ID            shift, and go to state 193
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    TRUE          shift, and go to state 194
-    FALSE         shift, and go to state 195
-    OPEN_PAREN    shift, and go to state 37
-
-    expr          go to state 196
-    term          go to state 40
-    factor        go to state 41
-    value         go to state 46
-    logic_expr    go to state 197
-    c_term        go to state 198
-    comp          go to state 199
-    funcion_call  go to state 43
+    OPEN_PAREN  shift, and go to state 193
 
 
-state 179
+State 174
 
-  118 dowhile_stmt: DO BLOCK_BEGIN . stmts BLOCK_END WHILE OPEN_PAREN logic_expr CLOSE_PAREN SEMI
+   87 if_stmt: IF OPEN_PAREN • logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+   88        | IF OPEN_PAREN • logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END ELSE BLOCK_BEGIN stmts BLOCK_END
+   89        | IF OPEN_PAREN • logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt ELSE BLOCK_BEGIN stmts BLOCK_END
+   90        | IF OPEN_PAREN • logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt
 
-    ID      shift, and go to state 150
-    INT     shift, and go to state 2
-    DOUBLE  shift, and go to state 3
-    FLOAT   shift, and go to state 4
-    CHAR    shift, and go to state 5
-    STRING  shift, and go to state 6
-    VOID    shift, and go to state 7
-    STRUCT  shift, and go to state 8
-    ENUM    shift, and go to state 9
-    WHILE   shift, and go to state 151
-    DO      shift, and go to state 152
-    SWITCH  shift, and go to state 153
-    IF      shift, and go to state 154
-    FOR     shift, and go to state 155
-    CONST   shift, and go to state 10
-    STATIC  shift, and go to state 11
+    ID            shift, and go to state 185
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    TRUE          shift, and go to state 186
+    FALSE         shift, and go to state 187
+    OPEN_PAREN    shift, and go to state 44
 
-    dec_var           go to state 156
-    type_modifiers    go to state 15
-    type_modifier     go to state 16
-    type              go to state 17
-    assigns           go to state 157
-    assign_def        go to state 19
-    assign_mat        go to state 20
-    stmts             go to state 200
-    stmt              go to state 159
-    conditional_stmt  go to state 160
-    if_stmt           go to state 161
-    switch_stmt       go to state 162
-    iteration_stmt    go to state 163
-    while_stmt        go to state 164
-    for_stmt          go to state 165
-    dowhile_stmt      go to state 166
-    funcion_call      go to state 167
+    expr           go to state 188
+    term           go to state 47
+    factor         go to state 48
+    value          go to state 53
+    logic_expr     go to state 194
+    c_term         go to state 190
+    comp           go to state 191
+    function_call  go to state 50
 
 
-state 180
+State 175
 
-  112 switch_cases: CASE . value COLON stmts BREAK switch_cases
-
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-
-    value  go to state 201
-
-
-state 181
-
-  110 switch_stmt: SWITCH switch_cases . DEFAULT COLON stmts
-
-    DEFAULT  shift, and go to state 202
-
-
-state 182
-
-   87 if_stmt: IF OPEN_PAREN . logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
-   88        | IF OPEN_PAREN . logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END ELSE BLOCK_BEGIN stmts BLOCK_END
-   89        | IF OPEN_PAREN . logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt ELSE BLOCK_BEGIN stmts BLOCK_END
-   90        | IF OPEN_PAREN . logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt
-
-    ID            shift, and go to state 193
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    TRUE          shift, and go to state 194
-    FALSE         shift, and go to state 195
-    OPEN_PAREN    shift, and go to state 37
-
-    expr          go to state 196
-    term          go to state 40
-    factor        go to state 41
-    value         go to state 46
-    logic_expr    go to state 203
-    c_term        go to state 198
-    comp          go to state 199
-    funcion_call  go to state 43
-
-
-state 183
-
-  117 for_stmt: FOR OPEN_PAREN . dec_var logic_expr SEMI expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+  117 for_stmt: FOR OPEN_PAREN • dec_var logic_expr SEMI expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
 
     INT     shift, and go to state 2
     DOUBLE  shift, and go to state 3
@@ -2496,24 +2507,45 @@ state 183
     CONST   shift, and go to state 10
     STATIC  shift, and go to state 11
 
-    dec_var         go to state 204
+    dec_var         go to state 195
     type_modifiers  go to state 15
     type_modifier   go to state 16
     type            go to state 17
 
 
-state 184
+State 176
 
-  125 principal: MAIN OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END .
+  125 principal: MAIN OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END •
 
     $default  reduce using rule 125 (principal)
 
 
-state 185
+State 177
 
-   79 stmts: stmt SEMI . stmts
+   79 stmts: stmt stmts •
 
-    ID      shift, and go to state 150
+    $default  reduce using rule 79 (stmts)
+
+
+State 178
+
+  124 principal: MAIN OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts • BLOCK_END
+
+    BLOCK_END  shift, and go to state 196
+
+
+State 179
+
+   73 function: type ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts • RETURN value BLOCK_END
+
+    RETURN  shift, and go to state 197
+
+
+State 180
+
+   72 function: type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN • stmts RETURN value BLOCK_END
+
+    ID      shift, and go to state 141
     INT     shift, and go to state 2
     DOUBLE  shift, and go to state 3
     FLOAT   shift, and go to state 4
@@ -2522,125 +2554,71 @@ state 185
     VOID    shift, and go to state 7
     STRUCT  shift, and go to state 8
     ENUM    shift, and go to state 9
-    WHILE   shift, and go to state 151
-    DO      shift, and go to state 152
-    SWITCH  shift, and go to state 153
-    IF      shift, and go to state 154
-    FOR     shift, and go to state 155
+    WHILE   shift, and go to state 142
+    DO      shift, and go to state 143
+    SWITCH  shift, and go to state 144
+    IF      shift, and go to state 145
+    FOR     shift, and go to state 146
     CONST   shift, and go to state 10
     STATIC  shift, and go to state 11
 
-    dec_var           go to state 156
+    dec_var           go to state 147
     type_modifiers    go to state 15
     type_modifier     go to state 16
     type              go to state 17
-    assigns           go to state 157
+    assigns           go to state 148
     assign_def        go to state 19
     assign_mat        go to state 20
-    stmts             go to state 205
-    stmt              go to state 159
-    conditional_stmt  go to state 160
-    if_stmt           go to state 161
-    switch_stmt       go to state 162
-    iteration_stmt    go to state 163
-    while_stmt        go to state 164
-    for_stmt          go to state 165
-    dowhile_stmt      go to state 166
-    funcion_call      go to state 167
+    stmts             go to state 198
+    stmt              go to state 150
+    conditional_stmt  go to state 151
+    if_stmt           go to state 152
+    switch_stmt       go to state 153
+    iteration_stmt    go to state 154
+    while_stmt        go to state 155
+    for_stmt          go to state 156
+    dowhile_stmt      go to state 157
+    function_call     go to state 158
 
 
-state 186
+State 181
 
-  124 principal: MAIN OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts . BLOCK_END
+   14 dec_var: type_modifiers type ID dims ASSIGN BLOCK_BEGIN p_values • BLOCK_END SEMI
 
-    BLOCK_END  shift, and go to state 206
-
-
-state 187
-
-   73 function: type ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts . RETURN value BLOCK_END
-
-    RETURN  shift, and go to state 207
+    BLOCK_END  shift, and go to state 199
 
 
-state 188
+State 182
 
-   72 function: type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN . stmts RETURN value BLOCK_END
+   10 dec_var: type ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END • SEMI
 
-    ID      shift, and go to state 150
-    INT     shift, and go to state 2
-    DOUBLE  shift, and go to state 3
-    FLOAT   shift, and go to state 4
-    CHAR    shift, and go to state 5
-    STRING  shift, and go to state 6
-    VOID    shift, and go to state 7
-    STRUCT  shift, and go to state 8
-    ENUM    shift, and go to state 9
-    WHILE   shift, and go to state 151
-    DO      shift, and go to state 152
-    SWITCH  shift, and go to state 153
-    IF      shift, and go to state 154
-    FOR     shift, and go to state 155
-    CONST   shift, and go to state 10
-    STATIC  shift, and go to state 11
-
-    dec_var           go to state 156
-    type_modifiers    go to state 15
-    type_modifier     go to state 16
-    type              go to state 17
-    assigns           go to state 157
-    assign_def        go to state 19
-    assign_mat        go to state 20
-    stmts             go to state 208
-    stmt              go to state 159
-    conditional_stmt  go to state 160
-    if_stmt           go to state 161
-    switch_stmt       go to state 162
-    iteration_stmt    go to state 163
-    while_stmt        go to state 164
-    for_stmt          go to state 165
-    dowhile_stmt      go to state 166
-    funcion_call      go to state 167
+    SEMI  shift, and go to state 200
 
 
-state 189
+State 183
 
-   14 dec_var: type_modifiers type ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END . SEMI
-
-    SEMI  shift, and go to state 209
-
-
-state 190
-
-   10 dec_var: type ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI .
-
-    $default  reduce using rule 10 (dec_var)
-
-
-state 191
-
-   71 proc: VOID ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END .
+   71 proc: VOID ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END •
 
     $default  reduce using rule 71 (proc)
 
 
-state 192
+State 184
 
-   70 proc: VOID ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts . BLOCK_END
+   70 proc: VOID ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts • BLOCK_END
 
-    BLOCK_END  shift, and go to state 210
+    BLOCK_END  shift, and go to state 201
 
 
-state 193
+State 185
 
-   53 factor: ID .
-   54       | ID . dims
-   95 c_term: ID .
-   96       | ID . dims
-  119 funcion_call: ID . OPEN_PAREN args CLOSE_PAREN SEMI
-  120             | ID . OPEN_PAREN CLOSE_PAREN SEMI
+   53 factor: ID •
+   54       | ID • dims
+   95 c_term: ID •
+   96       | ID • dims
+  119 function_call: ID • OPEN_PAREN args CLOSE_PAREN SEMI
+  120              | ID • OPEN_PAREN CLOSE_PAREN SEMI
 
-    OPEN_PAREN  shift, and go to state 64
+    OPEN_PAREN  shift, and go to state 68
     OPEN_BRACK  shift, and go to state 21
 
     CLOSE_PAREN  reduce using rule 95 (c_term)
@@ -2650,181 +2628,174 @@ state 193
     NOT          reduce using rule 95 (c_term)
     $default     reduce using rule 53 (factor)
 
-    dims  go to state 211
+    dims  go to state 202
 
 
-state 194
+State 186
 
-   97 c_term: TRUE .
+   97 c_term: TRUE •
 
     $default  reduce using rule 97 (c_term)
 
 
-state 195
+State 187
 
-   98 c_term: FALSE .
+   98 c_term: FALSE •
 
     $default  reduce using rule 98 (c_term)
 
 
-state 196
+State 188
 
-   43 expr: expr . PLUS term
-   44     | expr . MINUS term
-   45     | expr . ADD_ASSIGN term
-   46     | expr . SUB_ASSIGN term
-  100 comp: expr . comp_op expr
+   43 expr: expr • PLUS term
+   44     | expr • MINUS term
+   45     | expr • ADD_ASSIGN term
+   46     | expr • SUB_ASSIGN term
+  100 comp: expr • comp_op expr
 
-    PLUS        shift, and go to state 70
-    MINUS       shift, and go to state 71
-    ADD_ASSIGN  shift, and go to state 72
-    SUB_ASSIGN  shift, and go to state 73
-    EQ          shift, and go to state 212
-    NEQ         shift, and go to state 213
-    LT          shift, and go to state 214
-    GT          shift, and go to state 215
-    LE          shift, and go to state 216
-    GE          shift, and go to state 217
+    PLUS        shift, and go to state 74
+    MINUS       shift, and go to state 75
+    ADD_ASSIGN  shift, and go to state 76
+    SUB_ASSIGN  shift, and go to state 77
+    EQ          shift, and go to state 203
+    NEQ         shift, and go to state 204
+    LT          shift, and go to state 205
+    GT          shift, and go to state 206
+    LE          shift, and go to state 207
+    GE          shift, and go to state 208
 
-    comp_op  go to state 218
-
-
-state 197
-
-   93 logic_expr: logic_expr . logic_op c_term
-  116 while_stmt: WHILE OPEN_PAREN logic_expr . CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
-
-    CLOSE_PAREN  shift, and go to state 219
-    AND          shift, and go to state 220
-    OR           shift, and go to state 221
-    NOT          shift, and go to state 222
-
-    logic_op  go to state 223
+    comp_op  go to state 209
 
 
-state 198
+State 189
 
-   94 logic_expr: c_term .
+   93 logic_expr: logic_expr • logic_op c_term
+  116 while_stmt: WHILE OPEN_PAREN logic_expr • CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+
+    CLOSE_PAREN  shift, and go to state 210
+    AND          shift, and go to state 211
+    OR           shift, and go to state 212
+    NOT          shift, and go to state 213
+
+    logic_op  go to state 214
+
+
+State 190
+
+   94 logic_expr: c_term •
 
     $default  reduce using rule 94 (logic_expr)
 
 
-state 199
+State 191
 
-   99 c_term: comp .
+   99 c_term: comp •
 
     $default  reduce using rule 99 (c_term)
 
 
-state 200
+State 192
 
-  118 dowhile_stmt: DO BLOCK_BEGIN stmts . BLOCK_END WHILE OPEN_PAREN logic_expr CLOSE_PAREN SEMI
+  118 dowhile_stmt: DO BLOCK_BEGIN stmts • BLOCK_END WHILE OPEN_PAREN logic_expr CLOSE_PAREN SEMI
 
-    BLOCK_END  shift, and go to state 224
-
-
-state 201
-
-  112 switch_cases: CASE value . COLON stmts BREAK switch_cases
-
-    COLON  shift, and go to state 225
+    BLOCK_END  shift, and go to state 215
 
 
-state 202
+State 193
 
-  110 switch_stmt: SWITCH switch_cases DEFAULT . COLON stmts
+  110 switch_stmt: SWITCH COLON OPEN_PAREN • ID CLOSE_PAREN BLOCK_BEGIN switch_cases DEFAULT COLON stmts BLOCK_END
 
-    COLON  shift, and go to state 226
-
-
-state 203
-
-   87 if_stmt: IF OPEN_PAREN logic_expr . CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
-   88        | IF OPEN_PAREN logic_expr . CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END ELSE BLOCK_BEGIN stmts BLOCK_END
-   89        | IF OPEN_PAREN logic_expr . CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt ELSE BLOCK_BEGIN stmts BLOCK_END
-   90        | IF OPEN_PAREN logic_expr . CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt
-   93 logic_expr: logic_expr . logic_op c_term
-
-    CLOSE_PAREN  shift, and go to state 227
-    AND          shift, and go to state 220
-    OR           shift, and go to state 221
-    NOT          shift, and go to state 222
-
-    logic_op  go to state 223
+    ID  shift, and go to state 216
 
 
-state 204
+State 194
 
-  117 for_stmt: FOR OPEN_PAREN dec_var . logic_expr SEMI expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+   87 if_stmt: IF OPEN_PAREN logic_expr • CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+   88        | IF OPEN_PAREN logic_expr • CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END ELSE BLOCK_BEGIN stmts BLOCK_END
+   89        | IF OPEN_PAREN logic_expr • CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt ELSE BLOCK_BEGIN stmts BLOCK_END
+   90        | IF OPEN_PAREN logic_expr • CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt
+   93 logic_expr: logic_expr • logic_op c_term
 
-    ID            shift, and go to state 193
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    TRUE          shift, and go to state 194
-    FALSE         shift, and go to state 195
-    OPEN_PAREN    shift, and go to state 37
+    CLOSE_PAREN  shift, and go to state 217
+    AND          shift, and go to state 211
+    OR           shift, and go to state 212
+    NOT          shift, and go to state 213
 
-    expr          go to state 196
-    term          go to state 40
-    factor        go to state 41
-    value         go to state 46
-    logic_expr    go to state 228
-    c_term        go to state 198
-    comp          go to state 199
-    funcion_call  go to state 43
+    logic_op  go to state 214
 
 
-state 205
+State 195
 
-   79 stmts: stmt SEMI stmts .
+  117 for_stmt: FOR OPEN_PAREN dec_var • logic_expr SEMI expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
 
-    $default  reduce using rule 79 (stmts)
+    ID            shift, and go to state 185
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    TRUE          shift, and go to state 186
+    FALSE         shift, and go to state 187
+    OPEN_PAREN    shift, and go to state 44
+
+    expr           go to state 188
+    term           go to state 47
+    factor         go to state 48
+    value          go to state 53
+    logic_expr     go to state 218
+    c_term         go to state 190
+    comp           go to state 191
+    function_call  go to state 50
 
 
-state 206
+State 196
 
-  124 principal: MAIN OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END .
+  124 principal: MAIN OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END •
 
     $default  reduce using rule 124 (principal)
 
 
-state 207
+State 197
 
-   73 function: type ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN . value BLOCK_END
+   73 function: type ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN • value BLOCK_END
 
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
 
-    value  go to state 229
-
-
-state 208
-
-   72 function: type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts . RETURN value BLOCK_END
-
-    RETURN  shift, and go to state 230
+    value  go to state 219
 
 
-state 209
+State 198
 
-   14 dec_var: type_modifiers type ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI .
+   72 function: type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts • RETURN value BLOCK_END
 
-    $default  reduce using rule 14 (dec_var)
+    RETURN  shift, and go to state 220
 
 
-state 210
+State 199
 
-   70 proc: VOID ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END .
+   14 dec_var: type_modifiers type ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END • SEMI
+
+    SEMI  shift, and go to state 221
+
+
+State 200
+
+   10 dec_var: type ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI •
+
+    $default  reduce using rule 10 (dec_var)
+
+
+State 201
+
+   70 proc: VOID ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END •
 
     $default  reduce using rule 70 (proc)
 
 
-state 211
+State 202
 
-   54 factor: ID dims .
-   96 c_term: ID dims .
+   54 factor: ID dims •
+   96 c_term: ID dims •
 
     CLOSE_PAREN  reduce using rule 96 (c_term)
     SEMI         reduce using rule 96 (c_term)
@@ -2834,263 +2805,197 @@ state 211
     $default     reduce using rule 54 (factor)
 
 
-state 212
+State 203
 
-  101 comp_op: EQ .
+  101 comp_op: EQ •
 
     $default  reduce using rule 101 (comp_op)
 
 
-state 213
+State 204
 
-  102 comp_op: NEQ .
+  102 comp_op: NEQ •
 
     $default  reduce using rule 102 (comp_op)
 
 
-state 214
+State 205
 
-  106 comp_op: LT .
+  106 comp_op: LT •
 
     $default  reduce using rule 106 (comp_op)
 
 
-state 215
+State 206
 
-  105 comp_op: GT .
+  105 comp_op: GT •
 
     $default  reduce using rule 105 (comp_op)
 
 
-state 216
+State 207
 
-  104 comp_op: LE .
+  104 comp_op: LE •
 
     $default  reduce using rule 104 (comp_op)
 
 
-state 217
+State 208
 
-  103 comp_op: GE .
+  103 comp_op: GE •
 
     $default  reduce using rule 103 (comp_op)
 
 
-state 218
+State 209
 
-  100 comp: expr comp_op . expr
+  100 comp: expr comp_op • expr
 
-    ID            shift, and go to state 44
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    OPEN_PAREN    shift, and go to state 37
+    ID            shift, and go to state 51
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    OPEN_PAREN    shift, and go to state 44
 
-    expr          go to state 231
-    term          go to state 40
-    factor        go to state 41
-    value         go to state 46
-    funcion_call  go to state 43
-
-
-state 219
-
-  116 while_stmt: WHILE OPEN_PAREN logic_expr CLOSE_PAREN . BLOCK_BEGIN stmts BLOCK_END
-
-    BLOCK_BEGIN  shift, and go to state 232
+    expr           go to state 222
+    term           go to state 47
+    factor         go to state 48
+    value          go to state 53
+    function_call  go to state 50
 
 
-state 220
+State 210
 
-  107 logic_op: AND .
+  116 while_stmt: WHILE OPEN_PAREN logic_expr CLOSE_PAREN • BLOCK_BEGIN stmts BLOCK_END
+
+    BLOCK_BEGIN  shift, and go to state 223
+
+
+State 211
+
+  107 logic_op: AND •
 
     $default  reduce using rule 107 (logic_op)
 
 
-state 221
+State 212
 
-  108 logic_op: OR .
+  108 logic_op: OR •
 
     $default  reduce using rule 108 (logic_op)
 
 
-state 222
+State 213
 
-  109 logic_op: NOT .
+  109 logic_op: NOT •
 
     $default  reduce using rule 109 (logic_op)
 
 
-state 223
+State 214
 
-   93 logic_expr: logic_expr logic_op . c_term
+   93 logic_expr: logic_expr logic_op • c_term
 
-    ID            shift, and go to state 193
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    TRUE          shift, and go to state 194
-    FALSE         shift, and go to state 195
-    OPEN_PAREN    shift, and go to state 37
+    ID            shift, and go to state 185
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    TRUE          shift, and go to state 186
+    FALSE         shift, and go to state 187
+    OPEN_PAREN    shift, and go to state 44
 
-    expr          go to state 196
-    term          go to state 40
-    factor        go to state 41
-    value         go to state 46
-    c_term        go to state 233
-    comp          go to state 199
-    funcion_call  go to state 43
-
-
-state 224
-
-  118 dowhile_stmt: DO BLOCK_BEGIN stmts BLOCK_END . WHILE OPEN_PAREN logic_expr CLOSE_PAREN SEMI
-
-    WHILE  shift, and go to state 234
+    expr           go to state 188
+    term           go to state 47
+    factor         go to state 48
+    value          go to state 53
+    c_term         go to state 224
+    comp           go to state 191
+    function_call  go to state 50
 
 
-state 225
+State 215
 
-  112 switch_cases: CASE value COLON . stmts BREAK switch_cases
+  118 dowhile_stmt: DO BLOCK_BEGIN stmts BLOCK_END • WHILE OPEN_PAREN logic_expr CLOSE_PAREN SEMI
 
-    ID      shift, and go to state 150
-    INT     shift, and go to state 2
-    DOUBLE  shift, and go to state 3
-    FLOAT   shift, and go to state 4
-    CHAR    shift, and go to state 5
-    STRING  shift, and go to state 6
-    VOID    shift, and go to state 7
-    STRUCT  shift, and go to state 8
-    ENUM    shift, and go to state 9
-    WHILE   shift, and go to state 151
-    DO      shift, and go to state 152
-    SWITCH  shift, and go to state 153
-    IF      shift, and go to state 154
-    FOR     shift, and go to state 155
-    CONST   shift, and go to state 10
-    STATIC  shift, and go to state 11
-
-    dec_var           go to state 156
-    type_modifiers    go to state 15
-    type_modifier     go to state 16
-    type              go to state 17
-    assigns           go to state 157
-    assign_def        go to state 19
-    assign_mat        go to state 20
-    stmts             go to state 235
-    stmt              go to state 159
-    conditional_stmt  go to state 160
-    if_stmt           go to state 161
-    switch_stmt       go to state 162
-    iteration_stmt    go to state 163
-    while_stmt        go to state 164
-    for_stmt          go to state 165
-    dowhile_stmt      go to state 166
-    funcion_call      go to state 167
+    WHILE  shift, and go to state 225
 
 
-state 226
+State 216
 
-  110 switch_stmt: SWITCH switch_cases DEFAULT COLON . stmts
+  110 switch_stmt: SWITCH COLON OPEN_PAREN ID • CLOSE_PAREN BLOCK_BEGIN switch_cases DEFAULT COLON stmts BLOCK_END
 
-    ID      shift, and go to state 150
-    INT     shift, and go to state 2
-    DOUBLE  shift, and go to state 3
-    FLOAT   shift, and go to state 4
-    CHAR    shift, and go to state 5
-    STRING  shift, and go to state 6
-    VOID    shift, and go to state 7
-    STRUCT  shift, and go to state 8
-    ENUM    shift, and go to state 9
-    WHILE   shift, and go to state 151
-    DO      shift, and go to state 152
-    SWITCH  shift, and go to state 153
-    IF      shift, and go to state 154
-    FOR     shift, and go to state 155
-    CONST   shift, and go to state 10
-    STATIC  shift, and go to state 11
-
-    dec_var           go to state 156
-    type_modifiers    go to state 15
-    type_modifier     go to state 16
-    type              go to state 17
-    assigns           go to state 157
-    assign_def        go to state 19
-    assign_mat        go to state 20
-    stmts             go to state 236
-    stmt              go to state 159
-    conditional_stmt  go to state 160
-    if_stmt           go to state 161
-    switch_stmt       go to state 162
-    iteration_stmt    go to state 163
-    while_stmt        go to state 164
-    for_stmt          go to state 165
-    dowhile_stmt      go to state 166
-    funcion_call      go to state 167
+    CLOSE_PAREN  shift, and go to state 226
 
 
-state 227
+State 217
 
-   87 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN . BLOCK_BEGIN stmts BLOCK_END
-   88        | IF OPEN_PAREN logic_expr CLOSE_PAREN . BLOCK_BEGIN stmts BLOCK_END ELSE BLOCK_BEGIN stmts BLOCK_END
-   89        | IF OPEN_PAREN logic_expr CLOSE_PAREN . BLOCK_BEGIN stmts BLOCK_END else_if_stmt ELSE BLOCK_BEGIN stmts BLOCK_END
-   90        | IF OPEN_PAREN logic_expr CLOSE_PAREN . BLOCK_BEGIN stmts BLOCK_END else_if_stmt
+   87 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN • BLOCK_BEGIN stmts BLOCK_END
+   88        | IF OPEN_PAREN logic_expr CLOSE_PAREN • BLOCK_BEGIN stmts BLOCK_END ELSE BLOCK_BEGIN stmts BLOCK_END
+   89        | IF OPEN_PAREN logic_expr CLOSE_PAREN • BLOCK_BEGIN stmts BLOCK_END else_if_stmt ELSE BLOCK_BEGIN stmts BLOCK_END
+   90        | IF OPEN_PAREN logic_expr CLOSE_PAREN • BLOCK_BEGIN stmts BLOCK_END else_if_stmt
 
-    BLOCK_BEGIN  shift, and go to state 237
-
-
-state 228
-
-   93 logic_expr: logic_expr . logic_op c_term
-  117 for_stmt: FOR OPEN_PAREN dec_var logic_expr . SEMI expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
-
-    SEMI  shift, and go to state 238
-    AND   shift, and go to state 220
-    OR    shift, and go to state 221
-    NOT   shift, and go to state 222
-
-    logic_op  go to state 223
+    BLOCK_BEGIN  shift, and go to state 227
 
 
-state 229
+State 218
 
-   73 function: type ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN value . BLOCK_END
+   93 logic_expr: logic_expr • logic_op c_term
+  117 for_stmt: FOR OPEN_PAREN dec_var logic_expr • SEMI expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
 
-    BLOCK_END  shift, and go to state 239
+    SEMI  shift, and go to state 228
+    AND   shift, and go to state 211
+    OR    shift, and go to state 212
+    NOT   shift, and go to state 213
 
-
-state 230
-
-   72 function: type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN . value BLOCK_END
-
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-
-    value  go to state 240
+    logic_op  go to state 214
 
 
-state 231
+State 219
 
-   43 expr: expr . PLUS term
-   44     | expr . MINUS term
-   45     | expr . ADD_ASSIGN term
-   46     | expr . SUB_ASSIGN term
-  100 comp: expr comp_op expr .
+   73 function: type ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN value • BLOCK_END
 
-    PLUS        shift, and go to state 70
-    MINUS       shift, and go to state 71
-    ADD_ASSIGN  shift, and go to state 72
-    SUB_ASSIGN  shift, and go to state 73
+    BLOCK_END  shift, and go to state 229
+
+
+State 220
+
+   72 function: type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN • value BLOCK_END
+
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+
+    value  go to state 230
+
+
+State 221
+
+   14 dec_var: type_modifiers type ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI •
+
+    $default  reduce using rule 14 (dec_var)
+
+
+State 222
+
+   43 expr: expr • PLUS term
+   44     | expr • MINUS term
+   45     | expr • ADD_ASSIGN term
+   46     | expr • SUB_ASSIGN term
+  100 comp: expr comp_op expr •
+
+    PLUS        shift, and go to state 74
+    MINUS       shift, and go to state 75
+    ADD_ASSIGN  shift, and go to state 76
+    SUB_ASSIGN  shift, and go to state 77
 
     $default  reduce using rule 100 (comp)
 
 
-state 232
+State 223
 
-  116 while_stmt: WHILE OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN . stmts BLOCK_END
+  116 while_stmt: WHILE OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN • stmts BLOCK_END
 
-    ID      shift, and go to state 150
+    ID      shift, and go to state 141
     INT     shift, and go to state 2
     DOUBLE  shift, and go to state 3
     FLOAT   shift, and go to state 4
@@ -3099,69 +3004,62 @@ state 232
     VOID    shift, and go to state 7
     STRUCT  shift, and go to state 8
     ENUM    shift, and go to state 9
-    WHILE   shift, and go to state 151
-    DO      shift, and go to state 152
-    SWITCH  shift, and go to state 153
-    IF      shift, and go to state 154
-    FOR     shift, and go to state 155
+    WHILE   shift, and go to state 142
+    DO      shift, and go to state 143
+    SWITCH  shift, and go to state 144
+    IF      shift, and go to state 145
+    FOR     shift, and go to state 146
     CONST   shift, and go to state 10
     STATIC  shift, and go to state 11
 
-    dec_var           go to state 156
+    dec_var           go to state 147
     type_modifiers    go to state 15
     type_modifier     go to state 16
     type              go to state 17
-    assigns           go to state 157
+    assigns           go to state 148
     assign_def        go to state 19
     assign_mat        go to state 20
-    stmts             go to state 241
-    stmt              go to state 159
-    conditional_stmt  go to state 160
-    if_stmt           go to state 161
-    switch_stmt       go to state 162
-    iteration_stmt    go to state 163
-    while_stmt        go to state 164
-    for_stmt          go to state 165
-    dowhile_stmt      go to state 166
-    funcion_call      go to state 167
+    stmts             go to state 231
+    stmt              go to state 150
+    conditional_stmt  go to state 151
+    if_stmt           go to state 152
+    switch_stmt       go to state 153
+    iteration_stmt    go to state 154
+    while_stmt        go to state 155
+    for_stmt          go to state 156
+    dowhile_stmt      go to state 157
+    function_call     go to state 158
 
 
-state 233
+State 224
 
-   93 logic_expr: logic_expr logic_op c_term .
+   93 logic_expr: logic_expr logic_op c_term •
 
     $default  reduce using rule 93 (logic_expr)
 
 
-state 234
+State 225
 
-  118 dowhile_stmt: DO BLOCK_BEGIN stmts BLOCK_END WHILE . OPEN_PAREN logic_expr CLOSE_PAREN SEMI
+  118 dowhile_stmt: DO BLOCK_BEGIN stmts BLOCK_END WHILE • OPEN_PAREN logic_expr CLOSE_PAREN SEMI
 
-    OPEN_PAREN  shift, and go to state 242
-
-
-state 235
-
-  112 switch_cases: CASE value COLON stmts . BREAK switch_cases
-
-    BREAK  shift, and go to state 243
+    OPEN_PAREN  shift, and go to state 232
 
 
-state 236
+State 226
 
-  110 switch_stmt: SWITCH switch_cases DEFAULT COLON stmts .
+  110 switch_stmt: SWITCH COLON OPEN_PAREN ID CLOSE_PAREN • BLOCK_BEGIN switch_cases DEFAULT COLON stmts BLOCK_END
 
-    $default  reduce using rule 110 (switch_stmt)
+    BLOCK_BEGIN  shift, and go to state 233
 
 
-state 237
+State 227
 
-   87 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN . stmts BLOCK_END
-   88        | IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN . stmts BLOCK_END ELSE BLOCK_BEGIN stmts BLOCK_END
-   89        | IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN . stmts BLOCK_END else_if_stmt ELSE BLOCK_BEGIN stmts BLOCK_END
-   90        | IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN . stmts BLOCK_END else_if_stmt
+   87 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN • stmts BLOCK_END
+   88        | IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN • stmts BLOCK_END ELSE BLOCK_BEGIN stmts BLOCK_END
+   89        | IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN • stmts BLOCK_END else_if_stmt ELSE BLOCK_BEGIN stmts BLOCK_END
+   90        | IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN • stmts BLOCK_END else_if_stmt
 
-    ID      shift, and go to state 150
+    ID      shift, and go to state 141
     INT     shift, and go to state 2
     DOUBLE  shift, and go to state 3
     FLOAT   shift, and go to state 4
@@ -3170,225 +3068,250 @@ state 237
     VOID    shift, and go to state 7
     STRUCT  shift, and go to state 8
     ENUM    shift, and go to state 9
-    WHILE   shift, and go to state 151
-    DO      shift, and go to state 152
-    SWITCH  shift, and go to state 153
-    IF      shift, and go to state 154
-    FOR     shift, and go to state 155
+    WHILE   shift, and go to state 142
+    DO      shift, and go to state 143
+    SWITCH  shift, and go to state 144
+    IF      shift, and go to state 145
+    FOR     shift, and go to state 146
     CONST   shift, and go to state 10
     STATIC  shift, and go to state 11
 
-    dec_var           go to state 156
+    dec_var           go to state 147
     type_modifiers    go to state 15
     type_modifier     go to state 16
     type              go to state 17
-    assigns           go to state 157
+    assigns           go to state 148
     assign_def        go to state 19
     assign_mat        go to state 20
-    stmts             go to state 244
-    stmt              go to state 159
-    conditional_stmt  go to state 160
-    if_stmt           go to state 161
-    switch_stmt       go to state 162
-    iteration_stmt    go to state 163
-    while_stmt        go to state 164
-    for_stmt          go to state 165
-    dowhile_stmt      go to state 166
-    funcion_call      go to state 167
+    stmts             go to state 234
+    stmt              go to state 150
+    conditional_stmt  go to state 151
+    if_stmt           go to state 152
+    switch_stmt       go to state 153
+    iteration_stmt    go to state 154
+    while_stmt        go to state 155
+    for_stmt          go to state 156
+    dowhile_stmt      go to state 157
+    function_call     go to state 158
 
 
-state 238
+State 228
 
-  117 for_stmt: FOR OPEN_PAREN dec_var logic_expr SEMI . expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+  117 for_stmt: FOR OPEN_PAREN dec_var logic_expr SEMI • expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
 
-    ID            shift, and go to state 44
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    OPEN_PAREN    shift, and go to state 37
+    ID            shift, and go to state 51
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    OPEN_PAREN    shift, and go to state 44
 
-    expr          go to state 245
-    term          go to state 40
-    factor        go to state 41
-    value         go to state 46
-    funcion_call  go to state 43
+    expr           go to state 235
+    term           go to state 47
+    factor         go to state 48
+    value          go to state 53
+    function_call  go to state 50
 
 
-state 239
+State 229
 
-   73 function: type ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END .
+   73 function: type ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END •
 
     $default  reduce using rule 73 (function)
 
 
-state 240
+State 230
 
-   72 function: type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN value . BLOCK_END
+   72 function: type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN value • BLOCK_END
 
-    BLOCK_END  shift, and go to state 246
-
-
-state 241
-
-  116 while_stmt: WHILE OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts . BLOCK_END
-
-    BLOCK_END  shift, and go to state 247
+    BLOCK_END  shift, and go to state 236
 
 
-state 242
+State 231
 
-  118 dowhile_stmt: DO BLOCK_BEGIN stmts BLOCK_END WHILE OPEN_PAREN . logic_expr CLOSE_PAREN SEMI
+  116 while_stmt: WHILE OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts • BLOCK_END
 
-    ID            shift, and go to state 193
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    TRUE          shift, and go to state 194
-    FALSE         shift, and go to state 195
-    OPEN_PAREN    shift, and go to state 37
-
-    expr          go to state 196
-    term          go to state 40
-    factor        go to state 41
-    value         go to state 46
-    logic_expr    go to state 248
-    c_term        go to state 198
-    comp          go to state 199
-    funcion_call  go to state 43
+    BLOCK_END  shift, and go to state 237
 
 
-state 243
+State 232
 
-  112 switch_cases: CASE value COLON stmts BREAK . switch_cases
+  118 dowhile_stmt: DO BLOCK_BEGIN stmts BLOCK_END WHILE OPEN_PAREN • logic_expr CLOSE_PAREN SEMI
 
-    CASE  shift, and go to state 180
+    ID            shift, and go to state 185
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    TRUE          shift, and go to state 186
+    FALSE         shift, and go to state 187
+    OPEN_PAREN    shift, and go to state 44
+
+    expr           go to state 188
+    term           go to state 47
+    factor         go to state 48
+    value          go to state 53
+    logic_expr     go to state 238
+    c_term         go to state 190
+    comp           go to state 191
+    function_call  go to state 50
+
+
+State 233
+
+  110 switch_stmt: SWITCH COLON OPEN_PAREN ID CLOSE_PAREN BLOCK_BEGIN • switch_cases DEFAULT COLON stmts BLOCK_END
+
+    CASE  shift, and go to state 239
 
     $default  reduce using rule 111 (switch_cases)
 
-    switch_cases  go to state 249
+    switch_cases  go to state 240
 
 
-state 244
+State 234
 
-   87 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts . BLOCK_END
-   88        | IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts . BLOCK_END ELSE BLOCK_BEGIN stmts BLOCK_END
-   89        | IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts . BLOCK_END else_if_stmt ELSE BLOCK_BEGIN stmts BLOCK_END
-   90        | IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts . BLOCK_END else_if_stmt
+   87 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts • BLOCK_END
+   88        | IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts • BLOCK_END ELSE BLOCK_BEGIN stmts BLOCK_END
+   89        | IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts • BLOCK_END else_if_stmt ELSE BLOCK_BEGIN stmts BLOCK_END
+   90        | IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts • BLOCK_END else_if_stmt
 
-    BLOCK_END  shift, and go to state 250
-
-
-state 245
-
-   43 expr: expr . PLUS term
-   44     | expr . MINUS term
-   45     | expr . ADD_ASSIGN term
-   46     | expr . SUB_ASSIGN term
-  117 for_stmt: FOR OPEN_PAREN dec_var logic_expr SEMI expr . CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
-
-    CLOSE_PAREN  shift, and go to state 251
-    PLUS         shift, and go to state 70
-    MINUS        shift, and go to state 71
-    ADD_ASSIGN   shift, and go to state 72
-    SUB_ASSIGN   shift, and go to state 73
+    BLOCK_END  shift, and go to state 241
 
 
-state 246
+State 235
 
-   72 function: type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END .
+   43 expr: expr • PLUS term
+   44     | expr • MINUS term
+   45     | expr • ADD_ASSIGN term
+   46     | expr • SUB_ASSIGN term
+  117 for_stmt: FOR OPEN_PAREN dec_var logic_expr SEMI expr • CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+
+    CLOSE_PAREN  shift, and go to state 242
+    PLUS         shift, and go to state 74
+    MINUS        shift, and go to state 75
+    ADD_ASSIGN   shift, and go to state 76
+    SUB_ASSIGN   shift, and go to state 77
+
+
+State 236
+
+   72 function: type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END •
 
     $default  reduce using rule 72 (function)
 
 
-state 247
+State 237
 
-  116 while_stmt: WHILE OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END .
+  116 while_stmt: WHILE OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END •
 
     $default  reduce using rule 116 (while_stmt)
 
 
-state 248
+State 238
 
-   93 logic_expr: logic_expr . logic_op c_term
-  118 dowhile_stmt: DO BLOCK_BEGIN stmts BLOCK_END WHILE OPEN_PAREN logic_expr . CLOSE_PAREN SEMI
+   93 logic_expr: logic_expr • logic_op c_term
+  118 dowhile_stmt: DO BLOCK_BEGIN stmts BLOCK_END WHILE OPEN_PAREN logic_expr • CLOSE_PAREN SEMI
 
-    CLOSE_PAREN  shift, and go to state 252
-    AND          shift, and go to state 220
-    OR           shift, and go to state 221
-    NOT          shift, and go to state 222
+    CLOSE_PAREN  shift, and go to state 243
+    AND          shift, and go to state 211
+    OR           shift, and go to state 212
+    NOT          shift, and go to state 213
 
-    logic_op  go to state 223
-
-
-state 249
-
-  112 switch_cases: CASE value COLON stmts BREAK switch_cases .
-
-    $default  reduce using rule 112 (switch_cases)
+    logic_op  go to state 214
 
 
-state 250
+State 239
 
-   87 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END .
-   88        | IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END . ELSE BLOCK_BEGIN stmts BLOCK_END
-   89        | IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END . else_if_stmt ELSE BLOCK_BEGIN stmts BLOCK_END
-   90        | IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END . else_if_stmt
+  112 switch_cases: CASE • value COLON stmts BREAK switch_cases
 
-    ELSE     shift, and go to state 253
-    ELSE_IF  shift, and go to state 254
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+
+    value  go to state 244
+
+
+State 240
+
+  110 switch_stmt: SWITCH COLON OPEN_PAREN ID CLOSE_PAREN BLOCK_BEGIN switch_cases • DEFAULT COLON stmts BLOCK_END
+
+    DEFAULT  shift, and go to state 245
+
+
+State 241
+
+   87 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END •
+   88        | IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END • ELSE BLOCK_BEGIN stmts BLOCK_END
+   89        | IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END • else_if_stmt ELSE BLOCK_BEGIN stmts BLOCK_END
+   90        | IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END • else_if_stmt
+
+    ELSE     shift, and go to state 246
+    ELSE_IF  shift, and go to state 247
 
     $default  reduce using rule 87 (if_stmt)
 
-    else_if_stmt  go to state 255
+    else_if_stmt  go to state 248
 
 
-state 251
+State 242
 
-  117 for_stmt: FOR OPEN_PAREN dec_var logic_expr SEMI expr CLOSE_PAREN . BLOCK_BEGIN stmts BLOCK_END
+  117 for_stmt: FOR OPEN_PAREN dec_var logic_expr SEMI expr CLOSE_PAREN • BLOCK_BEGIN stmts BLOCK_END
 
-    BLOCK_BEGIN  shift, and go to state 256
-
-
-state 252
-
-  118 dowhile_stmt: DO BLOCK_BEGIN stmts BLOCK_END WHILE OPEN_PAREN logic_expr CLOSE_PAREN . SEMI
-
-    SEMI  shift, and go to state 257
+    BLOCK_BEGIN  shift, and go to state 249
 
 
-state 253
+State 243
 
-   88 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END ELSE . BLOCK_BEGIN stmts BLOCK_END
+  118 dowhile_stmt: DO BLOCK_BEGIN stmts BLOCK_END WHILE OPEN_PAREN logic_expr CLOSE_PAREN • SEMI
 
-    BLOCK_BEGIN  shift, and go to state 258
-
-
-state 254
-
-   91 else_if_stmt: ELSE_IF . OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
-
-    OPEN_PAREN  shift, and go to state 259
+    SEMI  shift, and go to state 250
 
 
-state 255
+State 244
 
-   89 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt . ELSE BLOCK_BEGIN stmts BLOCK_END
-   90        | IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt .
-   92 else_if_stmt: else_if_stmt . else_if_stmt
+  112 switch_cases: CASE value • COLON stmts BREAK switch_cases
 
-    ELSE     shift, and go to state 260
-    ELSE_IF  shift, and go to state 254
+    COLON  shift, and go to state 251
+
+
+State 245
+
+  110 switch_stmt: SWITCH COLON OPEN_PAREN ID CLOSE_PAREN BLOCK_BEGIN switch_cases DEFAULT • COLON stmts BLOCK_END
+
+    COLON  shift, and go to state 252
+
+
+State 246
+
+   88 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END ELSE • BLOCK_BEGIN stmts BLOCK_END
+
+    BLOCK_BEGIN  shift, and go to state 253
+
+
+State 247
+
+   91 else_if_stmt: ELSE_IF • OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+
+    OPEN_PAREN  shift, and go to state 254
+
+
+State 248
+
+   89 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt • ELSE BLOCK_BEGIN stmts BLOCK_END
+   90        | IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt •
+   92 else_if_stmt: else_if_stmt • else_if_stmt
+
+    ELSE     shift, and go to state 255
+    ELSE_IF  shift, and go to state 247
 
     $default  reduce using rule 90 (if_stmt)
 
-    else_if_stmt  go to state 261
+    else_if_stmt  go to state 256
 
 
-state 256
+State 249
 
-  117 for_stmt: FOR OPEN_PAREN dec_var logic_expr SEMI expr CLOSE_PAREN BLOCK_BEGIN . stmts BLOCK_END
+  117 for_stmt: FOR OPEN_PAREN dec_var logic_expr SEMI expr CLOSE_PAREN BLOCK_BEGIN • stmts BLOCK_END
 
-    ID      shift, and go to state 150
+    ID      shift, and go to state 141
     INT     shift, and go to state 2
     DOUBLE  shift, and go to state 3
     FLOAT   shift, and go to state 4
@@ -3397,45 +3320,45 @@ state 256
     VOID    shift, and go to state 7
     STRUCT  shift, and go to state 8
     ENUM    shift, and go to state 9
-    WHILE   shift, and go to state 151
-    DO      shift, and go to state 152
-    SWITCH  shift, and go to state 153
-    IF      shift, and go to state 154
-    FOR     shift, and go to state 155
+    WHILE   shift, and go to state 142
+    DO      shift, and go to state 143
+    SWITCH  shift, and go to state 144
+    IF      shift, and go to state 145
+    FOR     shift, and go to state 146
     CONST   shift, and go to state 10
     STATIC  shift, and go to state 11
 
-    dec_var           go to state 156
+    dec_var           go to state 147
     type_modifiers    go to state 15
     type_modifier     go to state 16
     type              go to state 17
-    assigns           go to state 157
+    assigns           go to state 148
     assign_def        go to state 19
     assign_mat        go to state 20
-    stmts             go to state 262
-    stmt              go to state 159
-    conditional_stmt  go to state 160
-    if_stmt           go to state 161
-    switch_stmt       go to state 162
-    iteration_stmt    go to state 163
-    while_stmt        go to state 164
-    for_stmt          go to state 165
-    dowhile_stmt      go to state 166
-    funcion_call      go to state 167
+    stmts             go to state 257
+    stmt              go to state 150
+    conditional_stmt  go to state 151
+    if_stmt           go to state 152
+    switch_stmt       go to state 153
+    iteration_stmt    go to state 154
+    while_stmt        go to state 155
+    for_stmt          go to state 156
+    dowhile_stmt      go to state 157
+    function_call     go to state 158
 
 
-state 257
+State 250
 
-  118 dowhile_stmt: DO BLOCK_BEGIN stmts BLOCK_END WHILE OPEN_PAREN logic_expr CLOSE_PAREN SEMI .
+  118 dowhile_stmt: DO BLOCK_BEGIN stmts BLOCK_END WHILE OPEN_PAREN logic_expr CLOSE_PAREN SEMI •
 
     $default  reduce using rule 118 (dowhile_stmt)
 
 
-state 258
+State 251
 
-   88 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END ELSE BLOCK_BEGIN . stmts BLOCK_END
+  112 switch_cases: CASE value COLON • stmts BREAK switch_cases
 
-    ID      shift, and go to state 150
+    ID      shift, and go to state 141
     INT     shift, and go to state 2
     DOUBLE  shift, and go to state 3
     FLOAT   shift, and go to state 4
@@ -3444,107 +3367,201 @@ state 258
     VOID    shift, and go to state 7
     STRUCT  shift, and go to state 8
     ENUM    shift, and go to state 9
-    WHILE   shift, and go to state 151
-    DO      shift, and go to state 152
-    SWITCH  shift, and go to state 153
-    IF      shift, and go to state 154
-    FOR     shift, and go to state 155
+    WHILE   shift, and go to state 142
+    DO      shift, and go to state 143
+    SWITCH  shift, and go to state 144
+    IF      shift, and go to state 145
+    FOR     shift, and go to state 146
     CONST   shift, and go to state 10
     STATIC  shift, and go to state 11
 
-    dec_var           go to state 156
+    dec_var           go to state 147
     type_modifiers    go to state 15
     type_modifier     go to state 16
     type              go to state 17
-    assigns           go to state 157
+    assigns           go to state 148
     assign_def        go to state 19
     assign_mat        go to state 20
-    stmts             go to state 263
-    stmt              go to state 159
-    conditional_stmt  go to state 160
-    if_stmt           go to state 161
-    switch_stmt       go to state 162
-    iteration_stmt    go to state 163
-    while_stmt        go to state 164
-    for_stmt          go to state 165
-    dowhile_stmt      go to state 166
-    funcion_call      go to state 167
+    stmts             go to state 258
+    stmt              go to state 150
+    conditional_stmt  go to state 151
+    if_stmt           go to state 152
+    switch_stmt       go to state 153
+    iteration_stmt    go to state 154
+    while_stmt        go to state 155
+    for_stmt          go to state 156
+    dowhile_stmt      go to state 157
+    function_call     go to state 158
 
 
-state 259
+State 252
 
-   91 else_if_stmt: ELSE_IF OPEN_PAREN . logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+  110 switch_stmt: SWITCH COLON OPEN_PAREN ID CLOSE_PAREN BLOCK_BEGIN switch_cases DEFAULT COLON • stmts BLOCK_END
 
-    ID            shift, and go to state 193
-    INT_NUMBER    shift, and go to state 34
-    FLOAT_NUMBER  shift, and go to state 35
-    STRING_VALUE  shift, and go to state 36
-    TRUE          shift, and go to state 194
-    FALSE         shift, and go to state 195
-    OPEN_PAREN    shift, and go to state 37
+    ID      shift, and go to state 141
+    INT     shift, and go to state 2
+    DOUBLE  shift, and go to state 3
+    FLOAT   shift, and go to state 4
+    CHAR    shift, and go to state 5
+    STRING  shift, and go to state 6
+    VOID    shift, and go to state 7
+    STRUCT  shift, and go to state 8
+    ENUM    shift, and go to state 9
+    WHILE   shift, and go to state 142
+    DO      shift, and go to state 143
+    SWITCH  shift, and go to state 144
+    IF      shift, and go to state 145
+    FOR     shift, and go to state 146
+    CONST   shift, and go to state 10
+    STATIC  shift, and go to state 11
 
-    expr          go to state 196
-    term          go to state 40
-    factor        go to state 41
-    value         go to state 46
-    logic_expr    go to state 264
-    c_term        go to state 198
-    comp          go to state 199
-    funcion_call  go to state 43
+    dec_var           go to state 147
+    type_modifiers    go to state 15
+    type_modifier     go to state 16
+    type              go to state 17
+    assigns           go to state 148
+    assign_def        go to state 19
+    assign_mat        go to state 20
+    stmts             go to state 259
+    stmt              go to state 150
+    conditional_stmt  go to state 151
+    if_stmt           go to state 152
+    switch_stmt       go to state 153
+    iteration_stmt    go to state 154
+    while_stmt        go to state 155
+    for_stmt          go to state 156
+    dowhile_stmt      go to state 157
+    function_call     go to state 158
 
 
-state 260
+State 253
 
-   89 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt ELSE . BLOCK_BEGIN stmts BLOCK_END
+   88 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END ELSE BLOCK_BEGIN • stmts BLOCK_END
 
-    BLOCK_BEGIN  shift, and go to state 265
+    ID      shift, and go to state 141
+    INT     shift, and go to state 2
+    DOUBLE  shift, and go to state 3
+    FLOAT   shift, and go to state 4
+    CHAR    shift, and go to state 5
+    STRING  shift, and go to state 6
+    VOID    shift, and go to state 7
+    STRUCT  shift, and go to state 8
+    ENUM    shift, and go to state 9
+    WHILE   shift, and go to state 142
+    DO      shift, and go to state 143
+    SWITCH  shift, and go to state 144
+    IF      shift, and go to state 145
+    FOR     shift, and go to state 146
+    CONST   shift, and go to state 10
+    STATIC  shift, and go to state 11
+
+    dec_var           go to state 147
+    type_modifiers    go to state 15
+    type_modifier     go to state 16
+    type              go to state 17
+    assigns           go to state 148
+    assign_def        go to state 19
+    assign_mat        go to state 20
+    stmts             go to state 260
+    stmt              go to state 150
+    conditional_stmt  go to state 151
+    if_stmt           go to state 152
+    switch_stmt       go to state 153
+    iteration_stmt    go to state 154
+    while_stmt        go to state 155
+    for_stmt          go to state 156
+    dowhile_stmt      go to state 157
+    function_call     go to state 158
 
 
-state 261
+State 254
 
-   92 else_if_stmt: else_if_stmt . else_if_stmt
-   92             | else_if_stmt else_if_stmt .
+   91 else_if_stmt: ELSE_IF OPEN_PAREN • logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
 
-    ELSE_IF  shift, and go to state 254
+    ID            shift, and go to state 185
+    INT_NUMBER    shift, and go to state 41
+    FLOAT_NUMBER  shift, and go to state 42
+    STRING_VALUE  shift, and go to state 43
+    TRUE          shift, and go to state 186
+    FALSE         shift, and go to state 187
+    OPEN_PAREN    shift, and go to state 44
+
+    expr           go to state 188
+    term           go to state 47
+    factor         go to state 48
+    value          go to state 53
+    logic_expr     go to state 261
+    c_term         go to state 190
+    comp           go to state 191
+    function_call  go to state 50
+
+
+State 255
+
+   89 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt ELSE • BLOCK_BEGIN stmts BLOCK_END
+
+    BLOCK_BEGIN  shift, and go to state 262
+
+
+State 256
+
+   92 else_if_stmt: else_if_stmt • else_if_stmt
+   92             | else_if_stmt else_if_stmt •
+
+    ELSE_IF  shift, and go to state 247
 
     ELSE_IF   [reduce using rule 92 (else_if_stmt)]
     $default  reduce using rule 92 (else_if_stmt)
 
-    else_if_stmt  go to state 261
+    else_if_stmt  go to state 256
 
 
-state 262
+State 257
 
-  117 for_stmt: FOR OPEN_PAREN dec_var logic_expr SEMI expr CLOSE_PAREN BLOCK_BEGIN stmts . BLOCK_END
+  117 for_stmt: FOR OPEN_PAREN dec_var logic_expr SEMI expr CLOSE_PAREN BLOCK_BEGIN stmts • BLOCK_END
+
+    BLOCK_END  shift, and go to state 263
+
+
+State 258
+
+  112 switch_cases: CASE value COLON stmts • BREAK switch_cases
+
+    BREAK  shift, and go to state 264
+
+
+State 259
+
+  110 switch_stmt: SWITCH COLON OPEN_PAREN ID CLOSE_PAREN BLOCK_BEGIN switch_cases DEFAULT COLON stmts • BLOCK_END
+
+    BLOCK_END  shift, and go to state 265
+
+
+State 260
+
+   88 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END ELSE BLOCK_BEGIN stmts • BLOCK_END
 
     BLOCK_END  shift, and go to state 266
 
 
-state 263
+State 261
 
-   88 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END ELSE BLOCK_BEGIN stmts . BLOCK_END
+   91 else_if_stmt: ELSE_IF OPEN_PAREN logic_expr • CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
+   93 logic_expr: logic_expr • logic_op c_term
 
-    BLOCK_END  shift, and go to state 267
+    CLOSE_PAREN  shift, and go to state 267
+    AND          shift, and go to state 211
+    OR           shift, and go to state 212
+    NOT          shift, and go to state 213
 
-
-state 264
-
-   91 else_if_stmt: ELSE_IF OPEN_PAREN logic_expr . CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
-   93 logic_expr: logic_expr . logic_op c_term
-
-    CLOSE_PAREN  shift, and go to state 268
-    AND          shift, and go to state 220
-    OR           shift, and go to state 221
-    NOT          shift, and go to state 222
-
-    logic_op  go to state 223
+    logic_op  go to state 214
 
 
-state 265
+State 262
 
-   89 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt ELSE BLOCK_BEGIN . stmts BLOCK_END
+   89 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt ELSE BLOCK_BEGIN • stmts BLOCK_END
 
-    ID      shift, and go to state 150
+    ID      shift, and go to state 141
     INT     shift, and go to state 2
     DOUBLE  shift, and go to state 3
     FLOAT   shift, and go to state 4
@@ -3553,66 +3570,91 @@ state 265
     VOID    shift, and go to state 7
     STRUCT  shift, and go to state 8
     ENUM    shift, and go to state 9
-    WHILE   shift, and go to state 151
-    DO      shift, and go to state 152
-    SWITCH  shift, and go to state 153
-    IF      shift, and go to state 154
-    FOR     shift, and go to state 155
+    WHILE   shift, and go to state 142
+    DO      shift, and go to state 143
+    SWITCH  shift, and go to state 144
+    IF      shift, and go to state 145
+    FOR     shift, and go to state 146
     CONST   shift, and go to state 10
     STATIC  shift, and go to state 11
 
-    dec_var           go to state 156
+    dec_var           go to state 147
     type_modifiers    go to state 15
     type_modifier     go to state 16
     type              go to state 17
-    assigns           go to state 157
+    assigns           go to state 148
     assign_def        go to state 19
     assign_mat        go to state 20
-    stmts             go to state 269
-    stmt              go to state 159
-    conditional_stmt  go to state 160
-    if_stmt           go to state 161
-    switch_stmt       go to state 162
-    iteration_stmt    go to state 163
-    while_stmt        go to state 164
-    for_stmt          go to state 165
-    dowhile_stmt      go to state 166
-    funcion_call      go to state 167
+    stmts             go to state 268
+    stmt              go to state 150
+    conditional_stmt  go to state 151
+    if_stmt           go to state 152
+    switch_stmt       go to state 153
+    iteration_stmt    go to state 154
+    while_stmt        go to state 155
+    for_stmt          go to state 156
+    dowhile_stmt      go to state 157
+    function_call     go to state 158
 
 
-state 266
+State 263
 
-  117 for_stmt: FOR OPEN_PAREN dec_var logic_expr SEMI expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END .
+  117 for_stmt: FOR OPEN_PAREN dec_var logic_expr SEMI expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END •
 
     $default  reduce using rule 117 (for_stmt)
 
 
-state 267
+State 264
 
-   88 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END ELSE BLOCK_BEGIN stmts BLOCK_END .
+  112 switch_cases: CASE value COLON stmts BREAK • switch_cases
+
+    CASE  shift, and go to state 239
+
+    $default  reduce using rule 111 (switch_cases)
+
+    switch_cases  go to state 269
+
+
+State 265
+
+  110 switch_stmt: SWITCH COLON OPEN_PAREN ID CLOSE_PAREN BLOCK_BEGIN switch_cases DEFAULT COLON stmts BLOCK_END •
+
+    $default  reduce using rule 110 (switch_stmt)
+
+
+State 266
+
+   88 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END ELSE BLOCK_BEGIN stmts BLOCK_END •
 
     $default  reduce using rule 88 (if_stmt)
 
 
-state 268
+State 267
 
-   91 else_if_stmt: ELSE_IF OPEN_PAREN logic_expr CLOSE_PAREN . BLOCK_BEGIN stmts BLOCK_END
+   91 else_if_stmt: ELSE_IF OPEN_PAREN logic_expr CLOSE_PAREN • BLOCK_BEGIN stmts BLOCK_END
 
     BLOCK_BEGIN  shift, and go to state 270
 
 
-state 269
+State 268
 
-   89 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt ELSE BLOCK_BEGIN stmts . BLOCK_END
+   89 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt ELSE BLOCK_BEGIN stmts • BLOCK_END
 
     BLOCK_END  shift, and go to state 271
 
 
-state 270
+State 269
 
-   91 else_if_stmt: ELSE_IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN . stmts BLOCK_END
+  112 switch_cases: CASE value COLON stmts BREAK switch_cases •
 
-    ID      shift, and go to state 150
+    $default  reduce using rule 112 (switch_cases)
+
+
+State 270
+
+   91 else_if_stmt: ELSE_IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN • stmts BLOCK_END
+
+    ID      shift, and go to state 141
     INT     shift, and go to state 2
     DOUBLE  shift, and go to state 3
     FLOAT   shift, and go to state 4
@@ -3621,49 +3663,49 @@ state 270
     VOID    shift, and go to state 7
     STRUCT  shift, and go to state 8
     ENUM    shift, and go to state 9
-    WHILE   shift, and go to state 151
-    DO      shift, and go to state 152
-    SWITCH  shift, and go to state 153
-    IF      shift, and go to state 154
-    FOR     shift, and go to state 155
+    WHILE   shift, and go to state 142
+    DO      shift, and go to state 143
+    SWITCH  shift, and go to state 144
+    IF      shift, and go to state 145
+    FOR     shift, and go to state 146
     CONST   shift, and go to state 10
     STATIC  shift, and go to state 11
 
-    dec_var           go to state 156
+    dec_var           go to state 147
     type_modifiers    go to state 15
     type_modifier     go to state 16
     type              go to state 17
-    assigns           go to state 157
+    assigns           go to state 148
     assign_def        go to state 19
     assign_mat        go to state 20
     stmts             go to state 272
-    stmt              go to state 159
-    conditional_stmt  go to state 160
-    if_stmt           go to state 161
-    switch_stmt       go to state 162
-    iteration_stmt    go to state 163
-    while_stmt        go to state 164
-    for_stmt          go to state 165
-    dowhile_stmt      go to state 166
-    funcion_call      go to state 167
+    stmt              go to state 150
+    conditional_stmt  go to state 151
+    if_stmt           go to state 152
+    switch_stmt       go to state 153
+    iteration_stmt    go to state 154
+    while_stmt        go to state 155
+    for_stmt          go to state 156
+    dowhile_stmt      go to state 157
+    function_call     go to state 158
 
 
-state 271
+State 271
 
-   89 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt ELSE BLOCK_BEGIN stmts BLOCK_END .
+   89 if_stmt: IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt ELSE BLOCK_BEGIN stmts BLOCK_END •
 
     $default  reduce using rule 89 (if_stmt)
 
 
-state 272
+State 272
 
-   91 else_if_stmt: ELSE_IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts . BLOCK_END
+   91 else_if_stmt: ELSE_IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts • BLOCK_END
 
     BLOCK_END  shift, and go to state 273
 
 
-state 273
+State 273
 
-   91 else_if_stmt: ELSE_IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END .
+   91 else_if_stmt: ELSE_IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END •
 
     $default  reduce using rule 91 (else_if_stmt)

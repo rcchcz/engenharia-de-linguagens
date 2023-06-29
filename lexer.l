@@ -11,9 +11,9 @@
 
 [ \t\n]                           ;
 
-[0-9]+           	                { yylval.iValue = atoi(yytext); 
+[0-9]+           	                { yylval.sValue = strdup(yytext);
                                     return INT_NUMBER;}
-([0-9]+)(\.[0-9]+)?|\.?[0-9]+     { yylval.fValue = atof(yytext);
+([0-9]+)(\.[0-9]+)?|\.?[0-9]+     { yylval.sValue = strdup(yytext);
                                     return FLOAT_NUMBER;}
 
 "int"                             {return(INT);}
@@ -43,7 +43,6 @@
 "const"                           {return(CONST);}
 "static"                          {return(STATIC);}
 "return"                          {return(RETURN);}
-"import"                          {return(IMPORT);}
 "main"                            {return(MAIN);}
 
 "("                               {return(OPEN_PAREN);}

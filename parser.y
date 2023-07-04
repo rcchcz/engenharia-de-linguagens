@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "./lib/record.h"
+#include "./lib/symbolTable.h"
 
 int yylex(void);
 int yyerror(char *s);
@@ -11,6 +12,8 @@ extern char * yytext;
 extern FILE * yyin, * yyout;
 
 char * cat(char *, char *, char *, char *, char *);
+
+hashTable * table;
 
 %}
 
@@ -82,6 +85,7 @@ decs_var : 				 	{$$ = createRecord("","");}
 		 ;
 
 dec_var : type ids SEMI { char *s = cat($1->code, " ", $2->code, ";","");
+						  insert (table, $2->code, $2->code, $1->code, "Variavel", 10);
 						  freeRecord($1);
 						  freeRecord($2);
 						  $$ = createRecord(s, "");
@@ -946,7 +950,9 @@ int main (int argc, char ** argv) {
     yyin = fopen(argv[1], "r");
     yyout = fopen(argv[2], "w");
 
+	table = htCreate();
     codigo = yyparse();
+	ht_dump(table);
 
     fclose(yyin);
     fclose(yyout);

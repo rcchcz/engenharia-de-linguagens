@@ -1,6 +1,7 @@
 main(){
     int vetor[10] = {3,4,2,5,8,0,9,1,6,7};
     int auxiliar [10];
+    int id;
     mergeSort(vetor,auxiliar,0,9);
 }
 

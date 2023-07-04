@@ -1,17 +1,17 @@
 FALTA IMPLEMENTAR
 
 printf("Texto %d", d);
--> print();
+-> print(); (OK)
 scan(%f, &valor);
--> scan(valor);
--> ++
--> --
--> *
--> struct
--> enum
--> continue
--> null_value
--> boolean
+-> scan(valor); (OK)
+-> ++ (OK)
+-> -- (OK)
+-> * (OK)
+-> struct (OK)
+-> enum (ACHO QUE NAO VAI TER)
+-> continue (ACHO QUE NAO VAI TER)
+-> null_value (OK)
+-> boolean (OK)
 -> tirar o for/while/dowhile e colocar label e goto
 -> tirar o else/else-if
 -> verificação de tipos

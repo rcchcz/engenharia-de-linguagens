@@ -44,6 +44,8 @@
 "static"                          {return(STATIC);}
 "return"                          {return(RETURN);}
 "main"                            {return(MAIN);}
+"scan"                            {return(SCAN);}
+"print"                           {return(PRINT);}
 
 "("                               {return(OPEN_PAREN);}
 ")"                               {return(CLOSE_PAREN);}
@@ -55,6 +57,7 @@
 ":"                               {return(COLON);}
 "."                               {return(DOT);}
 ","                               {return(COMMA);}
+"&"                               {return(AMPERSAND);}
 
 "+"                               {return(PLUS);}
 "-"                               {return(MINUS);}

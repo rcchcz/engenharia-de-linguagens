@@ -20,11 +20,11 @@ hashTable * htCreate(){
     return ht;
 }
 
-htItem * itemPair(char *key, char * idName, char * dataType, char * symbolType, int lineNo) {
+htItem * ht_pair(char *key, char * idName, char * dataType, char * symbolType, int lineNo) {
     // allocate the entry
     htItem * item = malloc(sizeof(htItem));
     item->key = malloc(strlen(key) + 1);
-    item->value = malloc(strlen(value) + 1);
+    item->value = malloc(strlen(idName) + strlen(dataType) + strlen(symbolType) + sizeof(lineNo) + 1);
 
     // copy the key and value in place
     strcpy(item->key, key);
@@ -40,7 +40,7 @@ htItem * itemPair(char *key, char * idName, char * dataType, char * symbolType, 
 }
 
 void insert (hashTable *ht, char * key, char * idName, char * dataType, char * symbolType, int lineNo){
-    unsigned int slot = hash(key);
+    unsigned int slot = hashf(key);
 
     // try to look up an entry set
     htItem * entry = ht->items[slot];
@@ -60,7 +60,7 @@ void insert (hashTable *ht, char * key, char * idName, char * dataType, char * s
         if (strcmp(entry->key, key) == 0) {
             // match found, replace value
             free(entry->value);
-            entry->value = malloc(strlen(value) + 1);
+            entry->value = malloc(strlen(idName) + strlen(dataType) + strlen(symbolType) + sizeof(lineNo) + 1);
             strcpy(entry->key, key);
             strcpy(entry->value->dataType, dataType);
             strcpy(entry->value->idName, idName);

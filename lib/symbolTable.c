@@ -159,6 +159,9 @@ void ht_del(hashTable *hashtable, char *key) {
 }
 
 void ht_dump(hashTable *hashtable) {
+    printf("\n");
+    printf("Id           Datatype  SymbolType  Line\n");
+    printf("----------   --------  ----------  ----\n");
     for (int i = 0; i < SIZE; ++i) {
         htItem *entry = hashtable->items[i];
 
@@ -169,7 +172,7 @@ void ht_dump(hashTable *hashtable) {
         printf("slot[%4d]: ", i);
 
         for(;;) {
-            printf("%s=%s ", entry->key, entry->value);
+            printf("%-5s | %-5s | %-5s | %-5s", entry->value->idName, entry->value->dataType, entry->value->symbolType, entry->value->lineNo);
 
             if (entry->next == NULL) {
                 break;

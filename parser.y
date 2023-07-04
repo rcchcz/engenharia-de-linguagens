@@ -298,6 +298,10 @@ atomo : ID {$$ = createRecord($1, "");
 					$$ = createRecord(s, "");
 					free(s);
 	  			}
+	  | ID DOT ID {	char *s = cat($1, ".", $3, "", "");
+	  				$$ = createRecord(s, "");
+					free(s);
+	  			  }
 	  ;
 
 dims : OPEN_BRACK CLOSE_BRACK {	char *s = cat("[", "]", "", "", "");

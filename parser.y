@@ -28,8 +28,8 @@ char * cat(char *, char *, char *, char *, char *);
 %token <sValue> FLOAT_NUMBER
 %token <sValue> STRING_VALUE
 %token INT DOUBLE FLOAT CHAR STRING BOOLEAN NULL_VALUE VOID STRUCT ENUM TRUE FALSE
-%token WHILE DO SWITCH CASE DEFAULT IF ELSE ELSE_IF FOR CONTINUE BREAK CONST STATIC RETURN IMPORT MAIN
-%token OPEN_PAREN CLOSE_PAREN OPEN_BRACK CLOSE_BRACK BLOCK_BEGIN BLOCK_END SEMI COLON DOT COMMA
+%token WHILE DO SWITCH CASE DEFAULT IF ELSE ELSE_IF FOR CONTINUE BREAK CONST STATIC RETURN MAIN SCAN PRINT
+%token OPEN_PAREN CLOSE_PAREN OPEN_BRACK CLOSE_BRACK BLOCK_BEGIN BLOCK_END SEMI COLON DOT COMMA AMPERSAND
 %token PLUS MINUS DIV MULT INCREMENT DECREMENT MODULE ASSIGN ADD_ASSIGN SUB_ASSIGN
 %token EQ NEQ LT GT LE GE
 %token AND OR NOT
@@ -38,7 +38,7 @@ char * cat(char *, char *, char *, char *, char *);
 %type <rec> type_modifier atomo value expr term factor function_call assign_def assign_mat
 %type <rec> subprogram proc function params stmts param stmt conditional_stmt iteration_stmt
 %type <rec> if_stmt switch_stmt logic_expr else_if_stmt logic_op c_term comp comp_op 
-%type <rec> switch_cases while_stmt for_stmt dowhile_stmt args arg 
+%type <rec> switch_cases while_stmt for_stmt dowhile_stmt args arg print_content print_stmt scan_stmt
 
 %start prog
 
@@ -74,7 +74,11 @@ decs_var : 				 	{$$ = createRecord("","");}
 							 $$ = createRecord(s, "");
 							 free(s);
 		 					}
-		 | assigns			{$$ = $1;}
+		 | assigns {char *s = cat($1->code, "", "", "","");
+					freeRecord($1);
+					$$ = createRecord(s, "");
+					free(s);
+		 		   }
 		 ;
 
 dec_var : type ids SEMI { char *s = cat($1->code, " ", $2->code, ";","");
@@ -145,6 +149,81 @@ dec_var : type ids SEMI { char *s = cat($1->code, " ", $2->code, ";","");
 												free(s2);
 												free(s1);
 										   }
+		| type MULT ID ASSIGN p_values SEMI {	char *s1 = cat($1->code, " *", $3, "=", $5->code);
+												char *s2 = cat(s1, ";", "", "", "");
+												freeRecord($1);
+												freeRecord($5);
+												$$ = createRecord(s2, "");
+												free(s2);
+												free(s1);
+											}
+		| type MULT ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI {char *s1 = cat($1->code, " *", $3, $4->code, "=");
+																		char *s2 = cat(s1, "{", $7->code, "}", ";");
+																		freeRecord($1);
+																		freeRecord($4);
+																		freeRecord($7);
+																		$$ = createRecord(s2, "");
+																		free(s2);
+																		free(s1);
+																	   }
+		| type MULT ID dims SEMI {	char *s = cat($1->code, " *", $3, $4->code, ";");
+									freeRecord($1);
+									freeRecord($4);
+									$$ = createRecord(s, "");
+									free(s);
+								 }
+		| type_modifiers type MULT ID ASSIGN p_values SEMI {	char *s1 = cat($1->code, " ", $2->code, " *", $4);
+																char *s2 = cat(s1, "=", $6->code, ";", "");
+																freeRecord($1);
+																freeRecord($2);
+																freeRecord($6);
+																$$ = createRecord(s2, "");
+																free(s2);
+																free(s1);
+														   }
+		| type_modifiers type MULT ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI {	char *s1 = cat($1->code, " ", $2->code, " *", $4);
+																						char *s2 = cat(s1, $5->code, "=", "{", $8->code);
+																						char *s3 = cat(s2, "}", ";", "", "");
+																						freeRecord($1);
+																						freeRecord($2);
+																						freeRecord($5);
+																						freeRecord($8);
+																						$$ = createRecord(s3, "");
+																						free(s3);
+																						free(s2);
+																						free(s1);
+																					  }
+		| type_modifiers type MULT ID dims SEMI {	char *s1 = cat($1->code, " ", $2->code, " *", $4);
+													char *s2 = cat(s1, $5->code, ";", "", "");
+													freeRecord($1);
+													freeRecord($2);
+													freeRecord($5);
+													$$ = createRecord(s2, "");
+													free(s2);
+													free(s1);
+												}
+		| type_modifier STRUCT ID BLOCK_BEGIN decs_var BLOCK_END SEMI {	char *s1 = cat($1->code, " struct ", $3, " {\n", $5->code);
+																		char *s2 = cat(s1, "\n};", "", "", "");
+																		freeRecord($1);
+																		freeRecord($5);
+																		$$ = createRecord(s2, "");
+																		free(s2);
+																		free(s1);
+																	  }
+		| STRUCT ID BLOCK_BEGIN decs_var BLOCK_END SEMI {	char *s = cat("struct ", $2, " {\n", $4->code, "\n};");
+															freeRecord($4);
+															$$ = createRecord(s, "");
+															free(s);
+														}
+		| type_modifier STRUCT ID BLOCK_BEGIN BLOCK_END SEMI {	char *s = cat($1->code ," struct ", $3 ," {", "};");
+																freeRecord($1);
+																$$ = createRecord(s, "");
+																free(s);
+															 }
+		| STRUCT ID BLOCK_BEGIN BLOCK_END SEMI {char *s = cat("struct", $2 ,"{};", "", "");
+												$$ = createRecord(s, "");
+												free(s);
+											   }
 		;
 
 type_modifiers : type_modifier {	char *s = cat($1->code, "", "", "", "");
@@ -180,8 +259,8 @@ type : INT {$$ = createRecord("int", "");
 	 		}
 	 | STRING {	$$ = createRecord("string", "");
 	 		  }
-	 | VOID {	$$ = createRecord("void", "");
-	 		}
+	 | BOOLEAN {$$ = createRecord("bool", "");
+	 		   }
 	 ;
 
 ids : atomo {	char *s = cat($1->code, "", "", "", "");
@@ -206,11 +285,19 @@ ids : atomo {	char *s = cat($1->code, "", "", "", "");
 atomo : ID {$$ = createRecord($1, "");
 			free($1);
 		   }
-      | ID dims{char *s = cat($1, $2->code, "", "", "");
-	  			freeRecord($2);
-				$$ = createRecord(s, "");
-				free(s);
-	  		   }
+      | ID dims {	char *s = cat($1, $2->code, "", "", "");
+	  				freeRecord($2);
+					$$ = createRecord(s, "");
+					free(s);
+	  		    }
+	  | AMPERSAND ID {	char *s = cat("&", $2, "", "", "");
+						$$ = createRecord(s, "");
+						free(s);
+	  				 }
+	  | MULT ID {	char *s = cat("*", $2, "", "", "");
+					$$ = createRecord(s, "");
+					free(s);
+	  			}
 	  ;
 
 dims : OPEN_BRACK CLOSE_BRACK {	char *s = cat("[", "]", "", "", "");
@@ -329,9 +416,9 @@ factor : OPEN_PAREN expr CLOSE_PAREN {	char *s = cat("(", $2->code, ")", "", "")
 										$$ = createRecord(s, "");
 										free(s);
 									 }
-       | ID {	$$ = createRecord($1, "");
-				free($1);
-	   		}
+       | atomo {	$$ = createRecord($1->code, "");
+	   				freeRecord($1);
+	   		   }
 	   | ID INCREMENT{ char *s = cat($1,"++","","","");
 						free($1);
 						$$ = createRecord(s, "");
@@ -342,11 +429,6 @@ factor : OPEN_PAREN expr CLOSE_PAREN {	char *s = cat("(", $2->code, ")", "", "")
 						$$ = createRecord(s, "");
 						free(s);
 	   				 }
-	   | ID dims {	char *s = cat($1, $2->code, "", "", "");
-					freeRecord($2);
-					$$ = createRecord(s, "");
-					free(s);
-	   			 }
 	   | function_call {char *s = cat($1->code, "", "", "", "");
 						freeRecord($1);	 
 						$$ = createRecord(s, "");
@@ -370,6 +452,10 @@ value : INT_NUMBER {char *s = cat($1,"","","","");
 						$$ = createRecord(s, "");
 						free(s);
 	  				 }
+	  | NULL_VALUE {char *s = cat("NULL","","","","");
+					$$ = createRecord(s, "");
+					free(s);
+	  			   }
 	  ;
 
 assigns : assign_def {	char *s = cat($1->code, "", "", "", "");
@@ -540,7 +626,53 @@ stmt : dec_var {char *s = cat($1->code, "", "", "", "");
 						$$ = createRecord(s, "");
 						free(s);
 	 				  }
+	 | scan_stmt {	char *s = cat($1->code, "", "", "", "");
+					freeRecord($1);
+					$$ = createRecord(s, "");
+					free(s);
+
+	 			 }
+	 | print_stmt {	char *s = cat($1->code, "", "", "", "");
+					freeRecord($1);
+					$$ = createRecord(s, "");
+					free(s);
+	 			  }
 	 ;
+
+scan_stmt: SCAN OPEN_PAREN ID CLOSE_PAREN SEMI {char *s = cat("scan(", $3, ");", "", "");
+												$$ = createRecord(s, "");
+												free(s);
+											   }
+		 ;
+
+print_stmt: PRINT OPEN_PAREN print_content CLOSE_PAREN SEMI {	char *s = cat("print(", $3->code, ");", "", "");
+																freeRecord($3);
+																$$ = createRecord(s, "");
+																free(s);
+															}
+		  | PRINT OPEN_PAREN CLOSE_PAREN SEMI {	char *s = cat("print();", "", "", "", "");
+		  										$$ = createRecord(s, "");
+												free(s);
+		  									  }
+		  ;
+
+print_content: expr { 	char *s = cat($1->code, "", "", "", "");
+						freeRecord($1);
+						$$ = createRecord(s, "");
+						free(s);
+					}
+			 | print_content PLUS expr {char *s = cat($1->code, " + ", $3->code, "", "");
+										freeRecord($1);
+										freeRecord($3);
+										$$ = createRecord(s, "");
+										free(s);
+			 						   }
+			 | STRING_VALUE PLUS print_content {char *s = cat($1, " + ", $3->code, "", "");
+												freeRecord($3);
+												$$ = createRecord(s, "");
+												free(s);
+			 								   }
+			 ;
 
 conditional_stmt : if_stmt {char *s = cat($1->code, "", "", "", "");
 							freeRecord($1);

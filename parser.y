@@ -1,20 +1,38 @@
 %{
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "./lib/record.h"
-#include "./lib/symbolTable.h"
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <string.h>
+	#include <ctype.h>
+	#include "./lib/record.h"
 
-int yylex(void);
-int yyerror(char *s);
-extern int yylineno;
-extern char * yytext;
-extern FILE * yyin, * yyout;
+	int yylex(void);
+	int yyerror(char *s);
+	int yywrad();
 
-char * cat(char *, char *, char *, char *, char *);
+	extern int yylineno;
+	extern char * yytext;
+	extern FILE * yyin, * yyout;
 
-hashTable * table;
+	char * cat(char *, char *, char *, char *, char *);
 
+	void add(char symbol, char * id_name);
+	void insert_type(char * type_text);
+	int search(char *c);
+	void insert_value(char * id, char * value);
+
+	struct dataType {
+		char * id_name;
+		char * data_type;
+		char * type;
+		int line_no;
+		int scope;
+	} symbol_table[40];
+
+	int count = 0;
+	int q;
+	char type[10];
+	extern int countn;
+	extern int count_block;
 %}
 
 %union {
@@ -84,14 +102,15 @@ decs_var : 				 	{$$ = createRecord("","");}
 		 		   }
 		 ;
 
-dec_var : type ids SEMI { char *s = cat($1->code, " ", $2->code, ";","");
-						  insert (table, $2->code, $2->code, $1->code, "Variavel", 10);
-						  freeRecord($1);
-						  freeRecord($2);
-						  $$ = createRecord(s, "");
-						  free(s);
+dec_var : type ids SEMI {	add('V', $2->code);
+							char *s = cat($1->code, " ", $2->code, ";","");
+						  	freeRecord($1);
+						  	freeRecord($2);
+						  	$$ = createRecord(s, "");
+						  	free(s);
 						}
-		| type ID ASSIGN p_values SEMI  { 	char *s1 = cat($1->code, " ", $2, "=", $4->code);
+		| type ID ASSIGN p_values SEMI  { 	add('V', $2);
+											char *s1 = cat($1->code, " ", $2, "=", $4->code);
 											char *s2 = cat(s1, ";", "", "", "");
 											freeRecord($1);
 											freeRecord($4);
@@ -99,7 +118,8 @@ dec_var : type ids SEMI { char *s = cat($1->code, " ", $2->code, ";","");
 											free(s2);
 											free(s1);
 										}
-		| type ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI { char *s1 = cat($1->code, " ", $2, $3->code, "=");
+		| type ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI { add('V', $2);
+																	char *s1 = cat($1->code, " ", $2, $3->code, "=");
 																	char *s2 = cat(s1, "{", $6->code, "}", ";");
 																  	freeRecord($1);
 																	freeRecord($3);
@@ -108,13 +128,15 @@ dec_var : type ids SEMI { char *s = cat($1->code, " ", $2->code, ";","");
 																	free(s2);
 																	free(s1);
 																  }
-		| type ID dims SEMI {	char *s = cat($1->code, " ", $2, $3->code, ";");
+		| type ID dims SEMI {	add('V', $2);
+								char *s = cat($1->code, " ", $2, $3->code, ";");
 								freeRecord($1);
 								freeRecord($3);
 								$$ = createRecord(s, "");
 								free(s);
 							}
-		| type_modifiers type ids SEMI {	char *s1 = cat($1->code, " ", $2->code, " ", $3->code);
+		| type_modifiers type ids SEMI {	add('V', $3->code);
+											char *s1 = cat($1->code, " ", $2->code, " ", $3->code);
 											char *s2 = cat(s1, ";", "", "", "");
 											freeRecord($1);
 											freeRecord($2);
@@ -123,7 +145,8 @@ dec_var : type ids SEMI { char *s = cat($1->code, " ", $2->code, ";","");
 											free(s2);
 											free(s1);
 									   }
-        | type_modifiers type ID ASSIGN p_values SEMI {	char *s1 = cat($1->code, " ", $2->code, " ", $3);
+        | type_modifiers type ID ASSIGN p_values SEMI {	add('V', $3);
+														char *s1 = cat($1->code, " ", $2->code, " ", $3);
 														char *s2 = cat(s1, "=", $5->code, ";", "");
 														freeRecord($1);
 														freeRecord($2);
@@ -132,7 +155,8 @@ dec_var : type ids SEMI { char *s = cat($1->code, " ", $2->code, ";","");
 														free(s2);
 														free(s1);
 													  }
-		| type_modifiers type ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI {	char *s1 = cat($1->code, " ", $2->code, "", $3);
+		| type_modifiers type ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI {	add('V', $3);
+																					char *s1 = cat($1->code, " ", $2->code, "", $3);
 																					char *s2 = cat(s1, $4->code, "=", "{", $7->code);
 																					char *s3 = cat(s2, "}", ";", "", "");
 																					freeRecord($1);
@@ -144,7 +168,8 @@ dec_var : type ids SEMI { char *s = cat($1->code, " ", $2->code, ";","");
 																					free(s2);
 																					free(s1);
 																				 }
-		| type_modifiers type ID dims SEMI {	char *s1 = cat($1->code, " ", $2->code, " ", $3);
+		| type_modifiers type ID dims SEMI {	add('V', $3);
+												char *s1 = cat($1->code, " ", $2->code, " ", $3);
 												char *s2 = cat(s1, $4->code, ";", "", "");
 												freeRecord($1);
 												freeRecord($2);
@@ -153,7 +178,8 @@ dec_var : type ids SEMI { char *s = cat($1->code, " ", $2->code, ";","");
 												free(s2);
 												free(s1);
 										   }
-		| type MULT ID ASSIGN p_values SEMI {	char *s1 = cat($1->code, " *", $3, "=", $5->code);
+		| type MULT ID ASSIGN p_values SEMI {	add('V', $3);
+												char *s1 = cat($1->code, " *", $3, "=", $5->code);
 												char *s2 = cat(s1, ";", "", "", "");
 												freeRecord($1);
 												freeRecord($5);
@@ -161,7 +187,8 @@ dec_var : type ids SEMI { char *s = cat($1->code, " ", $2->code, ";","");
 												free(s2);
 												free(s1);
 											}
-		| type MULT ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI {char *s1 = cat($1->code, " *", $3, $4->code, "=");
+		| type MULT ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI {add('V', $3);
+																		char *s1 = cat($1->code, " *", $3, $4->code, "=");
 																		char *s2 = cat(s1, "{", $7->code, "}", ";");
 																		freeRecord($1);
 																		freeRecord($4);
@@ -170,13 +197,15 @@ dec_var : type ids SEMI { char *s = cat($1->code, " ", $2->code, ";","");
 																		free(s2);
 																		free(s1);
 																	   }
-		| type MULT ID dims SEMI {	char *s = cat($1->code, " *", $3, $4->code, ";");
+		| type MULT ID dims SEMI {	add('V', $3);
+									char *s = cat($1->code, " *", $3, $4->code, ";");
 									freeRecord($1);
 									freeRecord($4);
 									$$ = createRecord(s, "");
 									free(s);
 								 }
-		| type_modifiers type MULT ID ASSIGN p_values SEMI {	char *s1 = cat($1->code, " ", $2->code, " *", $4);
+		| type_modifiers type MULT ID ASSIGN p_values SEMI {	add('V', $4);
+																char *s1 = cat($1->code, " ", $2->code, " *", $4);
 																char *s2 = cat(s1, "=", $6->code, ";", "");
 																freeRecord($1);
 																freeRecord($2);
@@ -185,7 +214,8 @@ dec_var : type ids SEMI { char *s = cat($1->code, " ", $2->code, ";","");
 																free(s2);
 																free(s1);
 														   }
-		| type_modifiers type MULT ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI {	char *s1 = cat($1->code, " ", $2->code, " *", $4);
+		| type_modifiers type MULT ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI {	add('V', $4);
+																						char *s1 = cat($1->code, " ", $2->code, " *", $4);
 																						char *s2 = cat(s1, $5->code, "=", "{", $8->code);
 																						char *s3 = cat(s2, "}", ";", "", "");
 																						freeRecord($1);
@@ -197,7 +227,8 @@ dec_var : type ids SEMI { char *s = cat($1->code, " ", $2->code, ";","");
 																						free(s2);
 																						free(s1);
 																					  }
-		| type_modifiers type MULT ID dims SEMI {	char *s1 = cat($1->code, " ", $2->code, " *", $4);
+		| type_modifiers type MULT ID dims SEMI {	add('V', $4);
+													char *s1 = cat($1->code, " ", $2->code, " *", $4);
 													char *s2 = cat(s1, $5->code, ";", "", "");
 													freeRecord($1);
 													freeRecord($2);
@@ -206,7 +237,8 @@ dec_var : type ids SEMI { char *s = cat($1->code, " ", $2->code, ";","");
 													free(s2);
 													free(s1);
 												}
-		| type_modifier STRUCT ID BLOCK_BEGIN decs_var BLOCK_END SEMI {	char *s1 = cat($1->code, " struct ", $3, " {\n", $5->code);
+		| type_modifier STRUCT ID BLOCK_BEGIN decs_var BLOCK_END SEMI {	add('V', $3);
+																		char *s1 = cat($1->code, " struct ", $3, " {\n", $5->code);
 																		char *s2 = cat(s1, "\n};", "", "", "");
 																		freeRecord($1);
 																		freeRecord($5);
@@ -214,17 +246,20 @@ dec_var : type ids SEMI { char *s = cat($1->code, " ", $2->code, ";","");
 																		free(s2);
 																		free(s1);
 																	  }
-		| STRUCT ID BLOCK_BEGIN decs_var BLOCK_END SEMI {	char *s = cat("struct ", $2, " {\n", $4->code, "\n};");
+		| STRUCT ID BLOCK_BEGIN decs_var BLOCK_END SEMI {	add('V', $2);
+															char *s = cat("struct ", $2, " {\n", $4->code, "\n};");
 															freeRecord($4);
 															$$ = createRecord(s, "");
 															free(s);
 														}
-		| type_modifier STRUCT ID BLOCK_BEGIN BLOCK_END SEMI {	char *s = cat($1->code ," struct ", $3 ," {", "};");
+		| type_modifier STRUCT ID BLOCK_BEGIN BLOCK_END SEMI {	add('V', $3);
+																char *s = cat($1->code ," struct ", $3 ," {", "};");
 																freeRecord($1);
 																$$ = createRecord(s, "");
 																free(s);
 															 }
-		| STRUCT ID BLOCK_BEGIN BLOCK_END SEMI {char *s = cat("struct", $2 ,"{};", "", "");
+		| STRUCT ID BLOCK_BEGIN BLOCK_END SEMI {add('V', $2);
+												char *s = cat("struct", $2 ,"{};", "", "");
 												$$ = createRecord(s, "");
 												free(s);
 											   }
@@ -253,17 +288,23 @@ type_modifier : CONST {	$$ = createRecord("const", "");
 			  		   }
 			  ;
 
-type : INT {$$ = createRecord("int", "");
+type : INT {insert_type("int");
+			$$ = createRecord("int", "");
 		   }
-     | DOUBLE {	$$ = createRecord("double", "");
+     | DOUBLE {	insert_type("double");
+				$$ = createRecord("double", "");
 	 		  }
-	 | FLOAT {	$$ = createRecord("float", "");
+	 | FLOAT {	insert_type("float");
+				$$ = createRecord("float", "");
 	 		 }
-	 | CHAR {	$$ = createRecord("char", "");
+	 | CHAR {	insert_type("char");
+				$$ = createRecord("char", "");
 	 		}
-	 | STRING {	$$ = createRecord("string", "");
+	 | STRING {	insert_type("string");
+				$$ = createRecord("string", "");
 	 		  }
-	 | BOOLEAN {$$ = createRecord("bool", "");
+	 | BOOLEAN {insert_type("boolean");
+				$$ = createRecord("bool", "");
 	 		   }
 	 ;
 
@@ -286,24 +327,24 @@ ids : atomo {	char *s = cat($1->code, "", "", "", "");
 						   }
 	;
 
-atomo : ID {$$ = createRecord($1, "");
+atomo : ID {$$ = createRecord($1, $1);
 			free($1);
 		   }
       | ID dims {	char *s = cat($1, $2->code, "", "", "");
 	  				freeRecord($2);
-					$$ = createRecord(s, "");
+					$$ = createRecord(s, $1);
 					free(s);
 	  		    }
 	  | AMPERSAND ID {	char *s = cat("&", $2, "", "", "");
-						$$ = createRecord(s, "");
+						$$ = createRecord(s, $2);
 						free(s);
 	  				 }
 	  | MULT ID {	char *s = cat("*", $2, "", "", "");
-					$$ = createRecord(s, "");
+					$$ = createRecord(s, $2);
 					free(s);
 	  			}
 	  | ID DOT ID {	char *s = cat($1, ".", $3, "", "");
-	  				$$ = createRecord(s, "");
+	  				$$ = createRecord(s, $1);
 					free(s);
 	  			  }
 	  ;
@@ -532,7 +573,8 @@ subprogram : proc { char *s = cat($1->code, "", "", "", "");
 		   			  }
 		   ;
 
-proc : VOID ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {	char *s1 = cat("void ", $2, "(", $4->code, ")");
+proc : VOID ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {	add('P', $2);
+																			char *s1 = cat("void ", $2, "(", $4->code, ")");
 																			char *s2 = cat(s1, "{\n", $7->code, "\n}", "");
 																			freeRecord($4);
 																			freeRecord($7);
@@ -540,14 +582,16 @@ proc : VOID ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {	char 
 																			free(s2);
 																			free(s1);
 																		 }
-	 | VOID ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {	char *s = cat("void ", $2, "(){\n", $6->code, "\n}");
+	 | VOID ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {	add('P', $2);
+																	char *s = cat("void ", $2, "(){\n", $6->code, "\n}");
 	 																freeRecord($6);
 																	$$ = createRecord(s, "");
 																	free(s);
 	 															  }
 	 ;
 	
-function : type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END {	char *s1 = cat($1->code, " ", $2, "(", $4->code);
+function : type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END {	add('F', $2);
+																							char *s1 = cat($1->code, " ", $2, "(", $4->code);
 																							char *s2 = cat(s1, "){\n", $7->code, "\nreturn ", $9->code);
 																							char *s3 = cat(s2, "\n}", "", "", "");
 																							freeRecord($1);
@@ -559,7 +603,8 @@ function : type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN value 
 																							free(s2);
 																							free(s1);
 																						  }
-		 | type ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END {char *s1 = cat($1->code, " ", $2, "(){\n", $6->code);
+		 | type ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END {add('F', $2);
+																					char *s1 = cat($1->code, " ", $2, "(){\n", $6->code);
 		 																			char *s2 = cat(s1, "\nreturn ", $8->code, "\n}", "");
 																					freeRecord($1);
 																					freeRecord($6);
@@ -924,13 +969,15 @@ arg : ids {	char *s = cat($1->code,"","","","");
 	 	  }
 	;
 
-principal : MAIN OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {char *s = cat("main(", $3->code, "){\n", $6->code, "\n}");
+principal : MAIN OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {add('M', "main");
+																			char *s = cat("main(", $3->code, "){\n", $6->code, "\n}");
 																			freeRecord($3);
 																			freeRecord($6);
 																			$$ = createRecord(s, "");
 																			free(s);
 																		   }
-		  | MAIN OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END	{	char *s = cat("main(){\n", $5->code, "\n}", "", "");
+		  | MAIN OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END	{	add('M', "main");
+																		char *s = cat("main(){\n", $5->code, "\n}", "", "");
 		  																freeRecord($5);
 																		$$ = createRecord(s, "");
 																		free(s);
@@ -950,12 +997,28 @@ int main (int argc, char ** argv) {
     yyin = fopen(argv[1], "r");
     yyout = fopen(argv[2], "w");
 
-	table = htCreate();
     codigo = yyparse();
-	ht_dump(table);
 
     fclose(yyin);
     fclose(yyout);
+
+	printf("\nSymble Table \n");
+	printf("\nSYMBOL	DATATYPE	TYPE	LINE NUMBER 	SCOPE \n");
+	printf("______________________________________________________\n\n");
+	int i = 0;
+	for(i = 0; i < count; i++){
+		printf("%s\t%s\t\t%s\t%d\t%d\t\n", 
+			symbol_table[i].id_name, 
+			symbol_table[i].data_type, 
+			symbol_table[i].type,
+			symbol_table[i].line_no,
+			symbol_table[i].scope);
+	}
+
+	for(i = 0; i < count; i++){
+		free(symbol_table[i].id_name);
+		free(symbol_table[i].type);
+	}
 
 	return codigo;
 }
@@ -980,4 +1043,69 @@ char * cat(char * s1, char * s2, char * s3, char * s4, char * s5){
   sprintf(output, "%s%s%s%s%s", s1, s2, s3, s4, s5);
   
   return output;
+}
+
+int search(char *type) {
+	int i;
+	for(i=count-1; i>=0; i--) {
+		if(strcmp(symbol_table[i].id_name, type) == 0) {
+			return i;
+			break;
+		}
+	}
+
+	return 0;
+}
+
+void add(char symbol, char * id_name){
+	q=search(id_name);
+	if(q == 0) {
+		if(symbol == 'H'){
+			symbol_table[count].id_name = strdup(id_name);
+			symbol_table[count].data_type = strdup(type);
+			symbol_table[count].line_no = countn;
+			symbol_table[count].type = strdup("Header");
+			symbol_table[count].scope = count_block;
+			count++;
+		} else if(symbol == 'K'){
+			symbol_table[count].id_name = strdup(id_name);
+			symbol_table[count].data_type = strdup("N/A");
+			symbol_table[count].line_no = countn;
+			symbol_table[count].type = strdup("Keyword\t");
+			symbol_table[count].scope = count_block;
+			count++;
+		} else if(symbol == 'V'){
+			symbol_table[count].id_name = strdup(id_name);
+			symbol_table[count].data_type = strdup(type);
+			symbol_table[count].line_no = countn;
+			symbol_table[count].type = strdup("Variable");
+			symbol_table[count].scope = count_block;
+			count++;
+		} else if(symbol == 'F'){
+			symbol_table[count].id_name = strdup(id_name);
+			symbol_table[count].data_type = strdup(type);
+			symbol_table[count].line_no = countn;
+			symbol_table[count].type = strdup("Function");
+			symbol_table[count].scope = count_block;
+			count++;
+		} else if(symbol == 'P'){
+			symbol_table[count].id_name = strdup(id_name);
+			symbol_table[count].data_type = strdup("N/A");
+			symbol_table[count].line_no = countn;
+			symbol_table[count].type = strdup("Procedure");
+			symbol_table[count].scope = count_block;
+			count++;
+		} else if(symbol == 'M'){
+			symbol_table[count].id_name = strdup(id_name);
+			symbol_table[count].data_type = strdup("N/A");
+			symbol_table[count].line_no = countn;
+			symbol_table[count].type = strdup("Main");
+			symbol_table[count].scope = count_block;
+			count++;
+		}
+	}
+}
+
+void insert_type(char * type_text){
+	strcpy(type, type_text);
 }

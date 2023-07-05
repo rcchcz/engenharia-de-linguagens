@@ -4,12 +4,14 @@
   #include "y.tab.h"
   
   extern int yyerror (char *msg);  
+  int countn = 1;
+  int count_block = 0;
 %}
 %option yylineno
 
 %%
 
-[ \t\n]                           ;
+[ \t]                           ;
 
 [0-9]+           	                { yylval.sValue = strdup(yytext);
                                     return INT_NUMBER;}
@@ -51,8 +53,14 @@
 ")"                               {return(CLOSE_PAREN);}
 "["                               {return(OPEN_BRACK);}
 "]"                               {return(CLOSE_BRACK);}
-"{"      			                    {return(BLOCK_BEGIN);}
-"}"      				                  {return(BLOCK_END);}
+"{"      			                    { count_block++;
+                                    return(BLOCK_BEGIN);
+                                  }
+"}"      				                  { if(count_block!=0){
+                                      count_block--;
+                                    }
+                                    return(BLOCK_END);
+                                  }
 ";"      				                  {return(SEMI);}
 ":"                               {return(COLON);}
 "."                               {return(DOT);}
@@ -80,6 +88,8 @@
 "&&"                              {return(AND);}
 "||"                              {return(OR);}
 "!"                               {return(NOT);}
+
+[\n]                              { countn++; }
 
 
 \"(\\.|[^"\\])*\"                 {yylval.sValue = strdup(yytext);

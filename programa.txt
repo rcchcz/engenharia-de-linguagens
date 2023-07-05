@@ -1,8 +1,11 @@
 main(){
+    int id5;
     int vetor[10] = {3,4,2,5,8,0,9,1,6,7};
-    int auxiliar [10];
+    int aux [10];
     int id;
-    mergeSort(vetor,auxiliar,0,9);
+    float id2;
+    string id3;
+    mergeSort(vetor,aux,0,9);
 }
 
 void mergeSort(int[] v, int[] w, int inicio, int fim){

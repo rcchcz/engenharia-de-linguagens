@@ -920,26 +920,57 @@ stmt : dec_var {char *s = cat($1->code, "", "", "", "");
 	 			  }
 	 ;
 
-scan_stmt: SCAN OPEN_PAREN ID CLOSE_PAREN SEMI {char *s = cat("scan(", $3, ");", "", "");
+scan_stmt: SCAN OPEN_PAREN ID CLOSE_PAREN SEMI {
+												char *s;
+
+												int index = search($3);
+
+												if(index == -1){
+													yyerror("Variavel não encontrada");
+												}
+
+												if(strcmp(symbol_table[index].data_type, "int") == 0){
+													s = cat("scanf(\"%d\",&", $3, ");", "", "");
+												}else if(strcmp(symbol_table[index].data_type, "float") == 0){
+													s = cat("scanf(\"%f\",&", $3, ");", "", "");
+												}else if(strcmp(symbol_table[index].data_type, "string") == 0){
+													s = cat("scanf(\"%s\",", $3, ");", "", "");
+												}else{
+													s = "";
+													yyerror("Tipo invalido para o print");
+												}
+												
 												$$ = createRecord(s, "");
 												free(s);
 											   }
 		 ;
 
-print_stmt: PRINT OPEN_PAREN print_content CLOSE_PAREN SEMI {	char *s = cat("print(", $3->code, ");", "", "");
+print_stmt: PRINT OPEN_PAREN print_content CLOSE_PAREN SEMI {	
+																char * s;
+																if(strcmp($3->type, "int") == 0){
+																	s = cat("print(%i\\n,", $3->code, ");", "", "");
+																}else if(strcmp($3->type, "float") == 0){
+																	s = cat("print(%f\\n,", $3->code, ");", "", "");
+																}else if(strcmp($3->type, "string") == 0){
+																	s = cat("print(", $3->code, "\\n);", "", "");
+																}else{
+																	s = "";
+																	yyerror("Tipo invalido para o print");
+																}
+																
 																freeRecord($3);
 																$$ = createRecord(s, "");
 																free(s);
 															}
-		  | PRINT OPEN_PAREN CLOSE_PAREN SEMI {	char *s = cat("print();", "", "", "", "");
+		  | PRINT OPEN_PAREN CLOSE_PAREN SEMI {	char *s = cat("print(\"\\n\");", "", "", "", "");
 		  										$$ = createRecord(s, "");
 												free(s);
 		  									  }
 		  ;
 
 print_content: expr { 	char *s = cat($1->code, "", "", "", "");
+						$$ = createRecord(s, $1->type);
 						freeRecord($1);
-						$$ = createRecord(s, "");
 						free(s);
 					}
 			 | print_content PLUS expr {char *s = cat($1->code, " + ", $3->code, "", "");

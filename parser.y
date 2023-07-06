@@ -702,8 +702,8 @@ factor : OPEN_PAREN expr CLOSE_PAREN {	char *s = cat("(", $2->code, ")", "", "")
 						free(s);
 	   				 }
 	   | function_call {char *s = cat($1->code, "", "", "", "");
+						$$ = createRecord(s, $1->type);
 						freeRecord($1);	 
-						$$ = createRecord(s, "");
 						free(s);
 	   				   }
 	   | value {char *s = cat($1->code, "", "", "", "");
@@ -834,7 +834,7 @@ proc : VOID ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {	add('
 function : type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor SEMI BLOCK_END {	add('F', $2);
 																							char *s1 = cat($1->code, " ", $2, "(", $4->code);
 																							char *s2 = cat(s1, "){\n", $7->code, "\nreturn ", $9->code);
-																							char *s3 = cat(s2, "\n}", "", "", "");
+																							char *s3 = cat(s2, ";\n}", "", "", "");
 																							freeRecord($1);
 																							freeRecord($4);
 																							freeRecord($7);
@@ -869,15 +869,20 @@ params : param {char *s = cat($1->code, "", "", "", "");
 			   				}
 	   ;
 
-param : type dims ID {	char *s = cat($1->code, " ", $2->code, $3, "");
+param : type dims ID {	
+						add('V', $3);
+						char *s = cat($1->code, " ", $2->code, $3, "");
+						
+						$$ = createRecord(s, $1->code);
 						freeRecord($1);
 						freeRecord($2);
-						$$ = createRecord(s, "");
 						free(s);
 					 }
-	  | type ID {	char *s = cat($1->code, " ", $2, "", "");
+	  | type ID {	add('V', $2);
+					char *s = cat($1->code, " ", $2, "", "");
+					
+					$$ = createRecord(s, $1->code);
 					freeRecord($1);
-					$$ = createRecord(s, "");
 					free(s);
 			    }
 	  ;
@@ -1207,36 +1212,31 @@ dowhile_stmt : DO BLOCK_BEGIN stmts BLOCK_END WHILE OPEN_PAREN logic_expr CLOSE_
 function_call : ID OPEN_PAREN args CLOSE_PAREN SEMI {	
 														int index = search($1);
 
-														if(index == -1){
-															yyerror("Essa função não existe");
-														}
-
 														char *s = cat($1, "(", $3->code, ");", "");
 
 														freeRecord($3);
-														$$ = createRecord(s, symbol_table[index].data_type);
+														if(index != -1){
+															$$ = createRecord(s, symbol_table[index].data_type);
+														}else {
+															$$ = createRecord(s, "");
+														}
 														free(s);
 													}
              | ID OPEN_PAREN CLOSE_PAREN SEMI {	
 												int index = search($1);
 
-												if(index == -1){
-													yyerror("Essa função não existe");
-												}
-
 												char *s = cat($1, "();", "", "", "");
-												$$ = createRecord(s, symbol_table[index].data_type);
+
+												if(index != -1){
+													$$ = createRecord(s, symbol_table[index].data_type);
+												}else {
+													$$ = createRecord(s, "");
+												}
 												free(s);
 											  }
 			 ;
 
-args : args arg {	char *s = cat($1->code, $2->code, "", "", "");
-					freeRecord($1);
-					freeRecord($2);
-					$$ = createRecord(s, "");
-					free(s);
-				}
-	 | arg {char *s = cat($1->code,"","","","");
+args : arg {char *s = cat($1->code,"","","","");
 			freeRecord($1);
 			$$ = createRecord(s, "");
 			free(s);

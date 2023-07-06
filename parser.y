@@ -1099,7 +1099,13 @@ c_term : ID {	$$ = createRecord($1, "");
 	   }
 	   ;
 
-comp: expr comp_op expr
+comp: expr comp_op expr {	char *s = cat($1->code, $2->code, $3->code, "", "");
+							freeRecord($1);
+							freeRecord($2);
+							freeRecord($3);
+							$$ = createRecord(s, "");
+							free(s);
+						}
 	;
 
 comp_op : EQ {	char *s = cat("==", "", "", "", "");

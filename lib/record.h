@@ -3,7 +3,7 @@
 
 struct record {
 	   char * code; /* field for storing the output code */
-	   char * idvar; /* field for another purpose */
+	   char * type; /* field for another purpose */
 };
 
 typedef struct record record;

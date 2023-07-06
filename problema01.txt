@@ -1,0 +1,13 @@
+main(){
+    float x;
+    float y;
+    int c;
+
+    scan(x);
+    scan(y);
+    scan(c);
+
+    float resultado = x*x + y + c;
+
+    print(resultado);
+}

@@ -674,7 +674,9 @@ factor : OPEN_PAREN expr CLOSE_PAREN {	char *s = cat("(", $2->code, ")", "", "")
 							yyerror("Variavel não encontrada");
 						}
 						
-						if(strcmp(symbol_table[index].data_type, "int") != 0 ||
+						
+
+						if(strcmp(symbol_table[index].data_type, "int") != 0 &&
 								strcmp(symbol_table[index].data_type,"float") != 0 ){
 							yyerror("Essa operação só é permitida para int ou float");	
 						}
@@ -691,7 +693,7 @@ factor : OPEN_PAREN expr CLOSE_PAREN {	char *s = cat("(", $2->code, ")", "", "")
 							yyerror("Variavel não encontrada");
 						}
 
-						if(strcmp(symbol_table[index].data_type, "int") != 0 ||
+						if(strcmp(symbol_table[index].data_type, "int") != 0 &&
 								strcmp(symbol_table[index].data_type,"float") != 0 ){
 							yyerror("Essa operação só é permitida para int ou float");	
 						}
@@ -964,7 +966,7 @@ print_stmt: PRINT OPEN_PAREN print_content CLOSE_PAREN SEMI {
 																}else if(strcmp($3->type, "float") == 0){
 																	s = cat("printf(\"%f\\n\",", $3->code, ");", "", "");
 																}else if(strcmp($3->type, "string") == 0){
-																	s = cat("printf(", $3->code, "\\n);", "", "");
+																	s = cat("printf(", $3->code, ");", "", "");
 																}else{
 																	s = "";
 																	yyerror("Tipo invalido para o print");
@@ -1016,16 +1018,30 @@ if_stmt : IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {char
 																			$$ = createRecord(s, "");
 																			free(s);
 																		   }
-		| IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END ELSE BLOCK_BEGIN stmts BLOCK_END { 	char *s1 = cat("if(", $3->code, "){\n", $6->code, "goto conditionOk1; \n}");
-																												char *s2 = cat(s1, $10->code, "conditionOk1:", "", "");
+		| IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END ELSE BLOCK_BEGIN stmts BLOCK_END { 
+																												char str[20];
+																												sprintf(str, "%d", countn);
+
+																												char *label = cat("conditionOk", str, "", "", "");
+
+																												char *s1 = cat("if(", $3->code, "){\n", $6->code, "goto ");
+																												char *s2 = cat(s1, label, "; \n}", $10->code, "\n");
+																												char *s3 = cat(s2, label, ":", "", "");
 																												freeRecord($3);
 																												freeRecord($6);
 																												freeRecord($10);
-																												$$ = createRecord(s2, "");
+																												$$ = createRecord(s3, "");
+																												free(s3);
 																												free(s2);
 																												free(s1);
 																											}
-		| IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt ELSE BLOCK_BEGIN stmts BLOCK_END {	char *s1 = cat("if(", $3->code, "){\n", $6->code, "goto conditionOk2;\n} ");
+		| IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt ELSE BLOCK_BEGIN stmts BLOCK_END {	
+																															char str[20];
+																															sprintf(str, "%d", countn);
+
+																															char *label = cat("conditionOk", str, "", "", "");
+
+																															char *s1 = cat("if(", $3->code, "){\n", $6->code, "goto conditionOk2;\n} ");	
 																															char *s2 = cat(s1, $8->code, "\n", $11->code, "\n conditionOk2:");
 																															freeRecord($3);
 																															freeRecord($6);
@@ -1195,12 +1211,12 @@ while_stmt : WHILE OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
 																				 }
 		   ;
 
-for_stmt : FOR OPEN_PAREN dec_var SEMI logic_expr SEMI expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {char *s1 = cat($3->code, "forLoop:\n", "if(",$5->code, "){\n");
-																								char *s2 = cat(s1, $7->code, "\n", $10->code, "goto forLoop;\n}");
+for_stmt : FOR OPEN_PAREN dec_var logic_expr SEMI expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {char *s1 = cat($3->code, "forLoop:\n", "if(",$4->code, "){\n");
+																								char *s2 = cat(s1, $6->code, ";\n", $9->code, "goto forLoop;\n}");
 																								freeRecord($3);
-																								freeRecord($5);
-																								freeRecord($7);
-																								freeRecord($10);
+																								freeRecord($4);
+																								freeRecord($6);
+																								freeRecord($9);
 																								$$ = createRecord(s2, "");
 																								free(s2);
 																								free(s1);

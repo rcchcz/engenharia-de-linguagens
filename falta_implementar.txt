@@ -16,6 +16,7 @@ FALTA IMPLEMENTAR
 -> escopo
 -> chamada de funcao => i = funcao(valor);
 -> HASHTABLE/ARVORE => (ARRAY)
+->ponteiro no struct
 
 //EXEMPLO
 

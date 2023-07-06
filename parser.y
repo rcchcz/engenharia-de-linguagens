@@ -1196,7 +1196,7 @@ while_stmt : WHILE OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
 		   ;
 
 for_stmt : FOR OPEN_PAREN dec_var SEMI logic_expr SEMI expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {char *s1 = cat($3->code, "forLoop:\n", "if(",$5->code, "){\n");
-																								char *s2 = cat(s1, $7-code, ")\n", $10->code, "goto forLoop;\n}");
+																								char *s2 = cat(s1, $7->code, "\n", $10->code, "goto forLoop;\n}");
 																								freeRecord($3);
 																								freeRecord($5);
 																								freeRecord($7);
@@ -1207,11 +1207,13 @@ for_stmt : FOR OPEN_PAREN dec_var SEMI logic_expr SEMI expr CLOSE_PAREN BLOCK_BE
 																							   }
 		 ;
 
-dowhile_stmt : DO BLOCK_BEGIN stmts BLOCK_END WHILE OPEN_PAREN logic_expr CLOSE_PAREN SEMI {char *s = cat("do{\n", $3->code, "\n} while(", $7->code, ");");
+dowhile_stmt : DO BLOCK_BEGIN stmts BLOCK_END WHILE OPEN_PAREN logic_expr CLOSE_PAREN SEMI {char *s1 = cat($3->code, "doWhile: if(", $7->code, "){", $3->code);
+																							char *s2 = cat("} goto doWhile;", "", "", "", "");
 																							freeRecord($3);
 																							freeRecord($7);
-																							$$ = createRecord(s, "");
-																							free(s);
+																							$$ = createRecord(s2, "");
+																							free(s1);
+																							free(s2);
 																						   }
              ;
 

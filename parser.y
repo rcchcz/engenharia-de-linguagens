@@ -72,23 +72,23 @@
 
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
 
-prog : decs_var subprograms principal subprograms { fprintf(yyout, "%s\n%s\n%s\n%s", $1->code, $2->code, $3->code, $4->code);
+prog : decs_var subprograms principal subprograms { fprintf(yyout, "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n%s\n%s\n%s\n%s", $1->code, $2->code, $3->code, $4->code);
 	 									freeRecord($1);
 										freeRecord($2);
 										freeRecord($3);
 										freeRecord($4);
 	 								  }
-	 | decs_var principal subprograms { fprintf(yyout, "%s\n%s\n%s", $1->code, $2->code, $3->code);
+	 | decs_var principal subprograms { fprintf(yyout, "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n%s\n%s\n%s", $1->code, $2->code, $3->code);
 	 									freeRecord($1);
 										freeRecord($2);
 										freeRecord($3);
 	 								  }
-	 | decs_var subprograms principal { fprintf(yyout, "%s\n%s\n%s", $1->code, $2->code, $3->code);
+	 | decs_var subprograms principal { fprintf(yyout, "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n%s\n%s\n%s", $1->code, $2->code, $3->code);
 	 									freeRecord($1);
 										freeRecord($2);
 										freeRecord($3);
 	 								  }
-	 | decs_var principal { fprintf(yyout, "%s\n%s", $1->code, $2->code);
+	 | decs_var principal { fprintf(yyout, "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n%s\n%s", $1->code, $2->code);
 							freeRecord($1);
 	 						freeRecord($2);
 	 					  }
@@ -948,11 +948,11 @@ scan_stmt: SCAN OPEN_PAREN ID CLOSE_PAREN SEMI {
 print_stmt: PRINT OPEN_PAREN print_content CLOSE_PAREN SEMI {	
 																char * s;
 																if(strcmp($3->type, "int") == 0){
-																	s = cat("print(%i\\n,", $3->code, ");", "", "");
+																	s = cat("printf(\"%i\\n\",", $3->code, ");", "", "");
 																}else if(strcmp($3->type, "float") == 0){
-																	s = cat("print(%f\\n,", $3->code, ");", "", "");
+																	s = cat("printf(\"%f\\n\",", $3->code, ");", "", "");
 																}else if(strcmp($3->type, "string") == 0){
-																	s = cat("print(", $3->code, "\\n);", "", "");
+																	s = cat("printf(", $3->code, "\\n);", "", "");
 																}else{
 																	s = "";
 																	yyerror("Tipo invalido para o print");
@@ -1244,14 +1244,14 @@ arg : ids {	char *s = cat($1->code,"","","","");
 	;
 
 principal : MAIN OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {add('M', "main");
-																			char *s = cat("main(", $3->code, "){\n", $6->code, "\n}");
+																			char *s = cat("int main(", $3->code, "){\n", $6->code, "\nreturn 0;\n}");
 																			freeRecord($3);
 																			freeRecord($6);
 																			$$ = createRecord(s, "");
 																			free(s);
 																		   }
 		  | MAIN OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END	{	add('M', "main");
-																		char *s = cat("main(){\n", $5->code, "\n}", "", "");
+																		char *s = cat("int main(){\n", $5->code, "\nreturn 0;\n}", "", "");
 		  																freeRecord($5);
 																		$$ = createRecord(s, "");
 																		free(s);

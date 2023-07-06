@@ -6,7 +6,7 @@
 void freeRecord(record * r){
   if (r) {
     if (r->code) free(r->code);
-	  if (r->idvar) free(r->idvar);
+	  if (r->type) free(r->type);
     free(r);
   }
 }
@@ -20,8 +20,7 @@ record * createRecord(char * c1, char * c2){
   }
 
   r->code = strdup(c1);
-  r->idvar = strdup(c2);
+  r->type = strdup(c2);
 
   return r;
 }
-

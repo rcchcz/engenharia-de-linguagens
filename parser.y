@@ -19,6 +19,12 @@
 	void insert_type(char * type_text);
 	int search(char *c);
 	void insert_value(char * id, char * value);
+	int verificar_valor_tipo_valido(char * valor, char * tipo);
+	int isInteger(const char *str);
+	int isFloat(const char *str);
+	char * tipo_resultado_operacao(char * type1, char * type2);
+	int verificar_calculo_numero_float_int(char * type1, char * type2);
+
 
 	struct dataType {
 		char * id_name;
@@ -90,68 +96,97 @@ prog : decs_var subprograms principal subprograms { fprintf(yyout, "%s\n%s\n%s\n
 
 decs_var : 				 	{$$ = createRecord("","");}
 		 | dec_var decs_var {char *s = cat($1->code, $2->code,"","","");
-		 					 freeRecord($1);
+							 $$ = createRecord(s, $1->type);
+							 freeRecord($1);
 							 freeRecord($2);
-							 $$ = createRecord(s, "");
 							 free(s);
 		 					}
 		 | assigns {char *s = cat($1->code, "", "", "","");
+					$$ = createRecord(s, $1->type);
 					freeRecord($1);
-					$$ = createRecord(s, "");
 					free(s);
 		 		   }
 		 ;
 
 dec_var : type ids SEMI {	add('V', $2->code);
 							char *s = cat($1->code, " ", $2->code, ";","");
-						  	freeRecord($1);
+						  	
+						  	$$ = createRecord(s, $1->code);
+							freeRecord($1);
 						  	freeRecord($2);
-						  	$$ = createRecord(s, "");
 						  	free(s);
 						}
 		| type ID ASSIGN p_values SEMI  { 	add('V', $2);
 											char *s1 = cat($1->code, " ", $2, "=", $4->code);
 											char *s2 = cat(s1, ";", "", "", "");
+
+											if(strcmp($1->code, "string") == 0 && strcmp($4->type, "string") == 0){
+												$$ = createRecord(s2, $1->code);
+											} else if(verificar_calculo_numero_float_int($1->code, $4->type)){
+												$$ = createRecord(s2, $1->code);
+											}else {
+												yyerror("Tipos incompativeis");
+											}
+
+											$$ = createRecord(s2, $1->code);
 											freeRecord($1);
 											freeRecord($4);
-											$$ = createRecord(s2, "");
 											free(s2);
 											free(s1);
 										}
 		| type ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI { add('V', $2);
 																	char *s1 = cat($1->code, " ", $2, $3->code, "=");
 																	char *s2 = cat(s1, "{", $6->code, "}", ";");
-																  	freeRecord($1);
+																  	
+
+																	if(strcmp($1->code, "string") == 0 && strcmp($6->type, "string") == 0){
+																		$$ = createRecord(s2, $1->code);
+																	} else if(verificar_calculo_numero_float_int($1->code, $6->type)){
+																		$$ = createRecord(s2, $1->code);
+																	}else {
+																		yyerror("Tipos incompativeis");
+																	}
+
+																	freeRecord($1);
 																	freeRecord($3);
 																	freeRecord($6);
-																	$$ = createRecord(s2, "");
 																	free(s2);
 																	free(s1);
 																  }
 		| type ID dims SEMI {	add('V', $2);
 								char *s = cat($1->code, " ", $2, $3->code, ";");
+								
+								$$ = createRecord(s, $1->code);
 								freeRecord($1);
 								freeRecord($3);
-								$$ = createRecord(s, "");
 								free(s);
 							}
 		| type_modifiers type ids SEMI {	add('V', $3->code);
 											char *s1 = cat($1->code, " ", $2->code, " ", $3->code);
 											char *s2 = cat(s1, ";", "", "", "");
+											
+											$$ = createRecord(s2, $2->code);
 											freeRecord($1);
 											freeRecord($2);
 											freeRecord($3);
-											$$ = createRecord(s2, "");
 											free(s2);
 											free(s1);
 									   }
         | type_modifiers type ID ASSIGN p_values SEMI {	add('V', $3);
 														char *s1 = cat($1->code, " ", $2->code, " ", $3);
 														char *s2 = cat(s1, "=", $5->code, ";", "");
+														
+														if(strcmp($2->code, "string") == 0 && strcmp($5->type, "string") == 0){
+															$$ = createRecord(s2, $2->code);
+														} else if(verificar_calculo_numero_float_int($2->code, $5->type)){
+															$$ = createRecord(s2, $2->code);
+														}else {
+															yyerror("Tipos incompativeis");
+														}
+
 														freeRecord($1);
 														freeRecord($2);
 														freeRecord($5);
-														$$ = createRecord(s2, "");
 														free(s2);
 														free(s1);
 													  }
@@ -159,11 +194,19 @@ dec_var : type ids SEMI {	add('V', $2->code);
 																					char *s1 = cat($1->code, " ", $2->code, "", $3);
 																					char *s2 = cat(s1, $4->code, "=", "{", $7->code);
 																					char *s3 = cat(s2, "}", ";", "", "");
+																					
+																					if(strcmp($2->code, "string") == 0 && strcmp($7->type, "string") == 0){
+																						$$ = createRecord(s3, $2->code);
+																					} else if(verificar_calculo_numero_float_int($2->code, $7->type)){
+																						$$ = createRecord(s3, $2->code);
+																					}else {
+																						yyerror("Tipos incompativeis");
+																					}
+
 																					freeRecord($1);
 																					freeRecord($2);
 																					freeRecord($4);
 																					freeRecord($7);
-																					$$ = createRecord(s3, "");
 																					free(s3);
 																					free(s2);
 																					free(s1);
@@ -171,46 +214,65 @@ dec_var : type ids SEMI {	add('V', $2->code);
 		| type_modifiers type ID dims SEMI {	add('V', $3);
 												char *s1 = cat($1->code, " ", $2->code, " ", $3);
 												char *s2 = cat(s1, $4->code, ";", "", "");
+												
+												$$ = createRecord(s2, $2->code);
 												freeRecord($1);
 												freeRecord($2);
 												freeRecord($4);
-												$$ = createRecord(s2, "");
 												free(s2);
 												free(s1);
 										   }
 		| type MULT ID ASSIGN p_values SEMI {	add('V', $3);
 												char *s1 = cat($1->code, " *", $3, "=", $5->code);
 												char *s2 = cat(s1, ";", "", "", "");
+
+												if(strcmp($1->code, "string") == 0 && strcmp($5->type, "string") == 0){
+													$$ = createRecord(s2, $1->code);
+												} else if(verificar_calculo_numero_float_int($1->code, $5->type)){
+													$$ = createRecord(s2, $1->code);
+												}else {
+													yyerror("Tipos incompativeis");
+												}
+												
 												freeRecord($1);
 												freeRecord($5);
-												$$ = createRecord(s2, "");
 												free(s2);
 												free(s1);
 											}
 		| type MULT ID dims ASSIGN BLOCK_BEGIN p_values BLOCK_END SEMI {add('V', $3);
 																		char *s1 = cat($1->code, " *", $3, $4->code, "=");
 																		char *s2 = cat(s1, "{", $7->code, "}", ";");
+																		
+																		$$ = createRecord(s2, $1->code);
 																		freeRecord($1);
 																		freeRecord($4);
 																		freeRecord($7);
-																		$$ = createRecord(s2, "");
 																		free(s2);
 																		free(s1);
 																	   }
 		| type MULT ID dims SEMI {	add('V', $3);
 									char *s = cat($1->code, " *", $3, $4->code, ";");
+									
+									$$ = createRecord(s, $1->code);
 									freeRecord($1);
 									freeRecord($4);
-									$$ = createRecord(s, "");
 									free(s);
 								 }
 		| type_modifiers type MULT ID ASSIGN p_values SEMI {	add('V', $4);
 																char *s1 = cat($1->code, " ", $2->code, " *", $4);
 																char *s2 = cat(s1, "=", $6->code, ";", "");
+																
+																if(strcmp($2->code, "string") == 0 && strcmp($6->type, "string") == 0){
+																	$$ = createRecord(s2, $2->code);
+																} else if(verificar_calculo_numero_float_int($2->code, $6->type)){
+																	$$ = createRecord(s2, $2->code);
+																}else {
+																	yyerror("Tipos incompativeis");
+																}
+
 																freeRecord($1);
 																freeRecord($2);
 																freeRecord($6);
-																$$ = createRecord(s2, "");
 																free(s2);
 																free(s1);
 														   }
@@ -218,11 +280,19 @@ dec_var : type ids SEMI {	add('V', $2->code);
 																						char *s1 = cat($1->code, " ", $2->code, " *", $4);
 																						char *s2 = cat(s1, $5->code, "=", "{", $8->code);
 																						char *s3 = cat(s2, "}", ";", "", "");
+																						
+																						if(strcmp($2->code, "string") == 0 && strcmp($8->type, "string") == 0){
+																							$$ = createRecord(s2, $2->code);
+																						} else if(verificar_calculo_numero_float_int($2->code, $8->type)){
+																							$$ = createRecord(s2, $2->code);
+																						}else {
+																							yyerror("Tipos incompativeis");
+																						}
+
 																						freeRecord($1);
 																						freeRecord($2);
 																						freeRecord($5);
 																						freeRecord($8);
-																						$$ = createRecord(s3, "");
 																						free(s3);
 																						free(s2);
 																						free(s1);
@@ -230,10 +300,10 @@ dec_var : type ids SEMI {	add('V', $2->code);
 		| type_modifiers type MULT ID dims SEMI {	add('V', $4);
 													char *s1 = cat($1->code, " ", $2->code, " *", $4);
 													char *s2 = cat(s1, $5->code, ";", "", "");
+													$$ = createRecord(s2, $2->code);
 													freeRecord($1);
 													freeRecord($2);
 													freeRecord($5);
-													$$ = createRecord(s2, "");
 													free(s2);
 													free(s1);
 												}
@@ -242,25 +312,25 @@ dec_var : type ids SEMI {	add('V', $2->code);
 																		char *s2 = cat(s1, "\n};", "", "", "");
 																		freeRecord($1);
 																		freeRecord($5);
-																		$$ = createRecord(s2, "");
+																		$$ = createRecord(s2, "struct");
 																		free(s2);
 																		free(s1);
 																	  }
 		| STRUCT ID BLOCK_BEGIN decs_var BLOCK_END SEMI {	add('V', $2);
 															char *s = cat("struct ", $2, " {\n", $4->code, "\n};");
 															freeRecord($4);
-															$$ = createRecord(s, "");
+															$$ = createRecord(s, "struct");
 															free(s);
 														}
 		| type_modifier STRUCT ID BLOCK_BEGIN BLOCK_END SEMI {	add('V', $3);
 																char *s = cat($1->code ," struct ", $3 ," {", "};");
 																freeRecord($1);
-																$$ = createRecord(s, "");
+																$$ = createRecord(s, "struct");
 																free(s);
 															 }
 		| STRUCT ID BLOCK_BEGIN BLOCK_END SEMI {add('V', $2);
 												char *s = cat("struct", $2 ,"{};", "", "");
-												$$ = createRecord(s, "");
+												$$ = createRecord(s, "struct");
 												free(s);
 											   }
 		;
@@ -309,42 +379,92 @@ type : INT {insert_type("int");
 	 ;
 
 ids : atomo {	char *s = cat($1->code, "", "", "", "");
+				$$ = createRecord(s, $1->type);
 				freeRecord($1);
-				$$ = createRecord(s, "");
 				free(s);
 			}
-	| ids COMMA atomo {	char *s = cat($1->code, ",", $3->code, "", "");
+	| ids COMMA atomo {	
+						if(strcmp($1->type, $3->type) != 0){
+							yyerror("Não pode ter ids juntos com tipos diferentes");
+						}
+						char *s = cat($1->code, ",", $3->code, "", "");
+
+						$$ = createRecord(s, $1->type);
 						freeRecord($1);
 						freeRecord($3);
-						$$ = createRecord(s, "");
 						free(s);
 					  }
-    | atomo COMMA p_values {char *s = cat($1->code, ",", $3->code, "", "");
+    | atomo COMMA p_values {
+							if(strcmp($1->type, $3->type) != 0){
+								yyerror("Não pode ter ids juntos com tipos diferentes");
+							}
+		
+							char *s = cat($1->code, ",", $3->code, "", "");
+							
+							$$ = createRecord(s, $1->type);
 							freeRecord($1);
 							freeRecord($3);
-							$$ = createRecord(s, "");
 							free(s);
 						   }
 	;
 
-atomo : ID {$$ = createRecord($1, $1);
+atomo : ID {
+			int index = search($1);
+
+			if(index == -1){
+				$$ = createRecord($1, "");
+			}else{
+				$$ = createRecord($1, symbol_table[index].data_type);
+			}
 			free($1);
 		   }
-      | ID dims {	char *s = cat($1, $2->code, "", "", "");
-	  				freeRecord($2);
-					$$ = createRecord(s, $1);
+      | ID dims {	
+					int index = search($1);
+
+					char *s = cat($1, $2->code, "", "", "");
+
+	  				if(index == -1){
+						$$ = createRecord(s, "");
+					}else{
+						$$ = createRecord(s, symbol_table[index].data_type);
+					}
+
+					freeRecord($2);
 					free(s);
 	  		    }
-	  | AMPERSAND ID {	char *s = cat("&", $2, "", "", "");
-						$$ = createRecord(s, $2);
+	  | AMPERSAND ID {	
+						int index = search($2);
+						
+						char *s = cat("&", $2, "", "", "");
+
+						if(index == -1){
+							$$ = createRecord(s, "");
+						}else{
+							$$ = createRecord(s, symbol_table[index].data_type);
+						}
 						free(s);
 	  				 }
-	  | MULT ID {	char *s = cat("*", $2, "", "", "");
-					$$ = createRecord(s, $2);
+	  | MULT ID {	
+					int index = search($2);
+
+					char *s = cat("*", $2, "", "", "");
+
+					if(index == -1){
+						$$ = createRecord(s, "");
+					}else{
+						$$ = createRecord(s, symbol_table[index].data_type);
+					}
 					free(s);
 	  			}
-	  | ID DOT ID {	char *s = cat($1, ".", $3, "", "");
-	  				$$ = createRecord(s, $1);
+	  | ID DOT ID {	
+					int index = search($3);
+					char *s = cat($1, ".", $3, "", "");
+
+					if(index == -1){
+						$$ = createRecord(s, "");
+					}else{
+	  					$$ = createRecord(s, symbol_table[index].data_type);
+					}
 					free(s);
 	  			  }
 	  ;
@@ -358,23 +478,43 @@ dims : OPEN_BRACK CLOSE_BRACK {	char *s = cat("[", "]", "", "", "");
 									$$ = createRecord(s, "");
 									free(s);
 	 							   }
-	 | OPEN_BRACK value CLOSE_BRACK {	char *s = cat("[", $2->code, "]", "", "");
+	 | OPEN_BRACK value CLOSE_BRACK {	
+										if(strcmp($2->type,"int") != 0){
+											yyerror("O valor do tamanho de uma matriz tem que ser um inteiro");
+										}
+
+										char *s = cat("[", $2->code, "]", "", "");
 										freeRecord($2);
 										$$ = createRecord(s, "");
 										free(s);
 	 								}
-     | OPEN_BRACK value CLOSE_BRACK dims {	char *s = cat("[", $2->code, "]", $4->code, "");
+     | OPEN_BRACK value CLOSE_BRACK dims {	
+											if(strcmp($2->type,"int") != 0){
+												yyerror("O valor do tamanho de uma matriz tem que ser um inteiro");
+											}
+											
+											char *s = cat("[", $2->code, "]", $4->code, "");
 											freeRecord($2);
 											freeRecord($4);
 											$$ = createRecord(s, "");
 											free(s);
 						 				 }
-	 | OPEN_BRACK expr CLOSE_BRACK {char *s = cat("[", $2->code, "]", "", "");
+	 | OPEN_BRACK expr CLOSE_BRACK {
+									if(strcmp($2->type,"int") != 0){
+										yyerror("O valor do tamanho de uma matriz tem que ser um inteiro");
+									}
+									
+									char *s = cat("[", $2->code, "]", "", "");
 									freeRecord($2);
 									$$ = createRecord(s, "");
 									free(s);
 	 							   }
-     | OPEN_BRACK expr CLOSE_BRACK dims {	char *s = cat("[", $2->code, "]", $4->code, "");
+     | OPEN_BRACK expr CLOSE_BRACK dims {	
+											if(strcmp($2->type,"int") != 0){
+												yyerror("O valor do tamanho de uma matriz tem que ser um inteiro");
+											}
+
+											char *s = cat("[", $2->code, "]", $4->code, "");
 											freeRecord($2);
 											freeRecord($4);
 											$$ = createRecord(s, "");
@@ -392,90 +532,160 @@ dims : OPEN_BRACK CLOSE_BRACK {	char *s = cat("[", "]", "", "", "");
 	 ;
 
 p_values : expr {	char *s = cat($1->code, "", "", "", "");
+					$$ = createRecord(s, $1->type);
 					freeRecord($1);
-					$$ = createRecord(s, "");
 					free(s);
 				}
-		 | expr COMMA p_values {char *s = cat($1->code, ",", $3->code, "", "");
+		 | expr COMMA p_values {
+								if(strcmp($1->type, $3->type) !=  0){
+									yyerror("Não pode ter ids juntos com tipos diferentes");
+								}
+
+								char *s = cat($1->code, ",", $3->code, "", "");
+								
+								$$ = createRecord(s, $1->type);
 								freeRecord($1);
 								freeRecord($3);
-								$$ = createRecord(s, "");
 								free(s);
 		 					   }
 		 ;
 
-expr : expr PLUS term {	char *s = cat($1->code, "+", $3->code,"", "");
+expr : expr PLUS term {	
+						if(!verificar_calculo_numero_float_int($1->type, $3->type)){
+							yyerror("Não é possivel realizar operações matematicas entre esses tipos");
+						}
+
+						char *s = cat($1->code, "+", $3->code,"", "");
+						
+						$$ = createRecord(s, tipo_resultado_operacao($1->type, $3->type));
 						freeRecord($1);
 						freeRecord($3);
-						$$ = createRecord(s, "");
 						free(s);
 					  }
-	 | expr MINUS term {char *s = cat($1->code, "-", $3->code,"", "");
+	 | expr MINUS term {
+
+						if(!verificar_calculo_numero_float_int($1->type, $3->type)){
+							yyerror("Não é possivel realizar operações matematicas entre esses tipos");
+						}
+
+						char *s = cat($1->code, "-", $3->code,"", "");
+						
+						$$ = createRecord(s, tipo_resultado_operacao($1->type, $3->type));
 						freeRecord($1);
 						freeRecord($3);
-						$$ = createRecord(s, "");
 						free(s);	
 	 				   }
-	 | expr ADD_ASSIGN term {	char *s = cat($1->code, "+=", $3->code,"", "");
+	 | expr ADD_ASSIGN term {	
+								if(!verificar_calculo_numero_float_int($1->type, $3->type)){
+									yyerror("Não é possivel realizar operações matematicas entre esses tipos");
+								}
+
+								char *s = cat($1->code, "+=", $3->code,"", "");
+							
+								$$ = createRecord(s, tipo_resultado_operacao($1->type, $3->type));
 								freeRecord($1);
 								freeRecord($3);
-								$$ = createRecord(s, "");
 								free(s);
 	 					    }
-	 | expr SUB_ASSIGN term {	char *s = cat($1->code, "-=", $3->code,"", "");
+	 | expr SUB_ASSIGN term {	
+								if(!verificar_calculo_numero_float_int($1->type, $3->type)){
+									yyerror("Não é possivel realizar operações matematicas entre esses tipos");
+								}
+
+								char *s = cat($1->code, "-=", $3->code,"", "");
+								$$ = createRecord(s, tipo_resultado_operacao($1->type, $3->type));
 								freeRecord($1);
 								freeRecord($3);
-								$$ = createRecord(s, "");
 								free(s);
 	 						}
 	 | term {	char *s = cat($1->code, "", "", "", "");
+				$$ = createRecord(s, $1->type);
 				freeRecord($1);
-				$$ = createRecord(s, "");
 				free(s);
 	 		}
 	 ;
 
-term : term MULT factor {	char *s = cat($1->code, "*", $3->code, "", "");
+term : term MULT factor {	
+							if(!verificar_calculo_numero_float_int($1->type, $3->type)){
+								yyerror("Não é possivel realizar operações matematicas entre esses tipos");
+							}
+							
+							char *s = cat($1->code, "*", $3->code, "", "");
+							$$ = createRecord(s, tipo_resultado_operacao($1->type, $3->type));
 							freeRecord($1);
 							freeRecord($3);
-							$$ = createRecord(s, "");
 							free(s);
 						}
-     | term DIV factor {char *s = cat($1->code, "/", $3->code, "", "");
+     | term DIV factor {
+						if(!verificar_calculo_numero_float_int($1->type, $3->type)){
+							yyerror("Não é possivel realizar operações matematicas entre esses tipos");
+						}
+
+						char *s = cat($1->code, "/", $3->code, "", "");
+						$$ = createRecord(s, tipo_resultado_operacao($1->type, $3->type));
 						freeRecord($1);
 						freeRecord($3);
-						$$ = createRecord(s, "");
 						free(s);
 	 				   }
-	 | term MODULE factor {	char *s = cat($1->code, "%", $3->code, "", "");
+	 | term MODULE factor {	
+
+							if(!verificar_calculo_numero_float_int($1->type, $3->type)){
+								yyerror("Não é possivel realizar operações matematicas entre esses tipos");
+							}
+		
+							char *s = cat($1->code, "%", $3->code, "", "");
+							$$ = createRecord(s, tipo_resultado_operacao($1->type, $3->type));
 							freeRecord($1);
 							freeRecord($3);
-							$$ = createRecord(s, "");
 							free(s);
 	 					  }
 	 | factor { char *s = cat($1->code, "", "", "", "");
-				freeRecord($1);	 
-				$$ = createRecord(s, "");
+				$$ = createRecord(s, $1->type);
+				freeRecord($1);
 				free(s);
 			  }
 	 ;
 
 factor : OPEN_PAREN expr CLOSE_PAREN {	char *s = cat("(", $2->code, ")", "", "");
+										$$ = createRecord(s, $2->type);
 										freeRecord($2);
-										$$ = createRecord(s, "");
 										free(s);
 									 }
-       | atomo {	$$ = createRecord($1->code, "");
+       | atomo {	$$ = createRecord($1->code, $1->type);
 	   				freeRecord($1);
 	   		   }
-	   | ID INCREMENT{ char *s = cat($1,"++","","","");
+	   | ID INCREMENT{ 	
+						int index = search($1);
+
+						if(index == -1){
+							yyerror("Variavel não encontrada");
+						}
+						
+						if(strcmp(symbol_table[index].data_type, "int") != 0 ||
+								strcmp(symbol_table[index].data_type,"float") != 0 ){
+							yyerror("Essa operação só é permitida para int ou float");	
+						}
+
+						char *s = cat($1,"++","","","");
 						free($1);
-						$$ = createRecord(s, "");
+						$$ = createRecord(s, symbol_table[index].data_type);
 						free(s);
 	   				 }
-	   | ID DECREMENT{ char *s = cat($1,"--","","","");
+	   | ID DECREMENT{ 	
+						int index = search($1);
+
+						if(index == -1){
+							yyerror("Variavel não encontrada");
+						}
+
+						if(strcmp(symbol_table[index].data_type, "int") != 0 ||
+								strcmp(symbol_table[index].data_type,"float") != 0 ){
+							yyerror("Essa operação só é permitida para int ou float");	
+						}
+
+						char *s = cat($1,"--","","","");
+						$$ = createRecord(s, symbol_table[index].data_type);
 						free($1);
-						$$ = createRecord(s, "");
 						free(s);
 	   				 }
 	   | function_call {char *s = cat($1->code, "", "", "", "");
@@ -484,32 +694,33 @@ factor : OPEN_PAREN expr CLOSE_PAREN {	char *s = cat("(", $2->code, ")", "", "")
 						free(s);
 	   				   }
 	   | value {char *s = cat($1->code, "", "", "", "");
-				freeRecord($1);	 
-				$$ = createRecord(s, "");
+				$$ = createRecord(s, $1->type);
+				freeRecord($1);
 				free(s);
-	   			}
+	   		   }
 	   ;
 value : INT_NUMBER {char *s = cat($1,"","","","");
-					$$ = createRecord(s, "");
+					$$ = createRecord(s, "int");
 					free(s);	
 				   }
       | FLOAT_NUMBER {	char *s = cat($1,"","","","");
-						$$ = createRecord(s, "");
+						$$ = createRecord(s, "float");
 						free(s);
 	  				 }
 	  | STRING_VALUE {	char *s = cat($1,"","","","");
-						$$ = createRecord(s, "");
+						$$ = createRecord(s, "string");
 						free(s);
 	  				 }
 	  | NULL_VALUE {char *s = cat("NULL","","","","");
-					$$ = createRecord(s, "");
+					$$ = createRecord(s, "null");
 					free(s);
 	  			   }
 	  ;
 
 assigns : assign_def {	char *s = cat($1->code, "", "", "", "");
+						
+						$$ = createRecord(s, $1->type);
 						freeRecord($1);	 
-						$$ = createRecord(s, "");
 						free(s);
 					 }
         | assign_mat {	char *s = cat($1->code, "", "", "", "");
@@ -518,16 +729,33 @@ assigns : assign_def {	char *s = cat($1->code, "", "", "", "");
 						free(s);
 					 }
 		| assign_def assigns {	char *s = cat($1->code, $2->code, "", "", "");
+								
+								$$ = createRecord(s, $1->type);
 								freeRecord($1);
 								freeRecord($2);
-								$$ = createRecord(s, "");
 								free(s);
 							 }
 		;
 
-assign_def : ID ASSIGN expr SEMI {	char *s = cat($1, "=", $3->code, ";", "");
+assign_def : ID ASSIGN expr SEMI {	
+									
+									int index = search($1);
+
+									if(index == -1){
+										yyerror("Variavel não encontrada");
+									}
+									
+									char *s = cat($1, "=", $3->code, ";", "");
+
+									if(strcmp(symbol_table[index].data_type, "string") == 0 && strcmp($3->type, "string") == 0){
+										$$ = createRecord(s, "string");
+									} else if(verificar_calculo_numero_float_int(symbol_table[index].data_type, $3->type)){
+										$$ = createRecord(s, tipo_resultado_operacao(symbol_table[index].data_type, $3->type));
+									}else {
+										yyerror("Tipos incompativeis");
+									}
+
 									freeRecord($3);
-									$$ = createRecord(s, "");
 									free(s);
 								 }
            ;	
@@ -590,7 +818,7 @@ proc : VOID ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {	add('
 	 															  }
 	 ;
 	
-function : type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END {	add('F', $2);
+function : type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor SEMI BLOCK_END {	add('F', $2);
 																							char *s1 = cat($1->code, " ", $2, "(", $4->code);
 																							char *s2 = cat(s1, "){\n", $7->code, "\nreturn ", $9->code);
 																							char *s3 = cat(s2, "\n}", "", "", "");
@@ -603,9 +831,9 @@ function : type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN value 
 																							free(s2);
 																							free(s1);
 																						  }
-		 | type ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN value BLOCK_END {add('F', $2);
+		 | type ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor SEMI BLOCK_END {add('F', $2);
 																					char *s1 = cat($1->code, " ", $2, "(){\n", $6->code);
-		 																			char *s2 = cat(s1, "\nreturn ", $8->code, "\n}", "");
+		 																			char *s2 = cat(s1, "\nreturn ", $8->code, ";\n}", "");
 																					freeRecord($1);
 																					freeRecord($6);
 																					freeRecord($8);
@@ -938,13 +1166,28 @@ dowhile_stmt : DO BLOCK_BEGIN stmts BLOCK_END WHILE OPEN_PAREN logic_expr CLOSE_
 																						   }
              ;
 
-function_call : ID OPEN_PAREN args CLOSE_PAREN SEMI {	char *s = cat($1, "(", $3->code, ");", "");
+function_call : ID OPEN_PAREN args CLOSE_PAREN SEMI {	
+														int index = search($1);
+
+														if(index == -1){
+															yyerror("Essa função não existe");
+														}
+
+														char *s = cat($1, "(", $3->code, ");", "");
+
 														freeRecord($3);
-														$$ = createRecord(s, "");
+														$$ = createRecord(s, symbol_table[index].data_type);
 														free(s);
 													}
-             | ID OPEN_PAREN CLOSE_PAREN SEMI {	char *s = cat($1, "();", "", "", "");
-												$$ = createRecord(s, "");
+             | ID OPEN_PAREN CLOSE_PAREN SEMI {	
+												int index = search($1);
+
+												if(index == -1){
+													yyerror("Essa função não existe");
+												}
+
+												char *s = cat($1, "();", "", "", "");
+												$$ = createRecord(s, symbol_table[index].data_type);
 												free(s);
 											  }
 			 ;
@@ -1054,12 +1297,12 @@ int search(char *type) {
 		}
 	}
 
-	return 0;
+	return -1;
 }
 
 void add(char symbol, char * id_name){
 	q=search(id_name);
-	if(q == 0) {
+	if(q == -1) {
 		if(symbol == 'H'){
 			symbol_table[count].id_name = strdup(id_name);
 			symbol_table[count].data_type = strdup(type);
@@ -1108,4 +1351,71 @@ void add(char symbol, char * id_name){
 
 void insert_type(char * type_text){
 	strcpy(type, type_text);
+}
+
+int verificar_valor_tipo_valido(char * valor, char * tipo){
+	
+	if((strcmp(tipo,"int") == 0 || strcmp(tipo,"float") == 0 || strcmp(tipo,"string") == 0) && isInteger(valor)){
+		return 1;
+	}else if((strcmp(tipo,"float") == 0 || strcmp(tipo,"string") == 0) && isFloat(valor)){
+		return 1;
+	}else if(strcmp(tipo,"string") == 0){
+		return 1;
+	}else {
+		return 0;
+	}
+}
+
+int isInteger(const char *str) {
+	if(str == NULL || *str == '\0') {
+		return 0;
+	}
+
+	char *endptr;
+	strtol(str, &endptr, 10);
+
+	if(*endptr != '\0') {
+		return 0;
+	}
+
+	return 1;
+}
+
+int isFloat(const char *str) {
+	if(str == NULL || *str == '\0') {
+		return 0;
+	}
+
+	char *endptr;
+	strtof(str, &endptr);
+
+	if(*endptr != '\0') {
+		return 0;
+	}
+
+	return 1;
+}
+
+int verificar_calculo_numero_float_int(char * type1, char * type2){
+	if((strcmp(type1, "int") == 0 && strcmp(type2, "int") == 0)
+		|| (strcmp(type1, "int") && strcmp(type2, "float") == 0)
+		|| (strcmp(type1, "float") == 0 && strcmp(type2, "int") == 0)
+		|| (strcmp(type1, "float") == 0 && strcmp(type2, "float") == 0)){
+			return 1;
+	}
+	return 0;
+}
+
+char * tipo_resultado_operacao(char * type1, char * type2){
+	if((strcmp(type1, "int") == 0 && strcmp(type2, "int") == 0)){
+		return "int";
+	}else if((strcmp(type1, "int") == 0 && strcmp(type2, "float") == 0)){
+		return "float";
+	} else if((strcmp(type1, "float") == 0 && strcmp(type2, "int") == 0)){
+		return "float";
+	} else if((strcmp(type1, "float") == 0 && strcmp(type2, "float") == 0)){
+		return "float";
+	} else {
+		return "";
+	}
 }

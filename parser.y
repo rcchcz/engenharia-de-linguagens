@@ -1195,12 +1195,12 @@ while_stmt : WHILE OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
 																				 }
 		   ;
 
-for_stmt : FOR OPEN_PAREN dec_var logic_expr SEMI expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {char *s1 = cat("for(", $3->code, $4->code, ";", $6->code);
-																								char *s2 = cat(s1, "){\n", $9->code, "\n}", "");
+for_stmt : FOR OPEN_PAREN dec_var SEMI logic_expr SEMI expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {char *s1 = cat($3->code, "forLoop:\n", "if(",$5->code, "){\n");
+																								char *s2 = cat(s1, $7-code, ")\n", $10->code, "goto forLoop;\n}");
 																								freeRecord($3);
-																								freeRecord($4);
-																								freeRecord($6);
-																								freeRecord($9);
+																								freeRecord($5);
+																								freeRecord($7);
+																								freeRecord($10);
 																								$$ = createRecord(s2, "");
 																								free(s2);
 																								free(s1);

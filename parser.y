@@ -333,6 +333,19 @@ dec_var : type ids SEMI {	add('V', $2->code);
 												$$ = createRecord(s, "struct");
 												free(s);
 											   }
+		| STRUCT ID ID SEMI { 	add('V', $3);
+								char * s = cat("struct ", $2, " ", $3, ";");
+								$$ = createRecord(s, $2);
+								free(s);
+							}
+		| type_modifier STRUCT ID ID SEMI { add('V', $4);
+											char * s1 = cat( $1->code, " struct ", $3, " ", $4);
+											char * s2 = cat(s1, ";", "", "", "");
+											freeRecord($1);
+											$$ = createRecord(s2, $3);
+											free(s2);
+											free(s1);
+										}
 		;
 
 type_modifiers : type_modifier {	char *s = cat($1->code, "", "", "", "");
@@ -920,26 +933,20 @@ stmt : dec_var {char *s = cat($1->code, "", "", "", "");
 	 			  }
 	 ;
 
-scan_stmt: SCAN OPEN_PAREN ID CLOSE_PAREN SEMI {
+scan_stmt: SCAN OPEN_PAREN atomo CLOSE_PAREN SEMI {
 												char *s;
 
-												int index = search($3);
-
-												if(index == -1){
-													yyerror("Variavel não encontrada");
-												}
-
-												if(strcmp(symbol_table[index].data_type, "int") == 0){
-													s = cat("scanf(\"%d\",&", $3, ");", "", "");
-												}else if(strcmp(symbol_table[index].data_type, "float") == 0){
-													s = cat("scanf(\"%f\",&", $3, ");", "", "");
-												}else if(strcmp(symbol_table[index].data_type, "string") == 0){
-													s = cat("scanf(\"%s\",", $3, ");", "", "");
+												if(strcmp($3->type, "int") == 0){
+													s = cat("scanf(\"%d\",&", $3->code, ");", "", "");
+												}else if(strcmp($3->type, "float") == 0){
+													s = cat("scanf(\"%f\",&", $3->code, ");", "", "");
+												}else if(strcmp($3->type, "string") == 0){
+													s = cat("scanf(\"%s\",", $3->code, ");", "", "");
 												}else{
 													s = "";
 													yyerror("Tipo invalido para o print");
 												}
-												
+												freeRecord($3);
 												$$ = createRecord(s, "");
 												free(s);
 											   }

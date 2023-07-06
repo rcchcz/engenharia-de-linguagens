@@ -1,0 +1,38 @@
+FALTA IMPLEMENTAR
+
+-> print(); (OK)
+-> scan(valor); (OK)
+-> ++ (OK)
+-> -- (OK)
+-> * (OK)
+-> struct (OK)
+-> enum (ACHO QUE NAO VAI TER)
+-> continue (ACHO QUE NAO VAI TER)
+-> null_value (OK)
+-> boolean (OK)
+-> tirar o for/while/dowhile e colocar label e goto (OK)
+-> tirar o else/else-if (+-)
+-> verificação de tipos (QUALQUER VARIAVEL)
+-> escopo
+-> chamada de funcao => i = funcao(valor);
+-> HASHTABLE/ARVORE => (ARRAY)
+
+//EXEMPLO
+
+#include <stdio.h>
+
+int main() {
+    int contador = 0;
+
+loop:
+    printf("Contador: %d\n", contador);
+    contador++;
+
+    if (contador < 10) {
+        goto loop;
+    }
+
+    printf("Loop finalizado.\n");
+
+    return 0;
+}

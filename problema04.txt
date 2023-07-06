@@ -1,0 +1,27 @@
+main(){
+    struct rationalt {
+        int numerador;
+        int denominador;
+    };
+
+    struct rationalt rational;
+
+    scan(rational.numerador);
+    scan(rational.denominador);
+
+    print(rational.numerador);
+    print(rational.denominador);
+
+    subtracao(rational.numerador, rational.denominador);
+}
+
+int subtracao(int valor, int valor2){
+    int resultado;
+    if(valor2 == 0){
+        resultado = 0;
+    }else {
+        resultado = valor/valor2;
+    }
+    print(resultado);
+    return resultado;
+}

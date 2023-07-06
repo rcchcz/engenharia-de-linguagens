@@ -1016,8 +1016,8 @@ if_stmt : IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {char
 																			$$ = createRecord(s, "");
 																			free(s);
 																		   }
-		| IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END ELSE BLOCK_BEGIN stmts BLOCK_END { 	char *s1 = cat("if(", $3->code, "){\n", $6->code, "goto conditionOk; \n}");
-																												char *s2 = cat(s1, $10->code, "conditionOk:", "", "");
+		| IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END ELSE BLOCK_BEGIN stmts BLOCK_END { 	char *s1 = cat("if(", $3->code, "){\n", $6->code, "goto conditionOk1; \n}");
+																												char *s2 = cat(s1, $10->code, "conditionOk1:", "", "");
 																												freeRecord($3);
 																												freeRecord($6);
 																												freeRecord($10);
@@ -1025,8 +1025,8 @@ if_stmt : IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {char
 																												free(s2);
 																												free(s1);
 																											}
-		| IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt ELSE BLOCK_BEGIN stmts BLOCK_END {	char *s1 = cat("if(", $3->code, "){\n", $6->code, "\n} ");
-																															char *s2 = cat(s1, $8->code, " else {\n", $11->code, "\n}");
+		| IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt ELSE BLOCK_BEGIN stmts BLOCK_END {	char *s1 = cat("if(", $3->code, "){\n", $6->code, "goto conditionOk2;\n} ");
+																															char *s2 = cat(s1, $8->code, "\n", $11->code, "\n conditionOk2:");
 																															freeRecord($3);
 																															freeRecord($6);
 																															freeRecord($8);
@@ -1035,8 +1035,8 @@ if_stmt : IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {char
 																															free(s2);
 																															free(s1);
 																														 }
-		| IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt {	char *s1 = cat("if(", $3->code, "){\n", $6->code, "\n} ");
-																							char *s2 = cat(s1, $8->code, "", "", "");
+		| IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt {	char *s1 = cat("if(", $3->code, "){\n", $6->code, "\n} goto contiditionOk3;");
+																							char *s2 = cat(s1, $8->code, "conditionOk3:", "", "");
 																							freeRecord($3);
 																							freeRecord($6);
 																							freeRecord($8);
@@ -1046,7 +1046,7 @@ if_stmt : IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {char
 																						}
 		;
 
-else_if_stmt : ELSE_IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {	char *s = cat("else if(", $3->code, "){\n", $6->code, "\n} ");
+else_if_stmt : ELSE_IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {	char *s = cat("if(", $3->code, "){\n", $6->code, "\n} ");
 																						freeRecord($3);
 																						freeRecord($6);
 																						$$ = createRecord(s, "");
@@ -1187,7 +1187,7 @@ iteration_stmt : while_stmt {	char *s = cat($1->code, "", "", "", "");
 			   				  }
 			   ;
 
-while_stmt : WHILE OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {	char *s = cat("while(", $3->code, "){\n", $6->code, "\n}");
+while_stmt : WHILE OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {	char *s = cat("whileLoop: if(", $3->code, "){\n", $6->code, "goto whileLoop;\n}");
 																					freeRecord($3);
 																					freeRecord($6);
 																					$$ = createRecord(s, "");

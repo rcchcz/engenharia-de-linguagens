@@ -2,6 +2,9 @@
 main(){
 int i=0;
 if(i){
-i=1;goto conditionOk; 
-}i=2;conditionOk:
+i=1;goto conditionOk1; 
+}i=2;conditionOk1:
+if(i){
+i=1;goto conditionOk1; 
+}i=2;conditionOk1:
 }

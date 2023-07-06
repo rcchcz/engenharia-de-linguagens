@@ -1,7 +1,14 @@
 main(){
-    
     int j = 0;
-    while (j<4) {
-        j++
+
+    print("While:\n");
+    while (j < 4) {
+        j=j+1;
+        print(j);
+    }
+
+    print("For:\n");
+    for(int i=0; i<10; i++){
+        print(i);
     }
 }

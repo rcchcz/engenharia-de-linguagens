@@ -1004,8 +1004,8 @@ if_stmt : IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {char
 																			$$ = createRecord(s, "");
 																			free(s);
 																		   }
-		| IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END ELSE BLOCK_BEGIN stmts BLOCK_END { 	char *s1 = cat("if(", $3->code, "){\n", $6->code, "\n}");
-																												char *s2 = cat(s1, " else {\n", $10->code, "\n}", "");
+		| IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END ELSE BLOCK_BEGIN stmts BLOCK_END { 	char *s1 = cat("if(", $3->code, "){\n", $6->code, "goto conditionOk; \n}");
+																												char *s2 = cat(s1, $10->code, "conditionOk:", "", "");
 																												freeRecord($3);
 																												freeRecord($6);
 																												freeRecord($10);

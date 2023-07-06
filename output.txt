@@ -1,0 +1,7 @@
+
+main(){
+int i=0;
+if(i){
+i=1;goto conditionOk; 
+}i=2;conditionOk:
+}

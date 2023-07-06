@@ -84,37 +84,39 @@ extern int yydebug;
     CONST = 285,                   /* CONST  */
     STATIC = 286,                  /* STATIC  */
     RETURN = 287,                  /* RETURN  */
-    IMPORT = 288,                  /* IMPORT  */
-    MAIN = 289,                    /* MAIN  */
-    OPEN_PAREN = 290,              /* OPEN_PAREN  */
-    CLOSE_PAREN = 291,             /* CLOSE_PAREN  */
-    OPEN_BRACK = 292,              /* OPEN_BRACK  */
-    CLOSE_BRACK = 293,             /* CLOSE_BRACK  */
-    BLOCK_BEGIN = 294,             /* BLOCK_BEGIN  */
-    BLOCK_END = 295,               /* BLOCK_END  */
-    SEMI = 296,                    /* SEMI  */
-    COLON = 297,                   /* COLON  */
-    DOT = 298,                     /* DOT  */
-    COMMA = 299,                   /* COMMA  */
-    PLUS = 300,                    /* PLUS  */
-    MINUS = 301,                   /* MINUS  */
-    DIV = 302,                     /* DIV  */
-    MULT = 303,                    /* MULT  */
-    INCREMENT = 304,               /* INCREMENT  */
-    DECREMENT = 305,               /* DECREMENT  */
-    MODULE = 306,                  /* MODULE  */
-    ASSIGN = 307,                  /* ASSIGN  */
-    ADD_ASSIGN = 308,              /* ADD_ASSIGN  */
-    SUB_ASSIGN = 309,              /* SUB_ASSIGN  */
-    EQ = 310,                      /* EQ  */
-    NEQ = 311,                     /* NEQ  */
-    LT = 312,                      /* LT  */
-    GT = 313,                      /* GT  */
-    LE = 314,                      /* LE  */
-    GE = 315,                      /* GE  */
-    AND = 316,                     /* AND  */
-    OR = 317,                      /* OR  */
-    NOT = 318                      /* NOT  */
+    MAIN = 288,                    /* MAIN  */
+    SCAN = 289,                    /* SCAN  */
+    PRINT = 290,                   /* PRINT  */
+    OPEN_PAREN = 291,              /* OPEN_PAREN  */
+    CLOSE_PAREN = 292,             /* CLOSE_PAREN  */
+    OPEN_BRACK = 293,              /* OPEN_BRACK  */
+    CLOSE_BRACK = 294,             /* CLOSE_BRACK  */
+    BLOCK_BEGIN = 295,             /* BLOCK_BEGIN  */
+    BLOCK_END = 296,               /* BLOCK_END  */
+    SEMI = 297,                    /* SEMI  */
+    COLON = 298,                   /* COLON  */
+    DOT = 299,                     /* DOT  */
+    COMMA = 300,                   /* COMMA  */
+    AMPERSAND = 301,               /* AMPERSAND  */
+    PLUS = 302,                    /* PLUS  */
+    MINUS = 303,                   /* MINUS  */
+    DIV = 304,                     /* DIV  */
+    MULT = 305,                    /* MULT  */
+    INCREMENT = 306,               /* INCREMENT  */
+    DECREMENT = 307,               /* DECREMENT  */
+    MODULE = 308,                  /* MODULE  */
+    ASSIGN = 309,                  /* ASSIGN  */
+    ADD_ASSIGN = 310,              /* ADD_ASSIGN  */
+    SUB_ASSIGN = 311,              /* SUB_ASSIGN  */
+    EQ = 312,                      /* EQ  */
+    NEQ = 313,                     /* NEQ  */
+    LT = 314,                      /* LT  */
+    GT = 315,                      /* GT  */
+    LE = 316,                      /* LE  */
+    GE = 317,                      /* GE  */
+    AND = 318,                     /* AND  */
+    OR = 319,                      /* OR  */
+    NOT = 320                      /* NOT  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -153,43 +155,45 @@ extern int yydebug;
 #define CONST 285
 #define STATIC 286
 #define RETURN 287
-#define IMPORT 288
-#define MAIN 289
-#define OPEN_PAREN 290
-#define CLOSE_PAREN 291
-#define OPEN_BRACK 292
-#define CLOSE_BRACK 293
-#define BLOCK_BEGIN 294
-#define BLOCK_END 295
-#define SEMI 296
-#define COLON 297
-#define DOT 298
-#define COMMA 299
-#define PLUS 300
-#define MINUS 301
-#define DIV 302
-#define MULT 303
-#define INCREMENT 304
-#define DECREMENT 305
-#define MODULE 306
-#define ASSIGN 307
-#define ADD_ASSIGN 308
-#define SUB_ASSIGN 309
-#define EQ 310
-#define NEQ 311
-#define LT 312
-#define GT 313
-#define LE 314
-#define GE 315
-#define AND 316
-#define OR 317
-#define NOT 318
+#define MAIN 288
+#define SCAN 289
+#define PRINT 290
+#define OPEN_PAREN 291
+#define CLOSE_PAREN 292
+#define OPEN_BRACK 293
+#define CLOSE_BRACK 294
+#define BLOCK_BEGIN 295
+#define BLOCK_END 296
+#define SEMI 297
+#define COLON 298
+#define DOT 299
+#define COMMA 300
+#define AMPERSAND 301
+#define PLUS 302
+#define MINUS 303
+#define DIV 304
+#define MULT 305
+#define INCREMENT 306
+#define DECREMENT 307
+#define MODULE 308
+#define ASSIGN 309
+#define ADD_ASSIGN 310
+#define SUB_ASSIGN 311
+#define EQ 312
+#define NEQ 313
+#define LT 314
+#define GT 315
+#define LE 316
+#define GE 317
+#define AND 318
+#define OR 319
+#define NOT 320
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 18 "parser.y"
+#line 44 "parser.y"
 
 	int    iValue; 	/* integer value */
 	char   cValue; 	/* char value */
@@ -198,7 +202,7 @@ union YYSTYPE
 	double dvalue;  /* double value */ 
 	struct record * rec;
 
-#line 202 "y.tab.h"
+#line 206 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

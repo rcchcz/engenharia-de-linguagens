@@ -882,6 +882,15 @@ param : type dims ID {
 						freeRecord($2);
 						free(s);
 					 }
+	  | type ID dims {	
+						add('V', $2);
+						char *s = cat($1->code, " ", $2, $3->code, "");
+						
+						$$ = createRecord(s, $1->code);
+						freeRecord($1);
+						freeRecord($3);
+						free(s);
+					 }
 	  | type ID {	add('V', $2);
 					char *s = cat($1->code, " ", $2, "", "");
 					
@@ -1234,15 +1243,25 @@ while_stmt : WHILE OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END
 																				 }
 		   ;
 
-for_stmt : FOR OPEN_PAREN dec_var logic_expr SEMI expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {char *s1 = cat($3->code, "forLoop:\n", "if(",$4->code, "){\n");
-																								char *s2 = cat(s1, $6->code, ";\n", $9->code, "goto forLoop;\n}");
+for_stmt : FOR OPEN_PAREN dec_var logic_expr SEMI expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {
+																								char str[20];
+																								sprintf(str, "%d", count_label);
+
+																								char * label = cat("forLoop", str, "", "", "");
+
+																								char *s1 = cat($3->code, label, ":\nif(", $4->code, "){\n");
+																								char *s2 = cat(s1, $6->code, ";\n", $9->code, "goto ");
+																								char *s3 = cat(s2, label, ";\n}", "", "");
 																								freeRecord($3);
 																								freeRecord($4);
 																								freeRecord($6);
 																								freeRecord($9);
-																								$$ = createRecord(s2, "");
+																								$$ = createRecord(s3, "");
+																								free(label);
+																								free(s3);
 																								free(s2);
 																								free(s1);
+																								count_label++;
 																							   }
 		 ;
 

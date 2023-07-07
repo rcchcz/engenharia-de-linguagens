@@ -11,14 +11,21 @@ FALTA IMPLEMENTAR
 -> null_value (OK)
 -> boolean (OK)
 -> tirar o for/while/dowhile e colocar label e goto (OK)
--> tirar o else/else-if (+-)
+-> tirar o else/else-if (OK)
 -> verificação de tipos (QUALQUER VARIAVEL)
 -> escopo
 -> chamada de funcao => i = funcao(valor);
 -> HASHTABLE/ARVORE => (ARRAY)
 ->ponteiro no struct
+->Problemas
+    01 - OK
+    02 - OK
+    03 - OK
+    04 - 
+    05 -
+    06 -
 
-//EXEMPLO
+//EXEMPLO DO WHILE
 
 #include <stdio.h>
 

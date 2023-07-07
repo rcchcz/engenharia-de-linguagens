@@ -1,13 +1,18 @@
 main(){
-    int i = 0;
+    int i;
+    scan(i);
     if(i == 0){
-        i = 1;
-    }else{
-        i = 2;
+        print("Entrou no if\n");
+    }else if(i == 1){
+        print("Entrou no else if\n");
     }
-    if(i==1){
-        i = 1;
-    }else{
-        i = 2;
+    else{
+        print("Entrou no else\n");
+    }
+
+    if(i == 2){
+        print("Entrou em outro if\n");
+    }else {
+        print("Entrou em outro else\n");
     }
 }

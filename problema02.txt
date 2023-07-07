@@ -1,0 +1,42 @@
+main(){ 
+
+    int numero = 0;
+    int countPrimeiroIntervalo = 0;
+    int countSegundoIntervalo = 0;
+    int countTerceiroIntervalo = 0;
+    int countQuartoIntervalo = 0;
+
+    while(numero>=0){
+        print("Informe um numero\n");
+
+        scan(numero);
+
+        if(numero>=0){
+            if(numero >=0 && numero <= 25){
+                countPrimeiroIntervalo = countPrimeiroIntervalo + 1;
+            }else if(numero >= 26 && numero <= 50){
+                countSegundoIntervalo = countSegundoIntervalo + 1;
+            }else if(numero >= 51 && numero <= 75){
+                countTerceiroIntervalo = countTerceiroIntervalo + 1;
+            }else if(numero >= 76 && numero <= 100){
+                countQuartoIntervalo = countQuartoIntervalo + 1;
+            }
+        }
+    }
+
+    print("Fim do programa\n");
+    print("Resultados:\n");
+    print("Primeiro Intervalo:");
+    print(countPrimeiroIntervalo);
+    print();
+    print("Segundo Intervalo:");
+    print(countSegundoIntervalo);
+    print();
+    print("Terceiro Intervalo:");
+    print(countTerceiroIntervalo);
+    print();
+    print("Quarto Intervalo:");
+    print(countQuartoIntervalo);
+    print();
+
+}

@@ -37,6 +37,7 @@
 	int count = 0;
 	int q;
 	char type[10];
+	int count_label = 0;
 	extern int countn;
 	extern int count_block;
 %}
@@ -845,6 +846,7 @@ function : type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor
 																							free(s3);
 																							free(s2);
 																							free(s1);
+																							
 																						  }
 		 | type ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor SEMI BLOCK_END {add('F', $2);
 																					char *s1 = cat($1->code, " ", $2, "(){\n", $6->code);
@@ -1016,13 +1018,14 @@ if_stmt : IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {char
 																			freeRecord($3);
 																			freeRecord($6);
 																			$$ = createRecord(s, "");
+																			count_label++;
 																			free(s);
 																		   }
 		| IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END ELSE BLOCK_BEGIN stmts BLOCK_END { 
 																												char str[20];
-																												sprintf(str, "%d", countn);
+																												sprintf(str, "%d", count_label);
 
-																												char *label = cat("conditionOk", str, "", "", "");
+																												char * label = cat("conditionOk", str, "", "", "");
 
 																												char *s1 = cat("if(", $3->code, "){\n", $6->code, "goto ");
 																												char *s2 = cat(s1, label, "; \n}", $10->code, "\n");
@@ -1031,42 +1034,62 @@ if_stmt : IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {char
 																												freeRecord($6);
 																												freeRecord($10);
 																												$$ = createRecord(s3, "");
+																												count_label++;
 																												free(s3);
 																												free(s2);
 																												free(s1);
 																											}
 		| IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt ELSE BLOCK_BEGIN stmts BLOCK_END {	
 																															char str[20];
-																															sprintf(str, "%d", countn);
+																															sprintf(str, "%d", count_label);
 
-																															char *label = cat("conditionOk", str, "", "", "");
+																															char * label = cat("conditionOk", str, "", "", "");
 
-																															char *s1 = cat("if(", $3->code, "){\n", $6->code, "goto conditionOk2;\n} ");	
-																															char *s2 = cat(s1, $8->code, "\n", $11->code, "\n conditionOk2:");
+																															char *s1 = cat("if(", $3->code, "){\n", $6->code, "goto ");
+																															char *s2 = cat(s1, label, ";\n} ", $8->code, "\n");	
+																															char *s3 = cat(s2, $11->code, "\n ", label, ":");
 																															freeRecord($3);
 																															freeRecord($6);
 																															freeRecord($8);
 																															freeRecord($11);
-																															$$ = createRecord(s2, "");
+																															$$ = createRecord(s3, "");
+																															count_label++;
+																															free(s3);
 																															free(s2);
 																															free(s1);
 																														 }
-		| IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt {	char *s1 = cat("if(", $3->code, "){\n", $6->code, "\n} goto contiditionOk3;");
-																							char *s2 = cat(s1, $8->code, "conditionOk3:", "", "");
+		| IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END else_if_stmt {	
+																							char str[20];
+																							sprintf(str, "%d", count_label);
+
+																							char * label = cat("conditionOk", str, "", "", "");
+			
+																							char *s1 = cat("if(", $3->code, "){\n", $6->code, "\n} goto ");
+																							char *s2 = cat(s1, label, ";", $8->code, " ");
+																							char *s3 = cat(s2, label, ":", "", "");
 																							freeRecord($3);
 																							freeRecord($6);
 																							freeRecord($8);
-																							$$ = createRecord(s2, "");
+																							$$ = createRecord(s3, "");
+																							count_label++;
+																							free(s3);
 																							free(s2);
 																							free(s1);
 																						}
 		;
 
-else_if_stmt : ELSE_IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {	char *s = cat("if(", $3->code, "){\n", $6->code, "\n} ");
+else_if_stmt : ELSE_IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {	char str[20];
+																						sprintf(str, "%d", count_label);
+
+																						char * label = cat("conditionOk", str, "", "", "");
+
+																						char *s1 = cat("if(", $3->code, "){\n", $6->code, " goto ");
+																						char *s2 = cat(s1, label, ";", " \n}", "");
 																						freeRecord($3);
 																						freeRecord($6);
-																						$$ = createRecord(s, "");
-																						free(s);
+																						$$ = createRecord(s2, "");
+																						free(s2);
+																						free(s1);
 																					 }
 			 | else_if_stmt else_if_stmt {	char *s = cat($1->code, $2->code, "", "", "");
 			 								freeRecord($1);

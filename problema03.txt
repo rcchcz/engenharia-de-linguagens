@@ -1,0 +1,86 @@
+void exibir(int a[100][100], int linhas, int colunas){
+
+    print("A matriz eh:\n");
+
+    for(int i = 0; i<linhas; i++){
+        for(int j = 0; j<colunas; j++){
+            print(a[i][j]);
+        }
+    }
+}
+
+void soma(int a[100][100], int b[100][100], int linhas, int colunas){
+    int c[100][100];
+
+    for(int i = 0; i < linhas; i++){
+        for(int j = 0; j < colunas; j++){
+            c[i][j] = a[i][j] + b[i][j];
+        }
+    }
+
+    exibir(c, linhas, colunas);
+}
+
+void multiplicar(int a[100][100], int linhasA, int colunasA, int b[100][100], int linhaB, int colunasB){
+    int c[100][100];
+    for(int i=0; i<linhasA; i++){
+        for(int j=0; j<colunasB; j++){
+            c[i][j] = 0;
+            for(int k = 0; k < colunasA; k++){
+                c[i][j] = c[i][j] + a[i][k] * b[k][j];
+            }
+        }
+    }
+
+    exibir(c, linhasA, colunasB);
+}
+
+main(){
+
+    int linha1;
+    int coluna1;
+    int linha2;
+    int coluna2;
+
+    print("Informe a quantidade de linhas da primeira matriz\n");
+    scan(linha1);
+    print("Informe a quantidade de colunas da primeira matriz\n");
+    scan(coluna1);
+    print("Informe a quantidade de linhas da segunda matriz\n");
+    scan(linha2);
+    print("Informe a quantidade de colunas da segunda matriz\n");
+    scan(coluna2);
+
+    int matriz1[100][100];
+    int matriz2[100][100];
+
+    print("Preencha a primeira matriz:\n");
+
+    for(int i = 0; i<linha1; i++){
+        for(int j = 0; j<coluna1; j++){
+            print("Informe um numero\n");
+            scan(matriz1[i][j]);
+        }
+    }
+
+    print("Preencha a segunda matriz:\n");
+
+    for(int k = 0; k<linha2; k++){
+        for(int l = 0; l<coluna2; l++){
+            print("Informe um numero\n");
+            scan(matriz2[k][l]);
+        }
+    }
+
+    if(linha1 != linha2 && coluna1 != coluna2){
+        print("Não é possivel realizar a soma entre essas matrizes\n");
+    }else{
+        soma(matriz1, matriz2, linha1, coluna1);
+    }
+
+    if(coluna1 != linha2){
+        print("Não é possivel realizar a multiplicacao entre essas matrizes\n");
+    }else{
+        multiplicar(matriz1, linha1, coluna1, matriz2, linha2, coluna2);
+    }
+}

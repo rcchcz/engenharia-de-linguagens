@@ -978,7 +978,7 @@ print_stmt: PRINT OPEN_PAREN print_content CLOSE_PAREN SEMI {
 																$$ = createRecord(s, "");
 																free(s);
 															}
-		  | PRINT OPEN_PAREN CLOSE_PAREN SEMI {	char *s = cat("print(\"\\n\");", "", "", "", "");
+		  | PRINT OPEN_PAREN CLOSE_PAREN SEMI {	char *s = cat("printf(\"\\n\");", "", "", "", "");
 		  										$$ = createRecord(s, "");
 												free(s);
 		  									  }
@@ -1064,8 +1064,8 @@ if_stmt : IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {char
 
 																							char * label = cat("conditionOk", str, "", "", "");
 			
-																							char *s1 = cat("if(", $3->code, "){\n", $6->code, "\n} goto ");
-																							char *s2 = cat(s1, label, ";", $8->code, " ");
+																							char *s1 = cat("if(", $3->code, "){\n", $6->code, "goto ");
+																							char *s2 = cat(s1, label, ";\n}", $8->code, " ");
 																							char *s3 = cat(s2, label, ":", "", "");
 																							freeRecord($3);
 																							freeRecord($6);

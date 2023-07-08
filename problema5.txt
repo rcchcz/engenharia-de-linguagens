@@ -1,0 +1,24 @@
+void mdc(int a, int b, int *r){
+    int resto = 0;
+    while(b != 0){
+        resto = a % b;
+        a = b;
+        b = resto;
+    }
+    *r = a;
+}
+
+main(){
+    int init = 0;
+    int n1 = 0;
+    int n2 = 0;
+    int * r = &init;
+
+    print("Digite o primeiro numero:");
+    scan(n1);
+    print("Digite o segundo numero:");
+    scan(n2);
+
+    mdc(n1, n2, r);
+    print(*r);
+}

@@ -73,23 +73,21 @@
 
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
 
-prog : decs_var subprograms principal subprograms { fprintf(yyout, "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n%s\n%s\n%s\n%s", $1->code, $2->code, $3->code, $4->code);
-	 									freeRecord($1);
-										freeRecord($2);
-										freeRecord($3);
-										freeRecord($4);
-	 								  }
-	 | decs_var principal subprograms { fprintf(yyout, "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n%s\n%s\n%s", $1->code, $2->code, $3->code);
+prog : decs_var subprograms principal { fprintf(yyout, "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <stdbool.h>\n%s\n%s\n%s", $1->code, $2->code, $3->code);
 	 									freeRecord($1);
 										freeRecord($2);
 										freeRecord($3);
 	 								  }
-	 | decs_var subprograms principal { fprintf(yyout, "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n%s\n%s\n%s", $1->code, $2->code, $3->code);
-	 									freeRecord($1);
-										freeRecord($2);
-										freeRecord($3);
-	 								  }
-	 | decs_var principal { fprintf(yyout, "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n%s\n%s", $1->code, $2->code);
+	 | subprograms principal {
+								fprintf(yyout, "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <stdbool.h>\n%s\n%s\n%s", $1->code, $2->code, "");
+								freeRecord($1);
+								freeRecord($2);
+							 }
+	 | principal {
+					fprintf(yyout, "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <stdbool.h>\n%s\n%s\n%s", $1->code, "", "");
+					freeRecord($1);
+				 }
+	 | decs_var principal { fprintf(yyout, "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <stdbool.h>\n%s\n%s", $1->code, $2->code);
 							freeRecord($1);
 	 						freeRecord($2);
 	 					  }
@@ -123,7 +121,10 @@ dec_var : type ids SEMI {	add('V', $2->code);
 
 											if(strcmp($1->code, "string") == 0 && strcmp($4->type, "string") == 0){
 												$$ = createRecord(s2, $1->code);
-											} else if(verificar_calculo_numero_float_int($1->code, $4->type)){
+											}else if(strcmp($1->code, "boolean") == 0 && strcmp($4->type, "boolean") == 0){
+												$$ = createRecord(s2, $1->code);
+											}
+											else if(verificar_calculo_numero_float_int($1->code, $4->type)){
 												$$ = createRecord(s2, $1->code);
 											}else {
 												yyerror("Tipos incompativeis");
@@ -308,7 +309,8 @@ dec_var : type ids SEMI {	add('V', $2->code);
 													free(s2);
 													free(s1);
 												}
-		| type_modifier STRUCT ID BLOCK_BEGIN decs_var BLOCK_END SEMI {	add('V', $3);
+		| type_modifier STRUCT ID BLOCK_BEGIN decs_var BLOCK_END SEMI {	insert_type("struct");
+																		add('V', $3);
 																		char *s1 = cat($1->code, " struct ", $3, " {\n", $5->code);
 																		char *s2 = cat(s1, "\n};", "", "", "");
 																		freeRecord($1);
@@ -317,29 +319,34 @@ dec_var : type ids SEMI {	add('V', $2->code);
 																		free(s2);
 																		free(s1);
 																	  }
-		| STRUCT ID BLOCK_BEGIN decs_var BLOCK_END SEMI {	add('V', $2);
+		| STRUCT ID BLOCK_BEGIN decs_var BLOCK_END SEMI {	insert_type("struct");
+															add('V', $2);
 															char *s = cat("struct ", $2, " {\n", $4->code, "\n};");
 															freeRecord($4);
 															$$ = createRecord(s, "struct");
 															free(s);
 														}
-		| type_modifier STRUCT ID BLOCK_BEGIN BLOCK_END SEMI {	add('V', $3);
+		| type_modifier STRUCT ID BLOCK_BEGIN BLOCK_END SEMI {	insert_type("struct");
+																add('V', $3);
 																char *s = cat($1->code ," struct ", $3 ," {", "};");
 																freeRecord($1);
 																$$ = createRecord(s, "struct");
 																free(s);
 															 }
-		| STRUCT ID BLOCK_BEGIN BLOCK_END SEMI {add('V', $2);
+		| STRUCT ID BLOCK_BEGIN BLOCK_END SEMI {insert_type("struct");
+												add('V', $2);
 												char *s = cat("struct", $2 ,"{};", "", "");
 												$$ = createRecord(s, "struct");
 												free(s);
 											   }
-		| STRUCT ID ID SEMI { 	add('V', $3);
+		| STRUCT ID ID SEMI { 	insert_type("struct");
+								add('V', $3);
 								char * s = cat("struct ", $2, " ", $3, ";");
 								$$ = createRecord(s, $2);
 								free(s);
 							}
-		| type_modifier STRUCT ID ID SEMI { add('V', $4);
+		| type_modifier STRUCT ID ID SEMI { insert_type("struct");
+											add('V', $4);
 											char * s1 = cat( $1->code, " struct ", $3, " ", $4);
 											char * s2 = cat(s1, ";", "", "", "");
 											freeRecord($1);
@@ -347,6 +354,25 @@ dec_var : type ids SEMI {	add('V', $2->code);
 											free(s2);
 											free(s1);
 										}
+		| STRUCT ID ID ASSIGN expr SEMI { 	insert_type("struct");
+											add('V', $3);
+											char * s1 = cat("struct ", $2, " ", $3, "=");
+											char * s2 = cat(s1, $5->code, ";", "", "");
+											$$ = createRecord(s2, $2);
+											freeRecord($5);
+											free(s2);
+											free(s1);
+										}
+		| type_modifier STRUCT ID ID ASSIGN expr SEMI { 	insert_type("struct");
+															add('V', $4);
+															char * s1 = cat($1->code ," struct ", $3, " ", $4);
+															char * s2 = cat(s1, "=", $6->code, ";", "");
+															$$ = createRecord(s2, $3);
+															freeRecord($6);
+															freeRecord($1);
+															free(s2);
+															free(s1);
+													  }
 		;
 
 type_modifiers : type_modifier {	char *s = cat($1->code, "", "", "", "");
@@ -368,8 +394,6 @@ type_modifier : CONST {	$$ = createRecord("const", "");
 			  		  }
 			  | ENUM {	$$ = createRecord("enum", "");
 			  		 }
-			  | STRUCT {$$ = createRecord("struct", "");
-			  		   }
 			  ;
 
 type : INT {insert_type("int");
@@ -668,6 +692,12 @@ factor : OPEN_PAREN expr CLOSE_PAREN {	char *s = cat("(", $2->code, ")", "", "")
        | atomo {	$$ = createRecord($1->code, $1->type);
 	   				freeRecord($1);
 	   		   }
+	   | TRUE {
+				$$ = createRecord("true", "boolean");
+	   		  }
+	   | FALSE {
+				$$ = createRecord("false", "boolean");
+	   		   }
 	   | ID INCREMENT{ 	
 						int index = search($1);
 
@@ -765,6 +795,9 @@ assign_def : ID ASSIGN expr SEMI {
 
 									if(strcmp(symbol_table[index].data_type, "string") == 0 && strcmp($3->type, "string") == 0){
 										$$ = createRecord(s, "string");
+									}
+									else if(strcmp(symbol_table[index].data_type, "boolean") == 0 && strcmp($3->type, "boolean") == 0){
+										$$ = createRecord(s, "boolean");
 									} else if(verificar_calculo_numero_float_int(symbol_table[index].data_type, $3->type)){
 										$$ = createRecord(s, tipo_resultado_operacao(symbol_table[index].data_type, $3->type));
 									}else {
@@ -773,6 +806,31 @@ assign_def : ID ASSIGN expr SEMI {
 
 									freeRecord($3);
 									free(s);
+								 }
+			|	ID DOT ID ASSIGN expr SEMI {	
+									
+									int index = search($3);
+
+									if(index == -1){
+										yyerror("Variavel não encontrada");
+									}
+									char *s1 = cat($1, ".", $3, "=", $5->code);
+									char *s2 = cat(s1, ";", "", "", "");
+
+									if(strcmp(symbol_table[index].data_type, "string") == 0 && strcmp($5->type, "string") == 0){
+										$$ = createRecord(s2, "string");
+									}
+									else if(strcmp(symbol_table[index].data_type, "boolean") == 0 && strcmp($5->type, "boolean") == 0){
+										$$ = createRecord(s2, "boolean");
+									} else if(verificar_calculo_numero_float_int(symbol_table[index].data_type, $5->type)){
+										$$ = createRecord(s2, tipo_resultado_operacao(symbol_table[index].data_type, $5->type));
+									}else {
+										yyerror("Tipos incompativeis");
+									}
+
+									freeRecord($5);
+									free(s2);
+									free(s1);
 								 }
            ;	
 
@@ -811,8 +869,8 @@ subprogram : proc { char *s = cat($1->code, "", "", "", "");
 					free(s);
 				  }
 		   | function {	char *s = cat($1->code, "", "", "", "");
+						$$ = createRecord(s, $1->type);
 						freeRecord($1);
-						$$ = createRecord(s, "");
 						free(s);
 		   			  }
 		   ;
@@ -833,32 +891,68 @@ proc : VOID ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {	add('
 																	free(s);
 	 															  }
 	 ;
+	 
 	
 function : type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor SEMI BLOCK_END {	add('F', $2);
 																							char *s1 = cat($1->code, " ", $2, "(", $4->code);
 																							char *s2 = cat(s1, "){\n", $7->code, "\nreturn ", $9->code);
 																							char *s3 = cat(s2, ";\n}", "", "", "");
+																							
+																							$$ = createRecord(s3, $1->code);
 																							freeRecord($1);
 																							freeRecord($4);
 																							freeRecord($7);
 																							freeRecord($9);
-																							$$ = createRecord(s3, "");
 																							free(s3);
 																							free(s2);
 																							free(s1);
 																							
 																						  }
 		 | type ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor SEMI BLOCK_END {add('F', $2);
-																					char *s1 = cat($1->code, " ", $2, "(){\n", $6->code);
-		 																			char *s2 = cat(s1, "\nreturn ", $8->code, ";\n}", "");
-																					freeRecord($1);
-																					freeRecord($6);
-																					freeRecord($8);
-																					$$ = createRecord(s2, "");
-																					free(s2);
-																					free(s1);
-		 																		   }
-         ;
+																						char *s1 = cat($1->code, " ", $2, "(){\n", $6->code);
+																						char *s2 = cat(s1, "\nreturn ", $8->code, ";\n}", "");
+																						
+																						$$ = createRecord(s2, $1->code);
+																						freeRecord($1);
+																						freeRecord($6);
+																						freeRecord($8);
+																						free(s2);
+																						free(s1);
+																					}
+		 | STRUCT ID ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor SEMI BLOCK_END {	
+																							char * s = cat("struct ", $2, "", "", "");
+																							insert_type("struct");
+																							add('F', $3);
+		 																					char *s1 = cat("struct ", $2, " ", $3, "(");
+																							char *s2 = cat(s1, $5->code, "){\n", $8->code, "\nreturn ");
+																							char *s3 = cat(s2, $10->code, ";\n}", "", "");
+																							
+																							$$ = createRecord(s3, s);
+																							freeRecord($5);
+																							freeRecord($8);
+																							freeRecord($10);
+																							free(s3);
+																							free(s2);
+																							free(s1);
+																							free(s);
+																						  }
+		 | STRUCT ID ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor SEMI BLOCK_END {	
+																								char * s = cat("struct ", $2, "", "", "");
+																								insert_type("struct");
+																								add('F', $3);
+																								char *s1 = cat("struct ", $2, " ", $3, "(");
+																								char *s2 = cat(s1, "", "){\n", $7->code, "\nreturn ");
+																								char *s3 = cat(s2, $9->code, ";\n}", "", "");
+																								
+																								$$ = createRecord(s3, s);
+																								freeRecord($7);
+																								freeRecord($9);
+																								free(s3);
+																								free(s2);
+																								free(s1);
+																								free(s);
+																							  }
+	     ;
 
 params : param {char *s = cat($1->code, "", "", "", "");
 				freeRecord($1);
@@ -898,6 +992,12 @@ param : type dims ID {
 					freeRecord($1);
 					free(s);
 			    }
+	  |	STRUCT ID ID {	char * s = cat("struct", " ", $2, " ", $3);	
+						insert_type("struct");
+						add('V', $3);
+						$$ = createRecord(s, "");
+						free(s);
+					 }
 	  ;
 
 stmts : stmt {	char *s = cat($1->code, "", "", "", "");
@@ -1035,7 +1135,6 @@ if_stmt : IF OPEN_PAREN logic_expr CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {char
 																												sprintf(str, "%d", count_label);
 
 																												char * label = cat("conditionOk", str, "", "", "");
-
 																												char *s1 = cat("if(", $3->code, "){\n", $6->code, "goto ");
 																												char *s2 = cat(s1, label, "; \n}", $10->code, "\n");
 																												char *s3 = cat(s2, label, ":", "", "");
@@ -1275,7 +1374,34 @@ dowhile_stmt : DO BLOCK_BEGIN stmts BLOCK_END WHILE OPEN_PAREN logic_expr CLOSE_
 																						   }
              ;
 
-function_call : ID OPEN_PAREN args CLOSE_PAREN SEMI {	
+function_call : ID OPEN_PAREN args CLOSE_PAREN {	
+												int index = search($1);
+
+												char *s = cat($1, "(", $3->code, ")", "");
+
+												freeRecord($3);
+												if(index != -1){
+													$$ = createRecord(s, symbol_table[index].data_type);
+												}else {
+													$$ = createRecord(s, "");
+												}
+												free(s);
+											}
+			| ID OPEN_PAREN CLOSE_PAREN {	
+										int index = search($1);
+
+										char *s = cat($1, "()", "", "", "");
+
+										if(index != -1){
+											$$ = createRecord(s, symbol_table[index].data_type);
+										}else {
+											$$ = createRecord(s, "");
+										}
+										free(s);
+										}
+
+
+			| ID OPEN_PAREN args CLOSE_PAREN SEMI {	
 														int index = search($1);
 
 														char *s = cat($1, "(", $3->code, ");", "");

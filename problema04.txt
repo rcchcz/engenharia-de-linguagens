@@ -72,24 +72,36 @@ struct rationalt divisaoStructs(struct rationalt racional1, struct rationalt rac
 
 main(){
 
-    struct rationalt rational;
+    struct rationalt rationalA;
+    struct rationalt rationalB;
 
-    scan(rational.numerador);
-    scan(rational.denominador);
+    print("Insira o numerador do primeiro rationalt:\n");
+    scan(rationalA.numerador);
+    print("Insira o denominador do primeiro rationalt:\n");
+    scan(rationalA.denominador);
 
-    int res = divisao(rational.numerador, rational.denominador);;
-    print("Resultado divisao de valores: \n");
-    print(res);
+    print("Insira o numerador do segundo rationalt:\n");
+    scan(rationalB.numerador);
+    print("Insira o denominador do segundo rationalt:\n");
+    scan(rationalB.denominador);
 
-    struct rationalt resultadoSoma = soma(rational, rational);;
+    int resA = divisao(rationalA.numerador, rationalA.denominador);;
+    print("Resultado divisao de valores do primeiro rationalt: \n");
+    print(resA);
+
+    int resB = divisao(rationalB.numerador, rationalB.denominador);;
+    print("Resultado divisao de valores do primeiro rationalt: \n");
+    print(resB);
+
+    struct rationalt resultadoSoma = soma(rationalA, rationalB);;
     mostrarRationalt(resultadoSoma);
 
-    struct rationalt resultadoSub = sub(rational, rational);;
+    struct rationalt resultadoSub = sub(rationalA, rationalB);;
     mostrarRationalt(resultadoSub);
 
-    struct rationalt resultadoMult = mult(rational, rational);;
+    struct rationalt resultadoMult = mult(rationalA, rationalB);;
     mostrarRationalt(resultadoMult);
     
-    struct rationalt resultadoDiv = divisaoStructs(rational, rational);;
+    struct rationalt resultadoDiv = divisaoStructs(rationalA, rationalB);;
     mostrarRationalt (resultadoDiv);
 }

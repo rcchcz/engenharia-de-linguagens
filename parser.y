@@ -16,7 +16,9 @@
 	char * cat(char *, char *, char *, char *, char *);
 
 	void add(char symbol, char * id_name);
+	void addWithScope(char symbol, char * id_name, int value_scope, char * function_name);
 	void insert_type(char * type_text);
+	void insert_tag_text(char * text);
 	int search(char *c);
 	void insert_value(char * id, char * value);
 	int verificar_valor_tipo_valido(char * valor, char * tipo);
@@ -24,7 +26,10 @@
 	int isFloat(const char *str);
 	char * tipo_resultado_operacao(char * type1, char * type2);
 	int verificar_calculo_numero_float_int(char * type1, char * type2);
-
+	int verificar_variavel_existe(char * name, char * tag);
+	int verificar_ids_validos(char * ids, char * tag);
+	char ** separarIDs(char * texto, int * tamanho);
+	void processarTexto(char * texto);
 
 	struct dataType {
 		char * id_name;
@@ -32,11 +37,13 @@
 		char * type;
 		int line_no;
 		int scope;
+		char * tag;
 	} symbol_table[40];
 
 	int count = 0;
 	int q;
 	char type[10];
+	char tag_text[50];
 	int count_label = 0;
 	extern int countn;
 	extern int count_block;
@@ -707,7 +714,8 @@ factor : OPEN_PAREN expr CLOSE_PAREN {	char *s = cat("(", $2->code, ")", "", "")
 										freeRecord($2);
 										free(s);
 									 }
-       | atomo {	$$ = createRecord($1->code, $1->type);
+       | atomo {	verificar_ids_validos($1->code, tag_text);
+					$$ = createRecord($1->code, $1->type);
 	   				freeRecord($1);
 	   		   }
 	   | TRUE {
@@ -722,8 +730,8 @@ factor : OPEN_PAREN expr CLOSE_PAREN {	char *s = cat("(", $2->code, ")", "", "")
 						if(index == -1){
 							yyerror("Variavel não encontrada");
 						}
-						
-						
+
+						verificar_ids_validos($1, tag_text);
 
 						if(strcmp(symbol_table[index].data_type, "int") != 0 &&
 								strcmp(symbol_table[index].data_type,"float") != 0 ){
@@ -737,6 +745,8 @@ factor : OPEN_PAREN expr CLOSE_PAREN {	char *s = cat("(", $2->code, ")", "", "")
 	   				 }
 	   | ID DECREMENT{ 	
 						int index = search($1);
+
+						verificar_ids_validos($1, tag_text);
 
 						if(index == -1){
 							yyerror("Variavel não encontrada");
@@ -973,6 +983,7 @@ subprogram : proc { char *s = cat($1->code, "", "", "", "");
 		   ;
 
 proc : VOID ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {	add('P', $2);
+																			insert_tag_text($2);
 																			char *s1 = cat("void ", $2, "(", $4->code, ")");
 																			char *s2 = cat(s1, "{\n", $7->code, "\n}", "");
 																			freeRecord($4);
@@ -982,6 +993,7 @@ proc : VOID ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {	add('
 																			free(s1);
 																		 }
 	 | VOID ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {	add('P', $2);
+																	insert_tag_text($2);
 																	char *s = cat("void ", $2, "(){\n", $6->code, "\n}");
 	 																freeRecord($6);
 																	$$ = createRecord(s, "");
@@ -991,50 +1003,53 @@ proc : VOID ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {	add('
 	 
 	
 function : type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor SEMI BLOCK_END {	add('F', $2);
-																							char *s1 = cat($1->code, " ", $2, "(", $4->code);
-																							char *s2 = cat(s1, "){\n", $7->code, "\nreturn ", $9->code);
-																							char *s3 = cat(s2, ";\n}", "", "", "");
+																									insert_tag_text($2);
+																									char *s1 = cat($1->code, " ", $2, "(", $4->code);
+																									char *s2 = cat(s1, "){\n", $7->code, "\nreturn ", $9->code);
+																									char *s3 = cat(s2, ";\n}", "", "", "");
+																									
+																									$$ = createRecord(s3, $1->code);
+																									freeRecord($1);
+																									freeRecord($4);
+																									freeRecord($7);
+																									freeRecord($9);
+																									free(s3);
+																									free(s2);
+																									free(s1);
+																									
+																								}
+		 | type ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor SEMI BLOCK_END {	add('F', $2);
+		 																					insert_tag_text($2);
+																							char *s1 = cat($1->code, " ", $2, "(){\n", $6->code);
+																							char *s2 = cat(s1, "\nreturn ", $8->code, ";\n}", "");
 																							
-																							$$ = createRecord(s3, $1->code);
+																							$$ = createRecord(s2, $1->code);
 																							freeRecord($1);
-																							freeRecord($4);
-																							freeRecord($7);
-																							freeRecord($9);
-																							free(s3);
-																							free(s2);
-																							free(s1);
-																							
-																						  }
-		 | type ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor SEMI BLOCK_END {add('F', $2);
-																						char *s1 = cat($1->code, " ", $2, "(){\n", $6->code);
-																						char *s2 = cat(s1, "\nreturn ", $8->code, ";\n}", "");
-																						
-																						$$ = createRecord(s2, $1->code);
-																						freeRecord($1);
-																						freeRecord($6);
-																						freeRecord($8);
-																						free(s2);
-																						free(s1);
-																					}
-		 | STRUCT ID ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor SEMI BLOCK_END {	
-																							char * s = cat("struct ", $2, "", "", "");
-																							insert_type("struct");
-																							add('F', $3);
-																							free(s);  
-		 																					char *s1 = cat("struct ", $2, " ", $3, "(");
-																							char *s2 = cat(s1, $5->code, "){\n", $8->code, "\nreturn ");
-																							char *s3 = cat(s2, $10->code, ";\n}", "", "");
-																							
-																							$$ = createRecord(s3, s);
-																							freeRecord($5);
+																							freeRecord($6);
 																							freeRecord($8);
-																							freeRecord($10);
-																							free(s3);
 																							free(s2);
 																							free(s1);
-																							free(s);
-																						  }
+																						 }
+		 | STRUCT ID ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor SEMI BLOCK_END {
+																										insert_tag_text($3);
+																										char * s = cat("struct ", $2, "", "", "");
+																										insert_type("struct");
+																										add('F', $3);
+																										char *s1 = cat("struct ", $2, " ", $3, "(");
+																										char *s2 = cat(s1, $5->code, "){\n", $8->code, "\nreturn ");
+																										char *s3 = cat(s2, $10->code, ";\n}", "", "");
+																										
+																										$$ = createRecord(s3, s);
+																										freeRecord($5);
+																										freeRecord($8);
+																										freeRecord($10);
+																										free(s3);
+																										free(s2);
+																										free(s1);
+																										free(s);
+																									 }
 		 | STRUCT ID ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor SEMI BLOCK_END {	
+																								insert_tag_text($3);
 																								char * s = cat("struct ", $2, "", "", "");
 																								insert_type("struct");
 																								add('F', $3);
@@ -1051,6 +1066,7 @@ function : type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor
 																								free(s);
 																							  }
 		 | STRUCT ID MULT ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor SEMI BLOCK_END {	
+																											insert_tag_text($4);
 																											char * s = cat("struct ", $2, "", "", "");
 																											insert_type("struct");
 																											add('F', $4);
@@ -1067,22 +1083,23 @@ function : type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor
 																											free(s1);
 																											free(s);
 																										  }
-		 | STRUCT ID MULT ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor SEMI BLOCK_END {	
-																								char * s = cat("struct ", $2, "", "", "");
-																								insert_type("struct");
-																								add('F', $4);
-																								char *s1 = cat("struct ", $2, " * ", $4, "(");
-																								char *s2 = cat(s1, "", "){\n", $8->code, "\nreturn ");
-																								char *s3 = cat(s2, $10->code, ";\n}", "", "");
-																								
-																								$$ = createRecord(s3, s);
-																								freeRecord($8);
-																								freeRecord($10);
-																								free(s3);
-																								free(s2);
-																								free(s1);
-																								free(s);
-																							  }
+		 | STRUCT ID MULT ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor SEMI BLOCK_END {
+																									insert_tag_text($4);	
+																									char * s = cat("struct ", $2, "", "", "");
+																									insert_type("struct");
+																									add('F', $4);
+																									char *s1 = cat("struct ", $2, " * ", $4, "(");
+																									char *s2 = cat(s1, "", "){\n", $8->code, "\nreturn ");
+																									char *s3 = cat(s2, $10->code, ";\n}", "", "");
+																									
+																									$$ = createRecord(s3, s);
+																									freeRecord($8);
+																									freeRecord($10);
+																									free(s3);
+																									free(s2);
+																									free(s1);
+																									free(s);
+																								   }
 	     ;
 
 params : param {char *s = cat($1->code, "", "", "", "");
@@ -1597,14 +1614,17 @@ arg : ids {	char *s = cat($1->code,"","","","");
 	 	  }
 	;
 
-principal : MAIN OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {add('M', "main");
+principal : MAIN OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {
+																			insert_tag_text("main");
+																			add('M', "main");
 																			char *s = cat("int main(", $3->code, "){\n", $6->code, "\nreturn 0;\n}");
 																			freeRecord($3);
 																			freeRecord($6);
 																			$$ = createRecord(s, "");
 																			free(s);
 																		   }
-		  | MAIN OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END	{	add('M', "main");
+		  | MAIN OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END	{	insert_tag_text("main");
+																		add('M', "main");
 																		char *s = cat("int main(){\n", $5->code, "\nreturn 0;\n}", "", "");
 		  																freeRecord($5);
 																		$$ = createRecord(s, "");
@@ -1631,16 +1651,17 @@ int main (int argc, char ** argv) {
     fclose(yyout);
 
 	printf("\nSymble Table \n");
-	printf("\nSYMBOL	DATATYPE	TYPE	LINE NUMBER 	SCOPE \n");
-	printf("______________________________________________________\n\n");
+	printf("\nSYMBOL	DATATYPE	TYPE	LINE NUMBER 	SCOPE		TAG\n");
+	printf("________________________________________________________________\n\n");
 	int i = 0;
 	for(i = 0; i < count; i++){
-		printf("%s\t%s\t\t%s\t%d\t%d\t\n", 
+		printf("%s\t%s\t\t%s\t%d\t%d\t%s\t\n", 
 			symbol_table[i].id_name, 
 			symbol_table[i].data_type, 
 			symbol_table[i].type,
 			symbol_table[i].line_no,
-			symbol_table[i].scope);
+			symbol_table[i].scope,
+			symbol_table[i].tag);
 	}
 
 	for(i = 0; i < count; i++){
@@ -1677,8 +1698,29 @@ int search(char *type) {
 	int i;
 	for(i=count-1; i>=0; i--) {
 		if(strcmp(symbol_table[i].id_name, type) == 0) {
+			if(strcmp(symbol_table[i].type, "Variable") == 0){
+				if((strcmp(symbol_table[i].tag, tag_text) == 0) || (strcmp(symbol_table[i].tag, "global") == 0)){
+					return i;
+				}else {
+					return -1;
+				}
+			}
 			return i;
 			break;
+		}
+	}
+
+	return -1;
+}
+
+int verificar_variavel_existe(char * name, char * tag) {
+	int i;
+	for(i=count-1; i>=0; i--) {
+		if(strcmp(symbol_table[i].id_name, name) == 0	
+			&& (strcmp(symbol_table[i].tag, tag) == 0 || strcmp(symbol_table[i].tag, "global") == 0)) {
+				return i;
+				break;
+				
 		}
 	}
 
@@ -1694,6 +1736,7 @@ void add(char symbol, char * id_name){
 			symbol_table[count].line_no = countn;
 			symbol_table[count].type = strdup("Header");
 			symbol_table[count].scope = count_block;
+			symbol_table[count].tag = strdup("N/A");
 			count++;
 		} else if(symbol == 'K'){
 			symbol_table[count].id_name = strdup(id_name);
@@ -1701,6 +1744,7 @@ void add(char symbol, char * id_name){
 			symbol_table[count].line_no = countn;
 			symbol_table[count].type = strdup("Keyword\t");
 			symbol_table[count].scope = count_block;
+			symbol_table[count].tag = strdup("N/A");
 			count++;
 		} else if(symbol == 'V'){
 			symbol_table[count].id_name = strdup(id_name);
@@ -1708,6 +1752,12 @@ void add(char symbol, char * id_name){
 			symbol_table[count].line_no = countn;
 			symbol_table[count].type = strdup("Variable");
 			symbol_table[count].scope = count_block;
+			if(strcmp(tag_text,"")!=0){
+				symbol_table[count].tag = strdup(tag_text);
+			}else {
+				insert_tag_text("global");
+				symbol_table[count].tag = strdup(tag_text);
+			}
 			count++;
 		} else if(symbol == 'F'){
 			symbol_table[count].id_name = strdup(id_name);
@@ -1715,6 +1765,7 @@ void add(char symbol, char * id_name){
 			symbol_table[count].line_no = countn;
 			symbol_table[count].type = strdup("Function");
 			symbol_table[count].scope = count_block;
+			symbol_table[count].tag = strdup("N/A");
 			count++;
 		} else if(symbol == 'P'){
 			symbol_table[count].id_name = strdup(id_name);
@@ -1722,6 +1773,7 @@ void add(char symbol, char * id_name){
 			symbol_table[count].line_no = countn;
 			symbol_table[count].type = strdup("Procedure");
 			symbol_table[count].scope = count_block;
+			symbol_table[count].tag = strdup("N/A");
 			count++;
 		} else if(symbol == 'M'){
 			symbol_table[count].id_name = strdup(id_name);
@@ -1729,6 +1781,67 @@ void add(char symbol, char * id_name){
 			symbol_table[count].line_no = countn;
 			symbol_table[count].type = strdup("Main");
 			symbol_table[count].scope = count_block;
+			symbol_table[count].tag = strdup("N/A");
+			count++;
+		}
+	}
+}
+
+void addWithScope(char symbol, char * id_name, int value_scope, char * function_name){
+	q=search(id_name);
+	if(q == -1) {
+		if(symbol == 'H'){
+			symbol_table[count].id_name = strdup(id_name);
+			symbol_table[count].data_type = strdup(type);
+			symbol_table[count].line_no = countn;
+			symbol_table[count].type = strdup("Header");
+			symbol_table[count].scope = value_scope;
+			symbol_table[count].tag = strdup("N/A");
+			count++;
+		} else if(symbol == 'K'){
+			symbol_table[count].id_name = strdup(id_name);
+			symbol_table[count].data_type = strdup("N/A");
+			symbol_table[count].line_no = countn;
+			symbol_table[count].type = strdup("Keyword\t");
+			symbol_table[count].scope = value_scope;
+			symbol_table[count].tag = strdup("N/A");
+			count++;
+		} else if(symbol == 'V'){
+			symbol_table[count].id_name = strdup(id_name);
+			symbol_table[count].data_type = strdup(type);
+			symbol_table[count].line_no = countn;
+			symbol_table[count].type = strdup("Variable");
+			symbol_table[count].scope = value_scope;
+			if(strcmp(tag_text,"")!=0){
+				symbol_table[count].tag = strdup(tag_text);
+			}else {
+				insert_tag_text("global");
+				symbol_table[count].tag = strdup(tag_text);
+			}
+			count++;
+		} else if(symbol == 'F'){
+			symbol_table[count].id_name = strdup(id_name);
+			symbol_table[count].data_type = strdup(type);
+			symbol_table[count].line_no = countn;
+			symbol_table[count].type = strdup("Function");
+			symbol_table[count].scope = value_scope;
+			symbol_table[count].tag = strdup("N/A");
+			count++;
+		} else if(symbol == 'P'){
+			symbol_table[count].id_name = strdup(id_name);
+			symbol_table[count].data_type = strdup("N/A");
+			symbol_table[count].line_no = countn;
+			symbol_table[count].type = strdup("Procedure");
+			symbol_table[count].scope = value_scope;
+			symbol_table[count].tag = strdup("N/A");
+			count++;
+		} else if(symbol == 'M'){
+			symbol_table[count].id_name = strdup(id_name);
+			symbol_table[count].data_type = strdup("N/A");
+			symbol_table[count].line_no = countn;
+			symbol_table[count].type = strdup("Main");
+			symbol_table[count].scope = value_scope;
+			symbol_table[count].tag = strdup("N/A");
 			count++;
 		}
 	}
@@ -1736,6 +1849,10 @@ void add(char symbol, char * id_name){
 
 void insert_type(char * type_text){
 	strcpy(type, type_text);
+}
+
+void insert_tag_text(char * text){
+	strcpy(tag_text, text);
 }
 
 int verificar_valor_tipo_valido(char * valor, char * tipo){
@@ -1802,5 +1919,85 @@ char * tipo_resultado_operacao(char * type1, char * type2){
 		return "float";
 	} else {
 		return "";
+	}
+}
+
+int verificar_ids_validos(char * ids, char * tag){
+
+	int tamanho;
+
+	char** idsEncontrados = separarIDs(ids, &tamanho);
+
+	for(int i = 0; i<tamanho; i++){
+		processarTexto(idsEncontrados[i]);
+		if(verificar_variavel_existe(idsEncontrados[i], tag_text) == -1){
+			yyerror("Variavel não encontrada nesse escopo");
+		}
+	}
+
+	for(int i = 0; i<tamanho; i++){
+		free(idsEncontrados[i]);
+	}
+	free(idsEncontrados);
+
+	return 0;
+}
+
+char ** separarIDs(char * texto, int * tamanho){
+	int tamanhoMaximo = 10;
+	char ** vetorIDs = (char**) malloc(tamanhoMaximo * sizeof(char*));
+
+	char * tokenID = strtok(texto, ",");
+	int contador = 0;
+
+	while(tokenID != NULL) {
+		vetorIDs[contador] = strdup(tokenID);
+		contador++;
+
+		if(contador >= tamanhoMaximo) {
+			tamanhoMaximo *= 2;
+			vetorIDs = (char**) realloc(vetorIDs, tamanhoMaximo * sizeof(char*));
+		}
+
+		tokenID = strtok(NULL, ",");
+	}
+
+	*tamanho = contador;
+
+	return vetorIDs;
+}
+
+void processarTexto(char * texto){
+	char * removerChars = "*&()";
+	char * ptr = texto;
+	int idx = 0;
+
+	while(*ptr){
+		if(strchr(removerChars, *ptr) == NULL){
+			texto[idx++] = *ptr;
+		}
+		ptr++;
+	}
+	texto[idx] = '\0';
+
+	char* seta = strstr(texto, "->");
+	
+	if(seta != NULL){
+		*seta = '\0';
+	}
+
+	char * ponto = strstr(texto, ".");
+	if(ponto != NULL){
+		*ponto = '\0';
+	}
+
+	char * abertura = strchr(texto, '[');
+
+	while (abertura != NULL) {
+		char * fechamento = strchr(abertura, ']');
+		if(fechamento != NULL) {
+			memmove(abertura, fechamento + 1, strlen(fechamento));
+		}
+		abertura = strchr(texto, '[');
 	}
 }

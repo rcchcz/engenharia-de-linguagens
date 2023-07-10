@@ -24,7 +24,7 @@
 "char"                            {return(CHAR);}
 "string"                          {return(STRING);}
 "boolean"                         {return(BOOLEAN);}
-"NULL"                            {return(NULL_VALUE);}
+"null"                            {return(NULL_VALUE);}
 "void"                            {return(VOID);}
 "struct"                          {return(STRUCT);}
 "enum"                            {return(ENUM);}
@@ -48,6 +48,8 @@
 "main"                            {return(MAIN);}
 "scan"                            {return(SCAN);}
 "print"                           {return(PRINT);}
+"malloc"                          {return(MALLOC);}
+"free"                            {return(FREE);}
 
 "("                               {return(OPEN_PAREN);}
 ")"                               {return(CLOSE_PAREN);}

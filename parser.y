@@ -807,6 +807,29 @@ assign_def : ID ASSIGN expr SEMI {
 									freeRecord($3);
 									free(s);
 								 }
+			|	MULT ID ASSIGN expr SEMI {	
+										int index = search($2);
+
+										if(index == -1){
+											yyerror("Variavel não encontrada");
+										}
+										
+										char *s = cat("*", $2, "=", $4->code, ";");
+
+										if(strcmp(symbol_table[index].data_type, "string") == 0 && strcmp($4->type, "string") == 0){
+											$$ = createRecord(s, "string");
+										}
+										else if(strcmp(symbol_table[index].data_type, "boolean") == 0 && strcmp($4->type, "boolean") == 0){
+											$$ = createRecord(s, "boolean");
+										} else if(verificar_calculo_numero_float_int(symbol_table[index].data_type, $4->type)){
+											$$ = createRecord(s, tipo_resultado_operacao(symbol_table[index].data_type, $4->type));
+										}else {
+											yyerror("Tipos incompativeis");
+										}
+
+										freeRecord($4);
+										free(s);
+								 	}
 			|	ID DOT ID ASSIGN expr SEMI {	
 									
 									int index = search($3);
@@ -995,9 +1018,15 @@ param : type dims ID {
 	  |	STRUCT ID ID {	char * s = cat("struct", " ", $2, " ", $3);	
 						insert_type("struct");
 						add('V', $3);
-						$$ = createRecord(s, "");
+						$$ = createRecord(s, $2);
 						free(s);
 					 }
+	  | type MULT ID {	char *s = cat($1->code, " *", $3, "", "");
+						add('V', $3);
+						$$ = createRecord(s, $1->code);
+						freeRecord($1);
+						free(s);
+	 				 }
 	  ;
 
 stmts : stmt {	char *s = cat($1->code, "", "", "", "");

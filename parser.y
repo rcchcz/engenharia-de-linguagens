@@ -56,9 +56,9 @@
 %token <sValue> FLOAT_NUMBER
 %token <sValue> STRING_VALUE
 %token INT DOUBLE FLOAT CHAR STRING BOOLEAN NULL_VALUE VOID STRUCT ENUM TRUE FALSE
-%token WHILE DO SWITCH CASE DEFAULT IF ELSE ELSE_IF FOR CONTINUE BREAK CONST STATIC RETURN MAIN SCAN PRINT
+%token WHILE DO SWITCH CASE DEFAULT IF ELSE ELSE_IF FOR CONTINUE BREAK CONST STATIC RETURN MAIN SCAN PRINT MALLOC FREE
 %token OPEN_PAREN CLOSE_PAREN OPEN_BRACK CLOSE_BRACK BLOCK_BEGIN BLOCK_END SEMI COLON DOT COMMA AMPERSAND
-%token PLUS MINUS DIV MULT INCREMENT DECREMENT MODULE ASSIGN ADD_ASSIGN SUB_ASSIGN
+%token PLUS MINUS DIV MULT INCREMENT DECREMENT MODULE ASSIGN ADD_ASSIGN SUB_ASSIGN 
 %token EQ NEQ LT GT LE GE
 %token AND OR NOT
 
@@ -66,7 +66,7 @@
 %type <rec> type_modifier atomo value expr term factor function_call assign_def assign_mat
 %type <rec> subprogram proc function params stmts param stmt conditional_stmt iteration_stmt
 %type <rec> if_stmt switch_stmt logic_expr else_if_stmt logic_op c_term comp comp_op 
-%type <rec> switch_cases while_stmt for_stmt dowhile_stmt args arg print_content print_stmt scan_stmt
+%type <rec> switch_cases while_stmt for_stmt dowhile_stmt args arg print_content print_stmt scan_stmt fre_stmt
 
 %start prog
 
@@ -345,6 +345,12 @@ dec_var : type ids SEMI {	add('V', $2->code);
 								$$ = createRecord(s, $2);
 								free(s);
 							}
+		| STRUCT ID MULT ID SEMI { 	insert_type("struct");
+									add('V', $4);
+									char * s = cat("struct ", $2, " * ", $4, ";");
+									$$ = createRecord(s, $2);
+									free(s);
+		}
 		| type_modifier STRUCT ID ID SEMI { insert_type("struct");
 											add('V', $4);
 											char * s1 = cat( $1->code, " struct ", $3, " ", $4);
@@ -363,6 +369,15 @@ dec_var : type ids SEMI {	add('V', $2->code);
 											free(s2);
 											free(s1);
 										}
+		| STRUCT ID MULT ID ASSIGN expr SEMI { 	insert_type("struct");
+												add('V', $4);
+												char * s1 = cat("struct ", $2, " * ", $4, "=");
+												char * s2 = cat(s1, $6->code, ";", "", "");
+												$$ = createRecord(s2, $2);
+												freeRecord($6);
+												free(s2);
+												free(s1);
+											 }
 		| type_modifier STRUCT ID ID ASSIGN expr SEMI { 	insert_type("struct");
 															add('V', $4);
 															char * s1 = cat($1->code ," struct ", $3, " ", $4);
@@ -422,9 +437,6 @@ ids : atomo {	char *s = cat($1->code, "", "", "", "");
 				free(s);
 			}
 	| ids COMMA atomo {	
-						if(strcmp($1->type, $3->type) != 0){
-							yyerror("Não pode ter ids juntos com tipos diferentes");
-						}
 						char *s = cat($1->code, ",", $3->code, "", "");
 
 						$$ = createRecord(s, $1->type);
@@ -433,10 +445,6 @@ ids : atomo {	char *s = cat($1->code, "", "", "", "");
 						free(s);
 					  }
     | atomo COMMA p_values {
-							if(strcmp($1->type, $3->type) != 0){
-								yyerror("Não pode ter ids juntos com tipos diferentes");
-							}
-		
 							char *s = cat($1->code, ",", $3->code, "", "");
 							
 							$$ = createRecord(s, $1->type);
@@ -505,6 +513,16 @@ atomo : ID {
 					}
 					free(s);
 	  			  }
+	  | MULT ID DOT ID {int index = search($4);
+						char *s = cat("", $2, "->", $4, "");
+
+						if(index == -1){
+							$$ = createRecord(s, "");
+						}else{
+							$$ = createRecord(s, symbol_table[index].data_type);
+						}
+						free(s);
+	  				   }
 	  ;
 
 dims : OPEN_BRACK CLOSE_BRACK {	char *s = cat("[", "]", "", "", "");
@@ -735,7 +753,11 @@ factor : OPEN_PAREN expr CLOSE_PAREN {	char *s = cat("(", $2->code, ")", "", "")
 						free(s);
 	   				 }
 	   | function_call {char *s = cat($1->code, "", "", "", "");
-						$$ = createRecord(s, $1->type);
+						if(strcmp($1->type, "")==0){
+							$$ = createRecord(s, "null");
+						}else{
+							$$ = createRecord(s, $1->type);
+						}
 						freeRecord($1);	 
 						free(s);
 	   				   }
@@ -744,6 +766,18 @@ factor : OPEN_PAREN expr CLOSE_PAREN {	char *s = cat("(", $2->code, ")", "", "")
 				freeRecord($1);
 				free(s);
 	   		   }
+	   | OPEN_PAREN type CLOSE_PAREN MALLOC OPEN_PAREN type CLOSE_PAREN {	char *s = cat( "(", $2->code ,") malloc(sizeof(", $6->code, "))");
+	   																		$$ = createRecord(s, $2->type);
+																			freeRecord($2);
+																			freeRecord($6);
+																			free(s);
+	   																	}
+	   | OPEN_PAREN STRUCT ID MULT CLOSE_PAREN MALLOC OPEN_PAREN STRUCT ID CLOSE_PAREN {	char * s = cat("struct ", $3, " *", "", "");
+																							char *s1 = cat("(struct ", $3, " *) malloc(sizeof(struct ", $9, "))");
+																							$$ = createRecord(s1, "");
+																							free(s);
+																							free(s1);
+																					   }
 	   ;
 value : INT_NUMBER {char *s = cat($1,"","","","");
 					$$ = createRecord(s, "int");
@@ -795,6 +829,10 @@ assign_def : ID ASSIGN expr SEMI {
 
 									if(strcmp(symbol_table[index].data_type, "string") == 0 && strcmp($3->type, "string") == 0){
 										$$ = createRecord(s, "string");
+									}else if(strcmp(symbol_table[index].data_type, $3->type) == 0){
+										$$ = createRecord(s, symbol_table[index].data_type);
+									}else if(strcmp($3->type, "null")==0){
+										$$ = createRecord(s, symbol_table[index].data_type);
 									}
 									else if(strcmp(symbol_table[index].data_type, "boolean") == 0 && strcmp($3->type, "boolean") == 0){
 										$$ = createRecord(s, "boolean");
@@ -816,7 +854,11 @@ assign_def : ID ASSIGN expr SEMI {
 										
 										char *s = cat("*", $2, "=", $4->code, ";");
 
-										if(strcmp(symbol_table[index].data_type, "string") == 0 && strcmp($4->type, "string") == 0){
+										if(strcmp(symbol_table[index].data_type, $4->type) == 0){
+											$$ = createRecord(s, symbol_table[index].data_type);
+										}else if(strcmp($4->type, "null")==0){
+											$$ = createRecord(s, symbol_table[index].data_type);
+										}else if(strcmp(symbol_table[index].data_type, "string") == 0 && strcmp($4->type, "string") == 0){
 											$$ = createRecord(s, "string");
 										}
 										else if(strcmp(symbol_table[index].data_type, "boolean") == 0 && strcmp($4->type, "boolean") == 0){
@@ -840,7 +882,11 @@ assign_def : ID ASSIGN expr SEMI {
 									char *s1 = cat($1, ".", $3, "=", $5->code);
 									char *s2 = cat(s1, ";", "", "", "");
 
-									if(strcmp(symbol_table[index].data_type, "string") == 0 && strcmp($5->type, "string") == 0){
+									if(strcmp(symbol_table[index].data_type, $5->type) == 0){
+										$$ = createRecord(s2, symbol_table[index].data_type);
+									}else if(strcmp($5->type, "null")==0){
+										$$ = createRecord(s2, symbol_table[index].data_type);
+									}else if(strcmp(symbol_table[index].data_type, "string") == 0 && strcmp($5->type, "string") == 0){
 										$$ = createRecord(s2, "string");
 									}
 									else if(strcmp(symbol_table[index].data_type, "boolean") == 0 && strcmp($5->type, "boolean") == 0){
@@ -855,6 +901,34 @@ assign_def : ID ASSIGN expr SEMI {
 									free(s2);
 									free(s1);
 								 }
+			|	MULT ID DOT ID ASSIGN expr SEMI {	int index = search($4);
+
+													if(index == -1){
+														yyerror("Variavel não encontrada");
+													}
+													char *s1 = cat("", $2, "->", $4, "=");
+													char *s2 = cat(s1, $6->code, ";", "", "");
+
+													if(strcmp(symbol_table[index].data_type, $6->type) == 0){
+														$$ = createRecord(s2, symbol_table[index].data_type);
+													}else if(strcmp($6->type, "null")==0){
+														$$ = createRecord(s2, symbol_table[index].data_type);
+													}
+													else if(strcmp(symbol_table[index].data_type, "string") == 0 && strcmp($6->type, "string") == 0){
+														$$ = createRecord(s2, "string");
+													}
+													else if(strcmp(symbol_table[index].data_type, "boolean") == 0 && strcmp($6->type, "boolean") == 0){
+														$$ = createRecord(s2, "boolean");
+													} else if(verificar_calculo_numero_float_int(symbol_table[index].data_type, $6->type)){
+														$$ = createRecord(s2, tipo_resultado_operacao(symbol_table[index].data_type, $6->type));
+													}else {
+														yyerror("Tipos incompativeis");
+													}
+
+													freeRecord($6);
+													free(s2);
+													free(s1);
+												}
            ;	
 
 assign_mat : ID dims ASSIGN expr SEMI {	char *s = cat($1, $2->code, "=", $4->code, ";");
@@ -946,6 +1020,7 @@ function : type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor
 																							char * s = cat("struct ", $2, "", "", "");
 																							insert_type("struct");
 																							add('F', $3);
+																							free(s);  
 		 																					char *s1 = cat("struct ", $2, " ", $3, "(");
 																							char *s2 = cat(s1, $5->code, "){\n", $8->code, "\nreturn ");
 																							char *s3 = cat(s2, $10->code, ";\n}", "", "");
@@ -970,6 +1045,39 @@ function : type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor
 																								$$ = createRecord(s3, s);
 																								freeRecord($7);
 																								freeRecord($9);
+																								free(s3);
+																								free(s2);
+																								free(s1);
+																								free(s);
+																							  }
+		 | STRUCT ID MULT ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor SEMI BLOCK_END {	
+																											char * s = cat("struct ", $2, "", "", "");
+																											insert_type("struct");
+																											add('F', $4);
+																											char *s1 = cat("struct ", $2, " * ", $4, "(");
+																											char *s2 = cat(s1, $6->code, "){\n", $9->code, "\nreturn ");
+																											char *s3 = cat(s2, $11->code, ";\n}", "", "");
+																											
+																											$$ = createRecord(s3, s);
+																											freeRecord($6);
+																											freeRecord($9);
+																											freeRecord($11);
+																											free(s3);
+																											free(s2);
+																											free(s1);
+																											free(s);
+																										  }
+		 | STRUCT ID MULT ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor SEMI BLOCK_END {	
+																								char * s = cat("struct ", $2, "", "", "");
+																								insert_type("struct");
+																								add('F', $4);
+																								char *s1 = cat("struct ", $2, " * ", $4, "(");
+																								char *s2 = cat(s1, "", "){\n", $8->code, "\nreturn ");
+																								char *s3 = cat(s2, $10->code, ";\n}", "", "");
+																								
+																								$$ = createRecord(s3, s);
+																								freeRecord($8);
+																								freeRecord($10);
 																								free(s3);
 																								free(s2);
 																								free(s1);
@@ -1021,6 +1129,12 @@ param : type dims ID {
 						$$ = createRecord(s, $2);
 						free(s);
 					 }
+	  |	STRUCT ID MULT ID {	char * s = cat("struct", " ", $2, " * ", $4);	
+							insert_type("struct");
+							add('V', $4);
+							$$ = createRecord(s, $2);
+							free(s);
+						  }
 	  | type MULT ID {	char *s = cat($1->code, " *", $3, "", "");
 						add('V', $3);
 						$$ = createRecord(s, $1->code);
@@ -1078,7 +1192,19 @@ stmt : dec_var {char *s = cat($1->code, "", "", "", "");
 					$$ = createRecord(s, "");
 					free(s);
 	 			  }
+	 | fre_stmt {	char *s = cat($1->code, "", "", "", "");
+	 				freeRecord($1);
+					$$ = createRecord(s, "");
+					free(s);
+	 			}
 	 ;
+
+fre_stmt: FREE OPEN_PAREN atomo CLOSE_PAREN SEMI {
+													char * s = cat("free(", $3->code, ");", "", "");
+													freeRecord($3);
+													$$ = createRecord(s, "");
+													free(s);
+												 }
 
 scan_stmt: SCAN OPEN_PAREN atomo CLOSE_PAREN SEMI {
 												char *s;

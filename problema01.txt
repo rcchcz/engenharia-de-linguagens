@@ -3,11 +3,15 @@ main(){
     float y;
     int c;
 
+    print("Informe o valor de x:\n");
     scan(x);
+    print("Informe o valor de y:\n");
     scan(y);
+    print("Informe o valor de c:\n");
     scan(c);
 
     float resultado = x*x + y + c;
 
+    print("Resultado da operaão x² + y + c, é: ");
     print(resultado);
 }

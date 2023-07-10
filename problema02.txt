@@ -7,7 +7,7 @@ main(){
     int countQuartoIntervalo = 0;
 
     while(numero>=0){
-        print("Informe um numero\n");
+        print("Informe um numero: (Digite um numero negativo para parar)\n");
 
         scan(numero);
 

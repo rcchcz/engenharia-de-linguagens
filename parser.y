@@ -1004,6 +1004,14 @@ proc : VOID ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts BLOCK_END {	add('
 	
 function : type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor SEMI BLOCK_END {	add('F', $2);
 																									insert_tag_text($2);
+																									int index = search($2);
+
+																									if(strcmp(symbol_table[index].data_type, $9->type)!=0){
+																										if(verificar_calculo_numero_float_int(symbol_table[index].data_type, $9->type) == 0){
+																											yyerror("Retorn incompativel com o tipo da funcao");
+																										}
+																									}
+
 																									char *s1 = cat($1->code, " ", $2, "(", $4->code);
 																									char *s2 = cat(s1, "){\n", $7->code, "\nreturn ", $9->code);
 																									char *s3 = cat(s2, ";\n}", "", "", "");
@@ -1020,6 +1028,14 @@ function : type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor
 																								}
 		 | type ID OPEN_PAREN CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor SEMI BLOCK_END {	add('F', $2);
 		 																					insert_tag_text($2);
+																							int index = search($2);
+																							if(strcmp(symbol_table[index].data_type, $8->type)!=0){
+																								if(verificar_calculo_numero_float_int(symbol_table[index].data_type, $8->type) == 0){
+																									yyerror("Retorn incompativel com o tipo da funcao");
+																								}
+																							}
+
+
 																							char *s1 = cat($1->code, " ", $2, "(){\n", $6->code);
 																							char *s2 = cat(s1, "\nreturn ", $8->code, ";\n}", "");
 																							
@@ -1032,9 +1048,18 @@ function : type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor
 																						 }
 		 | STRUCT ID ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor SEMI BLOCK_END {
 																										insert_tag_text($3);
+
 																										char * s = cat("struct ", $2, "", "", "");
 																										insert_type("struct");
 																										add('F', $3);
+																										int index = search($3);
+																										if(strcmp(symbol_table[index].data_type, $10->type)!=0){
+																											if(verificar_calculo_numero_float_int(symbol_table[index].data_type, $10->type) == 0){
+																												yyerror("Retorn incompativel com o tipo da funcao");
+																											}
+																										}
+
+
 																										char *s1 = cat("struct ", $2, " ", $3, "(");
 																										char *s2 = cat(s1, $5->code, "){\n", $8->code, "\nreturn ");
 																										char *s3 = cat(s2, $10->code, ";\n}", "", "");
@@ -1053,6 +1078,12 @@ function : type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor
 																								char * s = cat("struct ", $2, "", "", "");
 																								insert_type("struct");
 																								add('F', $3);
+																								int index = search($3);
+																								if(strcmp(symbol_table[index].data_type, $9->type)!=0){
+																									if(verificar_calculo_numero_float_int(symbol_table[index].data_type, $9->type) == 0){
+																										yyerror("Retorn incompativel com o tipo da funcao");
+																									}
+																								}
 																								char *s1 = cat("struct ", $2, " ", $3, "(");
 																								char *s2 = cat(s1, "", "){\n", $7->code, "\nreturn ");
 																								char *s3 = cat(s2, $9->code, ";\n}", "", "");
@@ -1070,6 +1101,12 @@ function : type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor
 																											char * s = cat("struct ", $2, "", "", "");
 																											insert_type("struct");
 																											add('F', $4);
+																											int index = search($4);
+																											if(strcmp(symbol_table[index].data_type, $11->type)!=0){
+																												if(verificar_calculo_numero_float_int(symbol_table[index].data_type, $11->type) == 0){
+																													yyerror("Retorn incompativel com o tipo da funcao");
+																												}
+																											}
 																											char *s1 = cat("struct ", $2, " * ", $4, "(");
 																											char *s2 = cat(s1, $6->code, "){\n", $9->code, "\nreturn ");
 																											char *s3 = cat(s2, $11->code, ";\n}", "", "");
@@ -1088,6 +1125,12 @@ function : type ID OPEN_PAREN params CLOSE_PAREN BLOCK_BEGIN stmts RETURN factor
 																									char * s = cat("struct ", $2, "", "", "");
 																									insert_type("struct");
 																									add('F', $4);
+																									int index = search($4);
+																									if(strcmp(symbol_table[index].data_type, $10->type)!=0){
+																										if(verificar_calculo_numero_float_int(symbol_table[index].data_type, $10->type) == 0){
+																											yyerror("Retorn incompativel com o tipo da funcao");
+																										}
+																									}
 																									char *s1 = cat("struct ", $2, " * ", $4, "(");
 																									char *s2 = cat(s1, "", "){\n", $8->code, "\nreturn ");
 																									char *s3 = cat(s2, $10->code, ";\n}", "", "");

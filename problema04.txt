@@ -20,7 +20,6 @@ int divisao(int valorA, int valorB){
     }else {
         resultado = valorA/valorB;
     }
-    print(resultado);
     return resultado;
 }
 
@@ -90,18 +89,22 @@ main(){
     print(resA);
 
     int resB = divisao(rationalB.numerador, rationalB.denominador);;
-    print("Resultado divisao de valores do primeiro rationalt: \n");
+    print("Resultado divisao de valores do segundo rationalt: \n");
     print(resB);
 
+    print("Resultado da soma entre dois structs rationalt:\n");
     struct rationalt resultadoSoma = soma(rationalA, rationalB);;
     mostrarRationalt(resultadoSoma);
 
+    print("Resultado da subtracao entre dois structs rationalt:\n");
     struct rationalt resultadoSub = sub(rationalA, rationalB);;
     mostrarRationalt(resultadoSub);
 
+    print("Resultado da multiplicacao entre dois structs rationalt:\n");
     struct rationalt resultadoMult = mult(rationalA, rationalB);;
     mostrarRationalt(resultadoMult);
-    
+
+    print("Resultado da divisão entre dois structs rationalt:\n");
     struct rationalt resultadoDiv = divisaoStructs(rationalA, rationalB);;
     mostrarRationalt (resultadoDiv);
 }

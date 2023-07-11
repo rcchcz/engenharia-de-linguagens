@@ -1,12 +1,15 @@
-void mdc(int a, int b, int *r){
-    int resto = 0;
-    while(b != 0){
-        resto = a % b;
-        a = b;
-        b = resto;
+void mdc(int n, int m, int *r){
+    if(n % m == 0) {
+        *r = m;
+    } else if(m % n == 0){
+        *r = n;
+    } else if(n < m){
+        int resA = m % n;
+        mdc(n,resA,r);
+    } else {
+        int resB = n % m;
+        mdc(m, resB, r);
     }
-    
-    *r = 10;
 }
 
 main(){
@@ -21,6 +24,6 @@ main(){
     scan(n2);
 
     mdc(n1, n2, r);
-    print("Resultado:\n");
+    print("O MDC é:\n");
     print(*r);
 }

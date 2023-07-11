@@ -1,0 +1,152 @@
+struct node {
+    int value;
+    struct node * left;
+    struct node * right;
+};
+
+
+void freeArvore(struct node * node){
+    if(node != null){
+        freeArvore(*node.left);
+        freeArvore(*node.right);
+        free(node);
+    }
+}
+
+void exibirArvoreOrdem(struct node * node){
+    if(node != null){
+        exibirArvoreOrdem(*node.left);
+        print(*node.value);
+        exibirArvoreOrdem(*node.right);
+    }
+}
+
+struct node * criarNode(int value) {
+    struct node * novoNode = (struct node*) malloc(struct node);
+    *novoNode.value = value;
+    *novoNode.left = null;
+    *novoNode.right = null;
+    return novoNode;
+}
+
+struct node * inserir(struct node* node, int value) {
+    if(node == null){
+        node = criarNode(value);;
+    }else {
+        if(value < *node.value){
+            *node.left = inserir(*node.left, value);;
+        }else if(value > *node.value){
+            *node.right = inserir(*node.right, value);;
+        }
+    }
+    return node;
+}
+
+void encontrarChaveMinima(struct node * node, int nivel, int *minChave, int * minNivel) {
+    if(node != null){
+        if(*node.value < *minChave){
+            *minChave = *node.value;
+            *minNivel = nivel;
+        }
+        int novoNivel = nivel + 1;
+        encontrarChaveMinima(*node.left, novoNivel, minChave, minNivel);
+        encontrarChaveMinima(*node.right, novoNivel, minChave, minNivel);
+    }
+}
+
+void encontrarChaveMaxima(struct node * node, int nivel, int *maxChave, int * maxNivel) {
+    if(node != null){
+        if(*node.value > *maxChave){
+            *maxChave = *node.value;
+            *maxNivel = nivel;
+        }
+        int novoNivel = nivel + 1;
+        encontrarChaveMaxima(*node.left, novoNivel, maxChave, maxNivel);
+        encontrarChaveMaxima(*node.right, novoNivel, maxChave, maxNivel);
+    }
+}
+
+int obterAltura(struct node * node){
+    int altura = 0;
+    int alturaEsquerda;
+    int alturaDireita;
+    if(node != null){
+        alturaEsquerda = obterAltura(*node.left);;
+        alturaDireita = obterAltura(*node.right);;
+
+        if(alturaEsquerda > alturaDireita){
+            altura = alturaEsquerda +1;
+        }else {
+            altura = alturaDireita + 1;
+        }
+    }
+    return altura;
+}
+
+void mostrarNivel(struct node * node, int nivel){
+
+    if(node != null){
+        if(nivel == 1){
+            print(*node.value);
+        }else if(nivel > 1){
+            int novoNivel = nivel - 1;
+            mostrarNivel(*node.left, novoNivel);
+            mostrarNivel(*node.right, novoNivel);
+        }
+    }
+}
+
+void mostrarArvore(struct node * node){
+    if(node != null){
+        int altura = obterAltura(node);;
+        print("Arvore completa nivel a nivel:\n");
+        for(int nivel = 0; nivel<altura; nivel++){
+            print("Nivel: ");
+            print(nivel);
+            mostrarNivel(node, nivel);
+        }
+    }
+}
+
+main(){
+    struct node * root = null;
+    int value = 0;
+    print("Insira os valores: (insira um valor negativo para parar)\n");
+
+    while(value>=0){
+        scan(value);
+        if(value >= 0 ){
+            root = inserir(root, value);;
+        }
+    }
+
+    int minChave = 2147483647;
+    int minNivel = value;
+    int maxChave = value;
+    int maxNivel = value;
+    
+    encontrarChaveMinima(root, 1, &minChave, &minNivel);
+    encontrarChaveMaxima(root, 1, &maxChave, &maxNivel);
+
+    print();
+
+    if(minNivel == value){
+        print("A árvore está vazia.\n");
+    }else{
+        print("Chave Minima: ");
+        print(minChave);
+        print("Nivel: ");
+        print(minNivel);
+        print();
+        print("Chave Máxima: ");
+        print(maxChave);
+        print("Nivel: ");
+        print(maxNivel);
+    }
+
+    print();
+
+    mostrarArvore(root);
+
+    freeArvore(root);
+}
